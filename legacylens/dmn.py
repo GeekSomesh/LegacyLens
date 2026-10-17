@@ -32,18 +32,17 @@ class Unexportable(Exception):
 
 # ---------------------------------------------------------------- COBOL -> FEEL
 
-_WRITTEN = {}
-
-
 def _written_record(prog: C.Program, name: str) -> bool:
     """True if any statement writes into the record that holds this field."""
-    if id(prog) not in _WRITTEN:
+    written = prog.__dict__.get("_written_records")
+    if written is None:
         names = set()
         for p in prog.paragraphs:
             for s in R.walk_stmts(p.stmts):
                 names |= set(R.targets_of(s))
-        _WRITTEN[id(prog)] = {prog.fields[n].record for n in names if n in prog.fields}
-    return prog.fields[name].record in _WRITTEN[id(prog)]
+        written = {prog.fields[n].record for n in names if n in prog.fields}
+        prog.__dict__["_written_records"] = written
+    return prog.fields[name].record in written
 
 
 def substitute(node, var: str, value):

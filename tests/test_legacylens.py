@@ -214,3 +214,39 @@ def test_review_audit_chain_detects_tampering(tmp_path, monkeypatch):
     with sqlite3.connect(review.DB) as c:
         c.execute("UPDATE audit SET reviewer = 'eve' WHERE seq = 1")
     assert review.verify() == {"ok": False, "entries": 2, "broken_at": 1}
+
+
+def test_change_impact_credrev_v2():
+    from legacylens import impact
+    old = C.parse_program(SOURCE)
+    new = C.parse_program(ROOT / "cobol" / "CREDREV_v2.cbl")
+    rep = impact.compare(old, new)
+    rep.pop("_rules")
+    assert len(rep["regions"]) == 6 and len(rep["added"]) == 1 and len(rep["unchanged"]) == 1
+    assert all(r["status"] == "sat" and r["example"] for r in rep["regions"])
+
+
+def test_dmn_export_runs_like_the_rules():
+    from legacylens import dmn
+    prog = C.parse_program(SOURCE)
+    _, rules = R.extract(prog)
+    xml = dmn.export(prog, rules)
+    eng = R.Engine(prog, rules)
+    for record in [rec(1, 100000, 3000, 1, 0, 0), rec(2, 50000, 48000, 0, 2, 0), rec(4, 0, 1000, 0, 0, 0),
+                   rec(6, 20000, 100, 0, 3, 5), rec(7, 600000, 1000, 500, 0, 0)]:
+        st = R.State(prog)
+        st.set(C.Ref("IN-REC"), record)
+        env = {dmn.feel_name(k): st.get(C.Ref(k)) for k in R.descendants(prog, "IN-REC")[1:]}
+        out = dmn.evaluate(xml, env)
+        _, actions, _, _ = eng.decide(record)
+        assert {k: str(v).strip() for k, v in out.items()} == {dmn.feel_name(k): v for k, v in actions.items()}
+
+
+def test_z3_value_checks_find_the_credrev_overflow():
+    from legacylens import smt
+    prog = C.parse_program(SOURCE)
+    _, raw = R.extract(prog)
+    _, kept, a = smt.analyse(prog, raw, pairwise=False)
+    risks = {(x["kind"], x["line"]) for r in kept for x in a.store_risks(r.id)}
+    assert ("silent overflow", 46) in risks
+    assert not any(kind == "division by zero" for kind, _ in risks)      # guarded by IF IN-LIMIT = 0

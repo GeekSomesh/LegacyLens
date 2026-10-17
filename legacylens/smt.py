@@ -30,7 +30,7 @@ from . import cobol as C
 from .numeric import NotNumeric, decode, is_numeric_data
 from .rules import Rule, State, cond_text, negate, targets_of
 
-TIMEOUT_MS = 3000
+TIMEOUT_MS = 10000
 
 
 class Unknown(Exception):
