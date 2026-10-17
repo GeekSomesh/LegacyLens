@@ -1,0 +1,44 @@
+{
+  "program": "CREDREV",
+  "rules": 6,
+  "platform": "s390x",
+  "node": "coboldecision",
+  "sets": {
+    "uci_accounts": {
+      "records": 30000,
+      "agree": 30000,
+      "no_rule": 0,
+      "several_rules": 0,
+      "cobol_seconds": 0.05,
+      "engine_seconds": 3.941
+    },
+    "boundaries": {
+      "records": 260,
+      "agree": 260,
+      "no_rule": 0,
+      "several_rules": 0,
+      "cobol_seconds": 0.006,
+      "engine_seconds": 0.033
+    },
+    "random": {
+      "records": 5000,
+      "agree": 5000,
+      "no_rule": 0,
+      "several_rules": 0,
+      "cobol_seconds": 0.009,
+      "engine_seconds": 0.594
+    }
+  },
+  "per_rule": {
+    "RULE-01": 3017,
+    "RULE-02": 2547,
+    "RULE-03": 3392,
+    "RULE-04": 5333,
+    "RULE-05": 9868,
+    "RULE-06": 11103
+  },
+  "examples": [],
+  "agreement": 1.0,
+  "records": 35260,
+  "never_hit": []
+}
