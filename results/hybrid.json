@@ -1,0 +1,317 @@
+{
+  "backend": "nnpa",
+  "thresholds": {
+    "low": 0.129,
+    "high": 0.33
+  },
+  "val": {
+    "accounts": 4500,
+    "default_rate": 0.2211,
+    "policy": {
+      "BLOCK": {
+        "accounts": 77,
+        "defaulted": 56,
+        "default_rate": 0.7273
+      },
+      "DECREASE": {
+        "accounts": 408,
+        "defaulted": 243,
+        "default_rate": 0.5956
+      },
+      "INCREASE": {
+        "accounts": 1531,
+        "defaulted": 199,
+        "default_rate": 0.13
+      },
+      "KEEP": {
+        "accounts": 1497,
+        "defaulted": 266,
+        "default_rate": 0.1777
+      },
+      "REVIEW": {
+        "accounts": 987,
+        "defaulted": 231,
+        "default_rate": 0.234
+      }
+    },
+    "policy_by_band": {
+      "BLOCK/HIGH": {
+        "accounts": 77,
+        "defaulted": 56,
+        "default_rate": 0.7273
+      },
+      "DECREASE/HIGH": {
+        "accounts": 389,
+        "defaulted": 239,
+        "default_rate": 0.6144
+      },
+      "DECREASE/LOW": {
+        "accounts": 1,
+        "defaulted": 0,
+        "default_rate": 0.0
+      },
+      "DECREASE/MEDIUM": {
+        "accounts": 18,
+        "defaulted": 4,
+        "default_rate": 0.2222
+      },
+      "INCREASE/HIGH": {
+        "accounts": 2,
+        "defaulted": 0,
+        "default_rate": 0.0
+      },
+      "INCREASE/LOW": {
+        "accounts": 983,
+        "defaulted": 83,
+        "default_rate": 0.0844
+      },
+      "INCREASE/MEDIUM": {
+        "accounts": 546,
+        "defaulted": 116,
+        "default_rate": 0.2125
+      },
+      "KEEP/HIGH": {
+        "accounts": 240,
+        "defaulted": 112,
+        "default_rate": 0.4667
+      },
+      "KEEP/LOW": {
+        "accounts": 647,
+        "defaulted": 44,
+        "default_rate": 0.068
+      },
+      "KEEP/MEDIUM": {
+        "accounts": 610,
+        "defaulted": 110,
+        "default_rate": 0.1803
+      },
+      "REVIEW/HIGH": {
+        "accounts": 212,
+        "defaulted": 119,
+        "default_rate": 0.5613
+      },
+      "REVIEW/LOW": {
+        "accounts": 241,
+        "defaulted": 22,
+        "default_rate": 0.0913
+      },
+      "REVIEW/MEDIUM": {
+        "accounts": 534,
+        "defaulted": 90,
+        "default_rate": 0.1685
+      }
+    },
+    "changes": {
+      "INCREASE -> HOLD": {
+        "accounts": 548,
+        "defaulted": 116,
+        "default_rate": 0.2117
+      },
+      "KEEP -> REVIEW": {
+        "accounts": 240,
+        "defaulted": 112,
+        "default_rate": 0.4667
+      },
+      "DECREASE -> REVIEW": {
+        "accounts": 1,
+        "defaulted": 0,
+        "default_rate": 0.0
+      }
+    },
+    "limit_increases": {
+      "policy_granted": {
+        "accounts": 1531,
+        "defaulted": 199,
+        "default_rate": 0.13
+      },
+      "hybrid_granted": {
+        "accounts": 983,
+        "defaulted": 83,
+        "default_rate": 0.0844
+      },
+      "hybrid_held": {
+        "accounts": 548,
+        "defaulted": 116,
+        "default_rate": 0.2117
+      },
+      "defaulters_avoided_share": 0.5829
+    },
+    "review_queue": {
+      "URGENT": {
+        "accounts": 212,
+        "defaulted": 119,
+        "default_rate": 0.5613
+      },
+      "NORMAL": {
+        "accounts": 534,
+        "defaulted": 90,
+        "default_rate": 0.1685
+      },
+      "LOW": {
+        "accounts": 241,
+        "defaulted": 22,
+        "default_rate": 0.0913
+      }
+    },
+    "early_warnings": {
+      "accounts": 240,
+      "defaulted": 112,
+      "default_rate": 0.4667
+    }
+  },
+  "test": {
+    "accounts": 4501,
+    "default_rate": 0.2213,
+    "policy": {
+      "BLOCK": {
+        "accounts": 51,
+        "defaulted": 37,
+        "default_rate": 0.7255
+      },
+      "DECREASE": {
+        "accounts": 399,
+        "defaulted": 241,
+        "default_rate": 0.604
+      },
+      "INCREASE": {
+        "accounts": 1500,
+        "defaulted": 175,
+        "default_rate": 0.1167
+      },
+      "KEEP": {
+        "accounts": 1563,
+        "defaulted": 305,
+        "default_rate": 0.1951
+      },
+      "REVIEW": {
+        "accounts": 988,
+        "defaulted": 238,
+        "default_rate": 0.2409
+      }
+    },
+    "policy_by_band": {
+      "BLOCK/HIGH": {
+        "accounts": 51,
+        "defaulted": 37,
+        "default_rate": 0.7255
+      },
+      "DECREASE/HIGH": {
+        "accounts": 383,
+        "defaulted": 238,
+        "default_rate": 0.6214
+      },
+      "DECREASE/LOW": {
+        "accounts": 1,
+        "defaulted": 0,
+        "default_rate": 0.0
+      },
+      "DECREASE/MEDIUM": {
+        "accounts": 15,
+        "defaulted": 3,
+        "default_rate": 0.2
+      },
+      "INCREASE/HIGH": {
+        "accounts": 4,
+        "defaulted": 2,
+        "default_rate": 0.5
+      },
+      "INCREASE/LOW": {
+        "accounts": 952,
+        "defaulted": 75,
+        "default_rate": 0.0788
+      },
+      "INCREASE/MEDIUM": {
+        "accounts": 544,
+        "defaulted": 98,
+        "default_rate": 0.1801
+      },
+      "KEEP/HIGH": {
+        "accounts": 250,
+        "defaulted": 122,
+        "default_rate": 0.488
+      },
+      "KEEP/LOW": {
+        "accounts": 669,
+        "defaulted": 60,
+        "default_rate": 0.0897
+      },
+      "KEEP/MEDIUM": {
+        "accounts": 644,
+        "defaulted": 123,
+        "default_rate": 0.191
+      },
+      "REVIEW/HIGH": {
+        "accounts": 219,
+        "defaulted": 120,
+        "default_rate": 0.5479
+      },
+      "REVIEW/LOW": {
+        "accounts": 232,
+        "defaulted": 35,
+        "default_rate": 0.1509
+      },
+      "REVIEW/MEDIUM": {
+        "accounts": 537,
+        "defaulted": 83,
+        "default_rate": 0.1546
+      }
+    },
+    "changes": {
+      "KEEP -> REVIEW": {
+        "accounts": 250,
+        "defaulted": 122,
+        "default_rate": 0.488
+      },
+      "INCREASE -> HOLD": {
+        "accounts": 548,
+        "defaulted": 100,
+        "default_rate": 0.1825
+      },
+      "DECREASE -> REVIEW": {
+        "accounts": 1,
+        "defaulted": 0,
+        "default_rate": 0.0
+      }
+    },
+    "limit_increases": {
+      "policy_granted": {
+        "accounts": 1500,
+        "defaulted": 175,
+        "default_rate": 0.1167
+      },
+      "hybrid_granted": {
+        "accounts": 952,
+        "defaulted": 75,
+        "default_rate": 0.0788
+      },
+      "hybrid_held": {
+        "accounts": 548,
+        "defaulted": 100,
+        "default_rate": 0.1825
+      },
+      "defaulters_avoided_share": 0.5714
+    },
+    "review_queue": {
+      "URGENT": {
+        "accounts": 219,
+        "defaulted": 120,
+        "default_rate": 0.5479
+      },
+      "NORMAL": {
+        "accounts": 537,
+        "defaulted": 83,
+        "default_rate": 0.1546
+      },
+      "LOW": {
+        "accounts": 232,
+        "defaulted": 35,
+        "default_rate": 0.1509
+      }
+    },
+    "early_warnings": {
+      "accounts": 250,
+      "defaulted": 122,
+      "default_rate": 0.488
+    }
+  }
+}

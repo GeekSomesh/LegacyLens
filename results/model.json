@@ -1,0 +1,45 @@
+{
+  "model": "models/risk_gbm.onnx",
+  "onnx_bytes": 112486,
+  "fit_seconds": 15.7,
+  "thresholds": {
+    "low": 0.129,
+    "high": 0.33
+  },
+  "metrics_test": {
+    "auc": 0.7769,
+    "average_precision": 0.5472,
+    "brier": 0.134,
+    "high_band_precision": 0.5722,
+    "high_band_recall": 0.5211,
+    "test_default_rate": 0.2213
+  },
+  "test_accounts": 4501,
+  "backends": {
+    "onnx_reference": {
+      "max_abs_diff_vs_sklearn": 2.97495426945793e-07,
+      "latency_ms_one_account": 2.5666
+    },
+    "nnpa": {
+      "auc": 0.7769,
+      "max_abs_diff_vs_onnx": 0.01244,
+      "mean_abs_diff_vs_onnx": 5e-06,
+      "band_agreement_vs_onnx": 1.0,
+      "latency_ms_one_account": 0.0146,
+      "latency_ms_test_batch": 29.5484
+    },
+    "cpu": {
+      "auc": 0.7769,
+      "max_abs_diff_vs_onnx": 0.01244,
+      "mean_abs_diff_vs_onnx": 5e-06,
+      "band_agreement_vs_onnx": 1.0,
+      "latency_ms_one_account": 0.0077,
+      "latency_ms_test_batch": 4.7538
+    },
+    "sklearn": {
+      "latency_ms_one_account": 0.1358,
+      "latency_ms_test_batch": 8.527
+    }
+  },
+  "platform": "s390x"
+}
