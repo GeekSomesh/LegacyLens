@@ -7,6 +7,10 @@
   reached by falling through from the start;
 - decision depends on history: a path leaves a decision field unset, so the
   result is whatever an earlier record or call left there.
+
+z3 adds three more (legacylens/smt.py, Analysis.store_risks): a store that can
+lose high-order digits, a negative value stored in an unsigned field, and a
+division that can be reached with a zero divisor.
 """
 from __future__ import annotations
 

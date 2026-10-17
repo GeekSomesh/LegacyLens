@@ -53,8 +53,14 @@ def value_risks(prog, kept, analysis, spec) -> list:
             seen.setdefault((risk["kind"], risk["field"], risk["line"]), risk)
     out = []
     for (kind, field, line), risk in sorted(seen.items(), key=lambda kv: kv[0][2]):
-        f = prog.fields[field]
         ex = {k: v for k, v in (risk["example"] or {}).items()}
+        if kind == "division by zero":
+            shown = ", ".join(f"{k}={v}" for k, v in ex.items() if v is not None)
+            out.append({"kind": kind, "lines": [line],
+                        "message": f"line {line}: a division can be reached with a zero divisor and no ON SIZE ERROR; "
+                                   f"COBOL then leaves the result field unchanged. Example found by z3: {shown}"})
+            continue
+        f = prog.fields[field]
         shown = ", ".join(f"{k.replace('#numeric', ' IS NUMERIC')}={v}" for k, v in ex.items()
                           if v is not None and k not in ("IN-ACCT",))
         what = (f"{field} (PIC {f.pic.text}) can receive a value with more integer digits than it holds; "

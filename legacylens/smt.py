@@ -93,6 +93,7 @@ class Sym:
         self.inputs = {}                    # field key -> symbol of an input value
         self.at_end = {}
         self.stores = []                    # (field, value term before truncation, line, guard)
+        self.divisors = []                  # (divisor term, line, guard, its b != 0 fact)
         self.line = 0
 
     def copy(self):
@@ -100,6 +101,7 @@ class Sym:
         s.numflags = dict(self.numflags)
         s.defs, s.side, s.inputs, s.at_end = list(self.defs), list(self.side), self.inputs, dict(self.at_end)
         s.stores, s.line = list(self.stores), self.line
+        s.divisors = list(self.divisors)
         return s
 
     # symbols
@@ -206,7 +208,9 @@ class Sym:
             if e.op == "*":
                 return ("num", a * b)
             if e.op == "/":
-                self.side.append(b != 0)
+                fact = b != 0
+                self.divisors.append((b, self.line, z3.BoolVal(True), fact))
+                self.side.append(fact)
                 return ("num", a / b)
             raise Unknown(e.op)
         raise Unknown(type(e).__name__)
@@ -436,8 +440,10 @@ class Sym:
         self.vals, self.numflags = merged, flags
         for c, r in results:
             self.stores += [(f, t, line, z3.And(c, g)) for f, t, line, g in r.stores[len(base.stores):]]
+            self.divisors += [(b, line, z3.And(c, g), i) for b, line, g, i in r.divisors[len(base.divisors):]]
         others = z3.Not(z3.Or(*[c for c, _ in results])) if results else z3.BoolVal(True)
         self.stores += [(f, t, line, z3.And(others, g)) for f, t, line, g in rest.stores[len(base.stores):]]
+        self.divisors += [(b, line, z3.And(others, g), i) for b, line, g, i in rest.divisors[len(base.divisors):]]
         for r in [r for _, r in results] + [rest]:
             self.defs += r.defs[len(base.defs):]
             self.side += r.side[len(base.side):]
@@ -586,6 +592,15 @@ class Analysis:
         drops the high-order digits), or a negative value goes into an unsigned field."""
         conds, defs, side, sym = self._parts(rule_id)
         out = []
+        for b, line, guard, fact in sym.divisors:
+            # the path assumed b != 0; can an input reach this division with b = 0?
+            base = [x for x in side if x is not fact]
+            status, values = safe_check(base + conds[:0] + [guard, b == 0], sym.inputs, self.enc.codes)
+            if status == "sat":
+                exact, ex_values = safe_check(base + defs + [guard, b == 0], sym.inputs, self.enc.codes)
+                if exact == "sat":
+                    out.append({"kind": "division by zero", "field": "(divisor)", "line": line, "rule": rule_id,
+                                "example": ex_values, "proof": "z3 model"})
         for f, term, line, guard in sym.stores:
             limit = z3.RealVal(10 ** f.pic.digits)
             checks = [("silent overflow", z3.Or(term >= limit, term <= -limit))]
