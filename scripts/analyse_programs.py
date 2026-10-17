@@ -20,6 +20,8 @@ IBM = ROOT / "samples" / "ibm-zopeneditor"
 PROGRAMS = [
     {"name": "CREDREV", "source": ROOT / "cobol" / "CREDREV.cbl", "copy": [],
      "origin": "Credit line review policy written for LegacyLens", "verification": "verification.json"},
+    {"name": "FRAUDHLD", "source": ROOT / "cobol" / "FRAUDHLD.cbl", "copy": [],
+     "origin": "Card authorisation fraud screen written for LegacyLens", "verification": "fraud_verification.json"},
     {"name": "SAM2", "source": IBM / "COBOL" / "SAM2.cbl", "copy": [IBM / "COPYBOOK"],
      "origin": "IBM zopeneditor-sample (Apache-2.0): customer update subroutine", "verification": "ibm_sam2.json"},
     {"name": "SAM1", "source": IBM / "COBOL" / "SAM1.cbl", "copy": [IBM / "COPYBOOK"],

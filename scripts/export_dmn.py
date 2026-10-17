@@ -82,6 +82,12 @@ def main():
         rng = np.random.default_rng(4)
         if path.stem == "CREDREV":
             recs = [data.to_record(r) for _, r in data.load().iterrows()]
+        elif path.stem == "FRAUDHLD":
+            import random as _r
+            sys.path.insert(0, str(ROOT / "scripts"))
+            from verify_fraud import request
+            g = _r.Random(21)
+            recs = [request(g, i) for i in range(20000)]
         else:
             recs = []
         recs += boundary_records(prog, rules, recs or random_records(prog, rules, 200, rng), rng)

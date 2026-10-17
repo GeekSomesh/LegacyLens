@@ -117,6 +117,13 @@ class Sym:
 
     def read(self, ref: C.Ref):
         f = self.prog.fields[ref.name]
+        if ref.subs and not ref.refmod and f.pic is not None and all(isinstance(x, C.Lit) for x in ref.subs):
+            from .dmn import _written_record
+            if not _written_record(self.prog, f.key):        # element of a constant table
+                v = State(self.prog).get(ref)
+                if f.pic.kind == "num":
+                    return ("num", z3.RealVal(str(v)))
+                return ("txt", z3.IntVal(self.enc.code(str(v))))
         if ref.subs or ref.refmod or f.dims or f.pic is None:
             raise Unknown(ref.name)
         if f.key not in self.vals:
@@ -302,11 +309,34 @@ class Sym:
                         self.inputs.setdefault(g.key, self.vals[g.key])
             elif isinstance(s, (C.Display, C.Continue)):
                 pass
+            elif isinstance(s, C.Perform) and self._unroll(s):
+                pass
             else:
                 for name in self._written(s):
                     self.invalidate(self.prog.fields[name])
                 if isinstance(s, C.Read):
                     self.at_end[s.file] = z3.Bool(f"eof_{s.file}_{next(self.enc.fresh)}")
+
+    def _unroll(self, s: C.Perform) -> bool:
+        """Execute PERFORM VARYING var FROM a BY b UNTIL <test on var> exactly when the
+        bounds are literals (a counted loop): run the body once per value of var."""
+        from .dmn import substitute
+        if not s.varying or s.target or s.test_after or not isinstance(s.varying[1], C.Lit)                 or not isinstance(s.varying[2], C.Lit):
+            return False
+        var, start, step = s.varying
+        k = start.value
+        trial = self.copy()
+        for _ in range(200):
+            c = z3.simplify(trial.formula(substitute(s.until, var.name, k)))
+            if z3.is_true(c):
+                trial.write(var, ("num", z3.RealVal(str(k))))
+                self.__dict__.update(trial.__dict__)
+                return True
+            if not z3.is_false(c):
+                return False
+            trial.execute(substitute(s.body, var.name, k))
+            k += step.value
+        return False
 
     def _written(self, s) -> set:
         out = set()

@@ -19,6 +19,7 @@ from . import rules as R
 
 NS = "https://www.omg.org/spec/DMN/20191111/MODEL/"
 FEEL_NS = "https://www.omg.org/spec/DMN/20191111/FEEL/"
+IDENT = re.compile(r'("(?:[^"\\]|\\.)*")|([A-Za-z_][A-Za-z0-9_]*)')   # a FEEL string, or a name
 
 
 def feel_name(name: str) -> str:
@@ -30,6 +31,34 @@ class Unexportable(Exception):
 
 
 # ---------------------------------------------------------------- COBOL -> FEEL
+
+_WRITTEN = {}
+
+
+def _written_record(prog: C.Program, name: str) -> bool:
+    """True if any statement writes into the record that holds this field."""
+    if id(prog) not in _WRITTEN:
+        names = set()
+        for p in prog.paragraphs:
+            for s in R.walk_stmts(p.stmts):
+                names |= set(R.targets_of(s))
+        _WRITTEN[id(prog)] = {prog.fields[n].record for n in names if n in prog.fields}
+    return prog.fields[name].record in _WRITTEN[id(prog)]
+
+
+def substitute(node, var: str, value):
+    """Copy of an AST node with every plain reference to `var` replaced by a literal."""
+    import dataclasses
+    if isinstance(node, C.Ref) and node.name == var and not node.subs and not node.refmod:
+        return C.Lit(value, str(value))
+    if isinstance(node, list):
+        return [substitute(x, var, value) for x in node]
+    if isinstance(node, tuple):
+        return tuple(substitute(x, var, value) for x in node)
+    if dataclasses.is_dataclass(node) and not isinstance(node, type):
+        return dataclasses.replace(node, **{f.name: substitute(getattr(node, f.name), var, value)
+                                            for f in dataclasses.fields(node)})
+    return node
 
 def fexpr(e, prog) -> str:
     if isinstance(e, C.Lit):
@@ -44,8 +73,14 @@ def fexpr(e, prog) -> str:
             return str(v)
         return '"' + str(v).rstrip().replace('"', '\\"') + '"'
     if isinstance(e, C.Ref):
-        if e.subs or e.refmod:
-            raise Unexportable("subscripts")
+        if e.refmod:
+            raise Unexportable("reference modification")
+        if e.subs:
+            # an element of a table the program never writes is a constant
+            if not all(isinstance(s, C.Lit) for s in e.subs) or _written_record(prog, e.name):
+                raise Unexportable("subscripted variable")
+            v = R.State(prog).get(e)
+            return str(v) if isinstance(v, Decimal) else '"' + str(v).rstrip() + '"'
         return feel_name(e.name)
     if isinstance(e, C.Neg):
         return f"-({fexpr(e.expr, prog)})"
@@ -107,7 +142,32 @@ def derivation(s, prog) -> list:
             e = fexpr(src, prog)
             out.append((t.name, store_expr(f, e) if f.pic.kind == "num" else e))
         return out
+    if isinstance(s, C.Perform) and s.varying and not s.target and isinstance(s.varying[1], C.Lit)             and isinstance(s.varying[2], C.Lit):
+        # unroll a counted loop: PERFORM VARYING I FROM a BY b UNTIL I > n
+        var, start, step = s.varying
+        state = R.State(prog)
+        k, out, guard = start.value, [], 0
+        while True:
+            state.set(var, k)
+            if state.holds(s.until):
+                break
+            for x in substitute(s.body, var.name, k):
+                out += derivation(x, prog)
+            k += step.value
+            guard += 1
+            if guard > 200:
+                raise Unexportable("loop too long to unroll")
+        return out
     if isinstance(s, C.If):
+        if any(isinstance(x, C.Perform) for x in R.walk_stmts(s.then + s.else_)):
+            # a branch with a loop: unroll it into guarded sequential assignments
+            cond = fcond(s.cond, prog)
+            out = []
+            for k, v in [kv for x in s.then for kv in derivation(x, prog)]:
+                out.append((k, f"if {cond} then {v} else {feel_name(k)}"))
+            for k, v in [kv for x in s.else_ for kv in derivation(x, prog)]:
+                out.append((k, f"if {cond} then {feel_name(k)} else {v}"))
+            return out
         then = {k: v for x in s.then for k, v in derivation(x, prog)}
         els = {k: v for x in s.else_ for k, v in derivation(x, prog)}
         cond = fcond(s.cond, prog)
@@ -189,40 +249,51 @@ def export(prog: C.Program, rules: list, kept_index: dict | None = None) -> str:
         el(d, "variable", id=f"c_{n}_v", name=n, typeRef=typ(k))
         le = el(d, "literalExpression", id=f"c_{n}_e")
         ET.SubElement(le, f"{{{NS}}}text").text = fexpr(C.Lit(prog.fields[k].value, str(prog.fields[k].value)), prog)
-    # derived decisions; repeated names (sequential assignments) get numbered versions
-    version, order = {}, []
+    # derived decisions in single-assignment form: a field assigned again gets a new
+    # decision name (FIELD_v2, ...), and later expressions refer to the newest one
+    keywords = {"if", "then", "else", "and", "or", "not", "floor", "ceiling", "modulo", "abs", "true", "false"}
+    input_names = {feel_name(k) for k in inputs}
+    const_names = {feel_name(k) for k in constants}
+    current, count, order = {}, {}, []
+
+    def rename(expr):
+        return IDENT.sub(lambda m: m.group(0) if m.group(1) else current.get(m.group(2), m.group(2)), expr)
+
     for name, e in derived:
         n = feel_name(name)
-        version[n] = version.get(n, 0) + 1
-        order.append((n, e))
-    for idx, (n, e) in enumerate(order):
-        d = el(root, "decision", id=f"d_{n}_{idx}", name=n)
-        el(d, "variable", id=f"d_{n}_{idx}_v", name=n, typeRef="number")
-        for ref in sorted(set(re.findall(r"[A-Za-z][A-Za-z0-9_]*", e)) - {"if", "then", "else", "and", "or", "not",
-                                                                          "floor", "ceiling", "modulo", "abs"}):
-            kind = "requiredInput" if any(feel_name(k) == ref for k in inputs) else "requiredDecision"
-            prefix = "in" if kind == "requiredInput" else ("c" if any(feel_name(k) == ref for k in constants) else "d")
-            if prefix == "d":
-                target = next((f"d_{n2}_{j}" for j, (n2, _) in enumerate(order) if n2 == ref and j < idx), None)
-                if target is None:
-                    continue
+        e2 = rename(e)
+        count[n] = count.get(n, 0) + 1
+        dname = n if count[n] == 1 else f"{n}_v{count[n]}"
+        order.append((dname, e2))
+        current[n] = dname
+    decision_ids = {}
+    for dname, e in order:
+        d = el(root, "decision", id=f"d_{dname}", name=dname)
+        decision_ids[dname] = f"d_{dname}"
+        base = next((k for k in prog.fields if feel_name(k) == dname.rsplit("_v", 1)[0] or feel_name(k) == dname), None)
+        el(d, "variable", id=f"d_{dname}_v", name=dname, typeRef=typ(base) if base else "number")
+        refs = sorted({m.group(2) for m in IDENT.finditer(e) if m.group(2)} - keywords)
+        for ref in refs:
+            if ref in input_names:
+                kind, target = "requiredInput", f"in_{ref}"
+            elif ref in const_names:
+                kind, target = "requiredDecision", f"c_{ref}"
+            elif ref in decision_ids and ref != dname:
+                kind, target = "requiredDecision", decision_ids[ref]
             else:
-                target = f"{prefix}_{ref}"
-            ir = el(d, "informationRequirement", id=f"ir_{n}_{idx}_{ref}")
+                continue
+            ir = el(d, "informationRequirement", id=f"ir_{dname}_{ref}")
             el(ir, kind, href=f"#{target}")
-        le = el(d, "literalExpression", id=f"d_{n}_{idx}_e")
+        le = el(d, "literalExpression", id=f"d_{dname}_e")
         ET.SubElement(le, f"{{{NS}}}text").text = e
 
     dec = el(root, "decision", id="policy", name=f"{prog.name} decision")
     for k in inputs:
         ir = el(dec, "informationRequirement", id=f"ir_policy_{feel_name(k)}")
         el(ir, "requiredInput", href=f"#in_{feel_name(k)}")
-    last = {}
-    for idx, (n, _) in enumerate(order):
-        last[n] = idx
-    for n, idx in last.items():
-        ir = el(dec, "informationRequirement", id=f"ir_policy_d_{n}")
-        el(ir, "requiredDecision", href=f"#d_{n}_{idx}")
+    for n, dname in current.items():
+        ir = el(dec, "informationRequirement", id=f"ir_policy_d_{dname}")
+        el(ir, "requiredDecision", href=f"#d_{dname}")
     for k in constants:
         ir = el(dec, "informationRequirement", id=f"ir_policy_c_{feel_name(k)}")
         el(ir, "requiredDecision", href=f"#c_{feel_name(k)}")
@@ -240,7 +311,7 @@ def export(prog: C.Program, rules: list, kept_index: dict | None = None) -> str:
         for conj in disjuncts:
             entry = {}
             for atom, pol in conj:
-                text = fcond(atom, prog)
+                text = rename(fcond(atom, prog))
                 if text not in atoms:
                     atoms.append(text)
                 entry[text] = pol

@@ -821,5 +821,16 @@
   "platform": "s390x",
   "kind": "rules"
  },
- "seconds": 5.26
+ "dmn": {
+  "exported": true,
+  "schema_valid": true,
+  "schema_note": "",
+  "rows": 19,
+  "rules": 6,
+  "records": 35262,
+  "agree_with_compiled_cobol": 35262,
+  "first_difference": null,
+  "file": "results/dmn/CREDREV.dmn"
+ },
+ "seconds": 5.21
 }

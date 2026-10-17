@@ -2549,7 +2549,7 @@
    "lines": [
     124
    ],
-   "message": "line 124: CUST-ACCT-BALANCE (PIC 9(7)V99) can receive a value with more integer digits than it holds; COBOL drops the high-order digits without an error. Example found by z3: TRAN-CODE=UPDATE, TRAN-FIELD-NAME=BALANCE   , TRAN-UPDATE-NUMX1=+, TRAN-UPDATE-NUM IS NUMERIC=True, TRAN-ACTION=ADD     , CUST-ACCT-BALANCE=9999999.99. Compiled program: for update amount '+99999999' the computed value is 10999999.98, and the compiled program stores CUST-ACCT-BALANCE = 0999999.98",
+   "message": "line 124: CUST-ACCT-BALANCE (PIC 9(7)V99) can receive a value with more integer digits than it holds; COBOL drops the high-order digits without an error. Example found by z3: TRAN-CODE=UPDATE, TRAN-FIELD-NAME=BALANCE   , TRAN-UPDATE-NUMX1=+, TRAN-UPDATE-NUM IS NUMERIC=True, TRAN-ACTION=ADD     , CUST-ACCT-BALANCE=1. Compiled program: for update amount '+99999999' the computed value is 10999999.98, and the compiled program stores CUST-ACCT-BALANCE = 0999999.98",
    "confirmed": "for update amount '+99999999' the computed value is 10999999.98, and the compiled program stores CUST-ACCT-BALANCE = 0999999.98"
   },
   {
@@ -2565,7 +2565,7 @@
    "lines": [
     131
    ],
-   "message": "line 131: CUST-ORDERS-YTD (PIC 9(5)) can receive a value with more integer digits than it holds; COBOL drops the high-order digits without an error. Example found by z3: TRAN-CODE=UPDATE, TRAN-FIELD-NAME=ORDERS    , TRAN-UPDATE-NUMX1=+, TRAN-UPDATE-NUM IS NUMERIC=True, TRAN-ACTION=REPLACE . Compiled program: for update amount '+99999999' the computed value is 999999.99, and the compiled program stores CUST-ORDERS-YTD = 99999",
+   "message": "line 131: CUST-ORDERS-YTD (PIC 9(5)) can receive a value with more integer digits than it holds; COBOL drops the high-order digits without an error. Example found by z3: TRAN-CODE=UPDATE, TRAN-FIELD-NAME=ORDERS    , TRAN-UPDATE-NUMX1=-, TRAN-UPDATE-NUM IS NUMERIC=True, TRAN-ACTION=REPLACE . Compiled program: for update amount '+99999999' the computed value is 999999.99, and the compiled program stores CUST-ORDERS-YTD = 99999",
    "confirmed": "for update amount '+99999999' the computed value is 999999.99, and the compiled program stores CUST-ORDERS-YTD = 99999"
   },
   {
@@ -2645,5 +2645,6 @@
   "platform": "s390x",
   "kind": "rules"
  },
- "seconds": 8.72
+ "dmn": null,
+ "seconds": 8.57
 }

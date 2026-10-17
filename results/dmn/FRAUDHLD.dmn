@@ -1,0 +1,1564 @@
+<?xml version='1.0' encoding='utf-8'?>
+<definitions xmlns="https://www.omg.org/spec/DMN/20191111/MODEL/" id="defs_FRAUDHLD" name="FRAUDHLD" namespace="https://legacylens.example/FRAUDHLD" expressionLanguage="https://www.omg.org/spec/DMN/20191111/FEEL/">
+  <inputData id="in_TX_CARD" name="TX_CARD">
+    <variable id="in_TX_CARD_v" name="TX_CARD" typeRef="number" />
+  </inputData>
+  <inputData id="in_TX_AMOUNT" name="TX_AMOUNT">
+    <variable id="in_TX_AMOUNT_v" name="TX_AMOUNT" typeRef="number" />
+  </inputData>
+  <inputData id="in_TX_AVG_30D" name="TX_AVG_30D">
+    <variable id="in_TX_AVG_30D_v" name="TX_AVG_30D" typeRef="number" />
+  </inputData>
+  <inputData id="in_TX_COUNT_1H" name="TX_COUNT_1H">
+    <variable id="in_TX_COUNT_1H_v" name="TX_COUNT_1H" typeRef="number" />
+  </inputData>
+  <inputData id="in_TX_MCC" name="TX_MCC">
+    <variable id="in_TX_MCC_v" name="TX_MCC" typeRef="number" />
+  </inputData>
+  <inputData id="in_TX_COUNTRY" name="TX_COUNTRY">
+    <variable id="in_TX_COUNTRY_v" name="TX_COUNTRY" typeRef="string" />
+  </inputData>
+  <inputData id="in_TX_HOME" name="TX_HOME">
+    <variable id="in_TX_HOME_v" name="TX_HOME" typeRef="string" />
+  </inputData>
+  <inputData id="in_TX_HOUR" name="TX_HOUR">
+    <variable id="in_TX_HOUR_v" name="TX_HOUR" typeRef="number" />
+  </inputData>
+  <inputData id="in_TX_CHANNEL" name="TX_CHANNEL">
+    <variable id="in_TX_CHANNEL_v" name="TX_CHANNEL" typeRef="string" />
+  </inputData>
+  <inputData id="in_TX_3DS" name="TX_3DS">
+    <variable id="in_TX_3DS_v" name="TX_3DS" typeRef="string" />
+  </inputData>
+  <decision id="d_WS_RISK_FLAG" name="WS_RISK_FLAG">
+    <variable id="d_WS_RISK_FLAG_v" name="WS_RISK_FLAG" typeRef="string" />
+    <literalExpression id="d_WS_RISK_FLAG_e">
+      <text>"N"</text>
+    </literalExpression>
+  </decision>
+  <decision id="d_WS_RISK_FLAG_v2" name="WS_RISK_FLAG_v2">
+    <variable id="d_WS_RISK_FLAG_v2_v" name="WS_RISK_FLAG_v2" typeRef="string" />
+    <informationRequirement id="ir_WS_RISK_FLAG_v2_TX_COUNTRY">
+      <requiredInput href="#in_TX_COUNTRY" />
+    </informationRequirement>
+    <informationRequirement id="ir_WS_RISK_FLAG_v2_TX_HOME">
+      <requiredInput href="#in_TX_HOME" />
+    </informationRequirement>
+    <informationRequirement id="ir_WS_RISK_FLAG_v2_WS_RISK_FLAG">
+      <requiredDecision href="#d_WS_RISK_FLAG" />
+    </informationRequirement>
+    <literalExpression id="d_WS_RISK_FLAG_v2_e">
+      <text>if TX_COUNTRY != TX_HOME then if TX_COUNTRY = "X1" then "Y" else WS_RISK_FLAG else WS_RISK_FLAG</text>
+    </literalExpression>
+  </decision>
+  <decision id="d_WS_RISK_FLAG_v3" name="WS_RISK_FLAG_v3">
+    <variable id="d_WS_RISK_FLAG_v3_v" name="WS_RISK_FLAG_v3" typeRef="string" />
+    <informationRequirement id="ir_WS_RISK_FLAG_v3_TX_COUNTRY">
+      <requiredInput href="#in_TX_COUNTRY" />
+    </informationRequirement>
+    <informationRequirement id="ir_WS_RISK_FLAG_v3_TX_HOME">
+      <requiredInput href="#in_TX_HOME" />
+    </informationRequirement>
+    <informationRequirement id="ir_WS_RISK_FLAG_v3_WS_RISK_FLAG_v2">
+      <requiredDecision href="#d_WS_RISK_FLAG_v2" />
+    </informationRequirement>
+    <literalExpression id="d_WS_RISK_FLAG_v3_e">
+      <text>if TX_COUNTRY != TX_HOME then if TX_COUNTRY = "X2" then "Y" else WS_RISK_FLAG_v2 else WS_RISK_FLAG_v2</text>
+    </literalExpression>
+  </decision>
+  <decision id="d_WS_RISK_FLAG_v4" name="WS_RISK_FLAG_v4">
+    <variable id="d_WS_RISK_FLAG_v4_v" name="WS_RISK_FLAG_v4" typeRef="string" />
+    <informationRequirement id="ir_WS_RISK_FLAG_v4_TX_COUNTRY">
+      <requiredInput href="#in_TX_COUNTRY" />
+    </informationRequirement>
+    <informationRequirement id="ir_WS_RISK_FLAG_v4_TX_HOME">
+      <requiredInput href="#in_TX_HOME" />
+    </informationRequirement>
+    <informationRequirement id="ir_WS_RISK_FLAG_v4_WS_RISK_FLAG_v3">
+      <requiredDecision href="#d_WS_RISK_FLAG_v3" />
+    </informationRequirement>
+    <literalExpression id="d_WS_RISK_FLAG_v4_e">
+      <text>if TX_COUNTRY != TX_HOME then if TX_COUNTRY = "X3" then "Y" else WS_RISK_FLAG_v3 else WS_RISK_FLAG_v3</text>
+    </literalExpression>
+  </decision>
+  <decision id="d_WS_RISK_FLAG_v5" name="WS_RISK_FLAG_v5">
+    <variable id="d_WS_RISK_FLAG_v5_v" name="WS_RISK_FLAG_v5" typeRef="string" />
+    <informationRequirement id="ir_WS_RISK_FLAG_v5_TX_COUNTRY">
+      <requiredInput href="#in_TX_COUNTRY" />
+    </informationRequirement>
+    <informationRequirement id="ir_WS_RISK_FLAG_v5_TX_HOME">
+      <requiredInput href="#in_TX_HOME" />
+    </informationRequirement>
+    <informationRequirement id="ir_WS_RISK_FLAG_v5_WS_RISK_FLAG_v4">
+      <requiredDecision href="#d_WS_RISK_FLAG_v4" />
+    </informationRequirement>
+    <literalExpression id="d_WS_RISK_FLAG_v5_e">
+      <text>if TX_COUNTRY != TX_HOME then if TX_COUNTRY = "X4" then "Y" else WS_RISK_FLAG_v4 else WS_RISK_FLAG_v4</text>
+    </literalExpression>
+  </decision>
+  <decision id="d_WS_RISK_FLAG_v6" name="WS_RISK_FLAG_v6">
+    <variable id="d_WS_RISK_FLAG_v6_v" name="WS_RISK_FLAG_v6" typeRef="string" />
+    <informationRequirement id="ir_WS_RISK_FLAG_v6_TX_COUNTRY">
+      <requiredInput href="#in_TX_COUNTRY" />
+    </informationRequirement>
+    <informationRequirement id="ir_WS_RISK_FLAG_v6_TX_HOME">
+      <requiredInput href="#in_TX_HOME" />
+    </informationRequirement>
+    <informationRequirement id="ir_WS_RISK_FLAG_v6_WS_RISK_FLAG_v5">
+      <requiredDecision href="#d_WS_RISK_FLAG_v5" />
+    </informationRequirement>
+    <literalExpression id="d_WS_RISK_FLAG_v6_e">
+      <text>if TX_COUNTRY != TX_HOME then if TX_COUNTRY = "X5" then "Y" else WS_RISK_FLAG_v5 else WS_RISK_FLAG_v5</text>
+    </literalExpression>
+  </decision>
+  <decision id="d_WS_RATIO" name="WS_RATIO">
+    <variable id="d_WS_RATIO_v" name="WS_RATIO" typeRef="number" />
+    <informationRequirement id="ir_WS_RATIO_TX_AMOUNT">
+      <requiredInput href="#in_TX_AMOUNT" />
+    </informationRequirement>
+    <informationRequirement id="ir_WS_RATIO_TX_AVG_30D">
+      <requiredInput href="#in_TX_AVG_30D" />
+    </informationRequirement>
+    <literalExpression id="d_WS_RATIO_e">
+      <text>if TX_AVG_30D = 0 then (modulo(abs((if (99999.99) * 100 &gt;= 0 then floor((99999.99) * 100) else ceiling((99999.99) * 100))), 10000000)) / 100 else (modulo(abs((if ((TX_AMOUNT / TX_AVG_30D)) * 100 &gt;= 0 then floor(((TX_AMOUNT / TX_AVG_30D)) * 100) else ceiling(((TX_AMOUNT / TX_AVG_30D)) * 100))), 10000000)) / 100</text>
+    </literalExpression>
+  </decision>
+  <decision id="policy" name="FRAUDHLD decision">
+    <informationRequirement id="ir_policy_TX_CARD">
+      <requiredInput href="#in_TX_CARD" />
+    </informationRequirement>
+    <informationRequirement id="ir_policy_TX_AMOUNT">
+      <requiredInput href="#in_TX_AMOUNT" />
+    </informationRequirement>
+    <informationRequirement id="ir_policy_TX_AVG_30D">
+      <requiredInput href="#in_TX_AVG_30D" />
+    </informationRequirement>
+    <informationRequirement id="ir_policy_TX_COUNT_1H">
+      <requiredInput href="#in_TX_COUNT_1H" />
+    </informationRequirement>
+    <informationRequirement id="ir_policy_TX_MCC">
+      <requiredInput href="#in_TX_MCC" />
+    </informationRequirement>
+    <informationRequirement id="ir_policy_TX_COUNTRY">
+      <requiredInput href="#in_TX_COUNTRY" />
+    </informationRequirement>
+    <informationRequirement id="ir_policy_TX_HOME">
+      <requiredInput href="#in_TX_HOME" />
+    </informationRequirement>
+    <informationRequirement id="ir_policy_TX_HOUR">
+      <requiredInput href="#in_TX_HOUR" />
+    </informationRequirement>
+    <informationRequirement id="ir_policy_TX_CHANNEL">
+      <requiredInput href="#in_TX_CHANNEL" />
+    </informationRequirement>
+    <informationRequirement id="ir_policy_TX_3DS">
+      <requiredInput href="#in_TX_3DS" />
+    </informationRequirement>
+    <informationRequirement id="ir_policy_d_WS_RISK_FLAG_v6">
+      <requiredDecision href="#d_WS_RISK_FLAG_v6" />
+    </informationRequirement>
+    <informationRequirement id="ir_policy_d_WS_RATIO">
+      <requiredDecision href="#d_WS_RATIO" />
+    </informationRequirement>
+    <decisionTable id="policy_table" hitPolicy="FIRST">
+      <input id="col0" label="TX_COUNT_1H &gt; 20">
+        <inputExpression id="col0_e" typeRef="boolean">
+          <text>TX_COUNT_1H &gt; 20</text>
+        </inputExpression>
+      </input>
+      <input id="col1" label="TX_COUNT_1H &lt;= 20">
+        <inputExpression id="col1_e" typeRef="boolean">
+          <text>TX_COUNT_1H &lt;= 20</text>
+        </inputExpression>
+      </input>
+      <input id="col2" label="(WS_RISK_FLAG_v6 = &quot;Y&quot;)">
+        <inputExpression id="col2_e" typeRef="boolean">
+          <text>(WS_RISK_FLAG_v6 = "Y")</text>
+        </inputExpression>
+      </input>
+      <input id="col3" label="(TX_CHANNEL = &quot;E&quot;)">
+        <inputExpression id="col3_e" typeRef="boolean">
+          <text>(TX_CHANNEL = "E")</text>
+        </inputExpression>
+      </input>
+      <input id="col4" label="(TX_MCC = 7995)">
+        <inputExpression id="col4_e" typeRef="boolean">
+          <text>(TX_MCC = 7995)</text>
+        </inputExpression>
+      </input>
+      <input id="col5" label="WS_RATIO &gt; 5">
+        <inputExpression id="col5_e" typeRef="boolean">
+          <text>WS_RATIO &gt; 5</text>
+        </inputExpression>
+      </input>
+      <input id="col6" label="(TX_MCC = 6010 or TX_MCC = 6011 or TX_MCC = 6051)">
+        <inputExpression id="col6_e" typeRef="boolean">
+          <text>(TX_MCC = 6010 or TX_MCC = 6011 or TX_MCC = 6051)</text>
+        </inputExpression>
+      </input>
+      <input id="col7" label="WS_RATIO &lt;= 5">
+        <inputExpression id="col7_e" typeRef="boolean">
+          <text>WS_RATIO &lt;= 5</text>
+        </inputExpression>
+      </input>
+      <input id="col8" label="WS_RATIO &gt; 10">
+        <inputExpression id="col8_e" typeRef="boolean">
+          <text>WS_RATIO &gt; 10</text>
+        </inputExpression>
+      </input>
+      <input id="col9" label="((TX_HOUR &gt;= 0 and TX_HOUR &lt;= 5))">
+        <inputExpression id="col9_e" typeRef="boolean">
+          <text>((TX_HOUR &gt;= 0 and TX_HOUR &lt;= 5))</text>
+        </inputExpression>
+      </input>
+      <input id="col10" label="WS_RATIO &lt;= 10">
+        <inputExpression id="col10_e" typeRef="boolean">
+          <text>WS_RATIO &lt;= 10</text>
+        </inputExpression>
+      </input>
+      <input id="col11" label="(TX_3DS = &quot;Y&quot;)">
+        <inputExpression id="col11_e" typeRef="boolean">
+          <text>(TX_3DS = "Y")</text>
+        </inputExpression>
+      </input>
+      <input id="col12" label="TX_AMOUNT &gt; 500">
+        <inputExpression id="col12_e" typeRef="boolean">
+          <text>TX_AMOUNT &gt; 500</text>
+        </inputExpression>
+      </input>
+      <input id="col13" label="TX_AMOUNT &lt;= 500">
+        <inputExpression id="col13_e" typeRef="boolean">
+          <text>TX_AMOUNT &lt;= 500</text>
+        </inputExpression>
+      </input>
+      <output id="out_OUT_ACTION" name="OUT_ACTION" typeRef="string" />
+      <output id="out_OUT_REASON" name="OUT_REASON" typeRef="string" />
+      <rule id="row0">
+        <description>RULE-01 (COBOL lines 73, 74, 75)</description>
+        <inputEntry id="row0_in0">
+          <text>true</text>
+        </inputEntry>
+        <inputEntry id="row0_in1">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="row0_in2">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="row0_in3">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="row0_in4">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="row0_in5">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="row0_in6">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="row0_in7">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="row0_in8">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="row0_in9">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="row0_in10">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="row0_in11">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="row0_in12">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="row0_in13">
+          <text>-</text>
+        </inputEntry>
+        <outputEntry id="row0_out_OUT_ACTION">
+          <text>"DECLINE"</text>
+        </outputEntry>
+        <outputEntry id="row0_out_OUT_REASON">
+          <text>"F01"</text>
+        </outputEntry>
+      </rule>
+      <rule id="row1">
+        <description>RULE-02 (COBOL lines 73, 76, 77, 78)</description>
+        <inputEntry id="row1_in0">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="row1_in1">
+          <text>true</text>
+        </inputEntry>
+        <inputEntry id="row1_in2">
+          <text>true</text>
+        </inputEntry>
+        <inputEntry id="row1_in3">
+          <text>true</text>
+        </inputEntry>
+        <inputEntry id="row1_in4">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="row1_in5">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="row1_in6">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="row1_in7">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="row1_in8">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="row1_in9">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="row1_in10">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="row1_in11">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="row1_in12">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="row1_in13">
+          <text>-</text>
+        </inputEntry>
+        <outputEntry id="row1_out_OUT_ACTION">
+          <text>"DECLINE"</text>
+        </outputEntry>
+        <outputEntry id="row1_out_OUT_REASON">
+          <text>"F02"</text>
+        </outputEntry>
+      </rule>
+      <rule id="row2">
+        <description>RULE-03 (COBOL lines 73, 76, 79, 80, 81, 82)</description>
+        <inputEntry id="row2_in0">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="row2_in1">
+          <text>true</text>
+        </inputEntry>
+        <inputEntry id="row2_in2">
+          <text>false</text>
+        </inputEntry>
+        <inputEntry id="row2_in3">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="row2_in4">
+          <text>true</text>
+        </inputEntry>
+        <inputEntry id="row2_in5">
+          <text>true</text>
+        </inputEntry>
+        <inputEntry id="row2_in6">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="row2_in7">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="row2_in8">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="row2_in9">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="row2_in10">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="row2_in11">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="row2_in12">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="row2_in13">
+          <text>-</text>
+        </inputEntry>
+        <outputEntry id="row2_out_OUT_ACTION">
+          <text>"HOLD"</text>
+        </outputEntry>
+        <outputEntry id="row2_out_OUT_REASON">
+          <text>"F03"</text>
+        </outputEntry>
+      </rule>
+      <rule id="row3">
+        <description>RULE-03 (COBOL lines 73, 76, 79, 80, 81, 82)</description>
+        <inputEntry id="row3_in0">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="row3_in1">
+          <text>true</text>
+        </inputEntry>
+        <inputEntry id="row3_in2">
+          <text>false</text>
+        </inputEntry>
+        <inputEntry id="row3_in3">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="row3_in4">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="row3_in5">
+          <text>true</text>
+        </inputEntry>
+        <inputEntry id="row3_in6">
+          <text>true</text>
+        </inputEntry>
+        <inputEntry id="row3_in7">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="row3_in8">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="row3_in9">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="row3_in10">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="row3_in11">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="row3_in12">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="row3_in13">
+          <text>-</text>
+        </inputEntry>
+        <outputEntry id="row3_out_OUT_ACTION">
+          <text>"HOLD"</text>
+        </outputEntry>
+        <outputEntry id="row3_out_OUT_REASON">
+          <text>"F03"</text>
+        </outputEntry>
+      </rule>
+      <rule id="row4">
+        <description>RULE-03 (COBOL lines 73, 76, 79, 80, 81, 82)</description>
+        <inputEntry id="row4_in0">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="row4_in1">
+          <text>true</text>
+        </inputEntry>
+        <inputEntry id="row4_in2">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="row4_in3">
+          <text>false</text>
+        </inputEntry>
+        <inputEntry id="row4_in4">
+          <text>true</text>
+        </inputEntry>
+        <inputEntry id="row4_in5">
+          <text>true</text>
+        </inputEntry>
+        <inputEntry id="row4_in6">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="row4_in7">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="row4_in8">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="row4_in9">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="row4_in10">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="row4_in11">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="row4_in12">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="row4_in13">
+          <text>-</text>
+        </inputEntry>
+        <outputEntry id="row4_out_OUT_ACTION">
+          <text>"HOLD"</text>
+        </outputEntry>
+        <outputEntry id="row4_out_OUT_REASON">
+          <text>"F03"</text>
+        </outputEntry>
+      </rule>
+      <rule id="row5">
+        <description>RULE-03 (COBOL lines 73, 76, 79, 80, 81, 82)</description>
+        <inputEntry id="row5_in0">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="row5_in1">
+          <text>true</text>
+        </inputEntry>
+        <inputEntry id="row5_in2">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="row5_in3">
+          <text>false</text>
+        </inputEntry>
+        <inputEntry id="row5_in4">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="row5_in5">
+          <text>true</text>
+        </inputEntry>
+        <inputEntry id="row5_in6">
+          <text>true</text>
+        </inputEntry>
+        <inputEntry id="row5_in7">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="row5_in8">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="row5_in9">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="row5_in10">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="row5_in11">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="row5_in12">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="row5_in13">
+          <text>-</text>
+        </inputEntry>
+        <outputEntry id="row5_out_OUT_ACTION">
+          <text>"HOLD"</text>
+        </outputEntry>
+        <outputEntry id="row5_out_OUT_REASON">
+          <text>"F03"</text>
+        </outputEntry>
+      </rule>
+      <rule id="row6">
+        <description>RULE-04 (COBOL lines 73, 76, 79, 80, 84, 85)</description>
+        <inputEntry id="row6_in0">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="row6_in1">
+          <text>true</text>
+        </inputEntry>
+        <inputEntry id="row6_in2">
+          <text>false</text>
+        </inputEntry>
+        <inputEntry id="row6_in3">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="row6_in4">
+          <text>true</text>
+        </inputEntry>
+        <inputEntry id="row6_in5">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="row6_in6">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="row6_in7">
+          <text>true</text>
+        </inputEntry>
+        <inputEntry id="row6_in8">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="row6_in9">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="row6_in10">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="row6_in11">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="row6_in12">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="row6_in13">
+          <text>-</text>
+        </inputEntry>
+        <outputEntry id="row6_out_OUT_ACTION">
+          <text>"CHALLENGE"</text>
+        </outputEntry>
+        <outputEntry id="row6_out_OUT_REASON">
+          <text>"F04"</text>
+        </outputEntry>
+      </rule>
+      <rule id="row7">
+        <description>RULE-04 (COBOL lines 73, 76, 79, 80, 84, 85)</description>
+        <inputEntry id="row7_in0">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="row7_in1">
+          <text>true</text>
+        </inputEntry>
+        <inputEntry id="row7_in2">
+          <text>false</text>
+        </inputEntry>
+        <inputEntry id="row7_in3">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="row7_in4">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="row7_in5">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="row7_in6">
+          <text>true</text>
+        </inputEntry>
+        <inputEntry id="row7_in7">
+          <text>true</text>
+        </inputEntry>
+        <inputEntry id="row7_in8">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="row7_in9">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="row7_in10">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="row7_in11">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="row7_in12">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="row7_in13">
+          <text>-</text>
+        </inputEntry>
+        <outputEntry id="row7_out_OUT_ACTION">
+          <text>"CHALLENGE"</text>
+        </outputEntry>
+        <outputEntry id="row7_out_OUT_REASON">
+          <text>"F04"</text>
+        </outputEntry>
+      </rule>
+      <rule id="row8">
+        <description>RULE-04 (COBOL lines 73, 76, 79, 80, 84, 85)</description>
+        <inputEntry id="row8_in0">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="row8_in1">
+          <text>true</text>
+        </inputEntry>
+        <inputEntry id="row8_in2">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="row8_in3">
+          <text>false</text>
+        </inputEntry>
+        <inputEntry id="row8_in4">
+          <text>true</text>
+        </inputEntry>
+        <inputEntry id="row8_in5">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="row8_in6">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="row8_in7">
+          <text>true</text>
+        </inputEntry>
+        <inputEntry id="row8_in8">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="row8_in9">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="row8_in10">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="row8_in11">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="row8_in12">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="row8_in13">
+          <text>-</text>
+        </inputEntry>
+        <outputEntry id="row8_out_OUT_ACTION">
+          <text>"CHALLENGE"</text>
+        </outputEntry>
+        <outputEntry id="row8_out_OUT_REASON">
+          <text>"F04"</text>
+        </outputEntry>
+      </rule>
+      <rule id="row9">
+        <description>RULE-04 (COBOL lines 73, 76, 79, 80, 84, 85)</description>
+        <inputEntry id="row9_in0">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="row9_in1">
+          <text>true</text>
+        </inputEntry>
+        <inputEntry id="row9_in2">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="row9_in3">
+          <text>false</text>
+        </inputEntry>
+        <inputEntry id="row9_in4">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="row9_in5">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="row9_in6">
+          <text>true</text>
+        </inputEntry>
+        <inputEntry id="row9_in7">
+          <text>true</text>
+        </inputEntry>
+        <inputEntry id="row9_in8">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="row9_in9">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="row9_in10">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="row9_in11">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="row9_in12">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="row9_in13">
+          <text>-</text>
+        </inputEntry>
+        <outputEntry id="row9_out_OUT_ACTION">
+          <text>"CHALLENGE"</text>
+        </outputEntry>
+        <outputEntry id="row9_out_OUT_REASON">
+          <text>"F04"</text>
+        </outputEntry>
+      </rule>
+      <rule id="row10">
+        <description>RULE-05 (COBOL lines 73, 76, 79, 87, 88, 89)</description>
+        <inputEntry id="row10_in0">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="row10_in1">
+          <text>true</text>
+        </inputEntry>
+        <inputEntry id="row10_in2">
+          <text>false</text>
+        </inputEntry>
+        <inputEntry id="row10_in3">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="row10_in4">
+          <text>false</text>
+        </inputEntry>
+        <inputEntry id="row10_in5">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="row10_in6">
+          <text>false</text>
+        </inputEntry>
+        <inputEntry id="row10_in7">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="row10_in8">
+          <text>true</text>
+        </inputEntry>
+        <inputEntry id="row10_in9">
+          <text>true</text>
+        </inputEntry>
+        <inputEntry id="row10_in10">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="row10_in11">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="row10_in12">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="row10_in13">
+          <text>-</text>
+        </inputEntry>
+        <outputEntry id="row10_out_OUT_ACTION">
+          <text>"HOLD"</text>
+        </outputEntry>
+        <outputEntry id="row10_out_OUT_REASON">
+          <text>"F05"</text>
+        </outputEntry>
+      </rule>
+      <rule id="row11">
+        <description>RULE-05 (COBOL lines 73, 76, 79, 87, 88, 89)</description>
+        <inputEntry id="row11_in0">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="row11_in1">
+          <text>true</text>
+        </inputEntry>
+        <inputEntry id="row11_in2">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="row11_in3">
+          <text>false</text>
+        </inputEntry>
+        <inputEntry id="row11_in4">
+          <text>false</text>
+        </inputEntry>
+        <inputEntry id="row11_in5">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="row11_in6">
+          <text>false</text>
+        </inputEntry>
+        <inputEntry id="row11_in7">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="row11_in8">
+          <text>true</text>
+        </inputEntry>
+        <inputEntry id="row11_in9">
+          <text>true</text>
+        </inputEntry>
+        <inputEntry id="row11_in10">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="row11_in11">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="row11_in12">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="row11_in13">
+          <text>-</text>
+        </inputEntry>
+        <outputEntry id="row11_out_OUT_ACTION">
+          <text>"HOLD"</text>
+        </outputEntry>
+        <outputEntry id="row11_out_OUT_REASON">
+          <text>"F05"</text>
+        </outputEntry>
+      </rule>
+      <rule id="row12">
+        <description>RULE-06 (COBOL lines 73, 76, 79, 87, 90, 92, 93)</description>
+        <inputEntry id="row12_in0">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="row12_in1">
+          <text>true</text>
+        </inputEntry>
+        <inputEntry id="row12_in2">
+          <text>false</text>
+        </inputEntry>
+        <inputEntry id="row12_in3">
+          <text>true</text>
+        </inputEntry>
+        <inputEntry id="row12_in4">
+          <text>false</text>
+        </inputEntry>
+        <inputEntry id="row12_in5">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="row12_in6">
+          <text>false</text>
+        </inputEntry>
+        <inputEntry id="row12_in7">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="row12_in8">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="row12_in9">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="row12_in10">
+          <text>true</text>
+        </inputEntry>
+        <inputEntry id="row12_in11">
+          <text>false</text>
+        </inputEntry>
+        <inputEntry id="row12_in12">
+          <text>true</text>
+        </inputEntry>
+        <inputEntry id="row12_in13">
+          <text>-</text>
+        </inputEntry>
+        <outputEntry id="row12_out_OUT_ACTION">
+          <text>"CHALLENGE"</text>
+        </outputEntry>
+        <outputEntry id="row12_out_OUT_REASON">
+          <text>"F06"</text>
+        </outputEntry>
+      </rule>
+      <rule id="row13">
+        <description>RULE-06 (COBOL lines 73, 76, 79, 87, 90, 92, 93)</description>
+        <inputEntry id="row13_in0">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="row13_in1">
+          <text>true</text>
+        </inputEntry>
+        <inputEntry id="row13_in2">
+          <text>false</text>
+        </inputEntry>
+        <inputEntry id="row13_in3">
+          <text>true</text>
+        </inputEntry>
+        <inputEntry id="row13_in4">
+          <text>false</text>
+        </inputEntry>
+        <inputEntry id="row13_in5">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="row13_in6">
+          <text>false</text>
+        </inputEntry>
+        <inputEntry id="row13_in7">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="row13_in8">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="row13_in9">
+          <text>false</text>
+        </inputEntry>
+        <inputEntry id="row13_in10">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="row13_in11">
+          <text>false</text>
+        </inputEntry>
+        <inputEntry id="row13_in12">
+          <text>true</text>
+        </inputEntry>
+        <inputEntry id="row13_in13">
+          <text>-</text>
+        </inputEntry>
+        <outputEntry id="row13_out_OUT_ACTION">
+          <text>"CHALLENGE"</text>
+        </outputEntry>
+        <outputEntry id="row13_out_OUT_REASON">
+          <text>"F06"</text>
+        </outputEntry>
+      </rule>
+      <rule id="row14">
+        <description>RULE-06 (COBOL lines 73, 76, 79, 87, 90, 92, 93)</description>
+        <inputEntry id="row14_in0">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="row14_in1">
+          <text>true</text>
+        </inputEntry>
+        <inputEntry id="row14_in2">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="row14_in3">
+          <text>true</text>
+        </inputEntry>
+        <inputEntry id="row14_in4">
+          <text>false</text>
+        </inputEntry>
+        <inputEntry id="row14_in5">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="row14_in6">
+          <text>false</text>
+        </inputEntry>
+        <inputEntry id="row14_in7">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="row14_in8">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="row14_in9">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="row14_in10">
+          <text>true</text>
+        </inputEntry>
+        <inputEntry id="row14_in11">
+          <text>false</text>
+        </inputEntry>
+        <inputEntry id="row14_in12">
+          <text>true</text>
+        </inputEntry>
+        <inputEntry id="row14_in13">
+          <text>-</text>
+        </inputEntry>
+        <outputEntry id="row14_out_OUT_ACTION">
+          <text>"CHALLENGE"</text>
+        </outputEntry>
+        <outputEntry id="row14_out_OUT_REASON">
+          <text>"F06"</text>
+        </outputEntry>
+      </rule>
+      <rule id="row15">
+        <description>RULE-06 (COBOL lines 73, 76, 79, 87, 90, 92, 93)</description>
+        <inputEntry id="row15_in0">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="row15_in1">
+          <text>true</text>
+        </inputEntry>
+        <inputEntry id="row15_in2">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="row15_in3">
+          <text>true</text>
+        </inputEntry>
+        <inputEntry id="row15_in4">
+          <text>false</text>
+        </inputEntry>
+        <inputEntry id="row15_in5">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="row15_in6">
+          <text>false</text>
+        </inputEntry>
+        <inputEntry id="row15_in7">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="row15_in8">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="row15_in9">
+          <text>false</text>
+        </inputEntry>
+        <inputEntry id="row15_in10">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="row15_in11">
+          <text>false</text>
+        </inputEntry>
+        <inputEntry id="row15_in12">
+          <text>true</text>
+        </inputEntry>
+        <inputEntry id="row15_in13">
+          <text>-</text>
+        </inputEntry>
+        <outputEntry id="row15_out_OUT_ACTION">
+          <text>"CHALLENGE"</text>
+        </outputEntry>
+        <outputEntry id="row15_out_OUT_REASON">
+          <text>"F06"</text>
+        </outputEntry>
+      </rule>
+      <rule id="row16">
+        <description>RULE-07 (COBOL lines 73, 76, 79, 87, 90, 94, 95, 96)</description>
+        <inputEntry id="row16_in0">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="row16_in1">
+          <text>true</text>
+        </inputEntry>
+        <inputEntry id="row16_in2">
+          <text>true</text>
+        </inputEntry>
+        <inputEntry id="row16_in3">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="row16_in4">
+          <text>false</text>
+        </inputEntry>
+        <inputEntry id="row16_in5">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="row16_in6">
+          <text>false</text>
+        </inputEntry>
+        <inputEntry id="row16_in7">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="row16_in8">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="row16_in9">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="row16_in10">
+          <text>true</text>
+        </inputEntry>
+        <inputEntry id="row16_in11">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="row16_in12">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="row16_in13">
+          <text>-</text>
+        </inputEntry>
+        <outputEntry id="row16_out_OUT_ACTION">
+          <text>"CHALLENGE"</text>
+        </outputEntry>
+        <outputEntry id="row16_out_OUT_REASON">
+          <text>"F07"</text>
+        </outputEntry>
+      </rule>
+      <rule id="row17">
+        <description>RULE-07 (COBOL lines 73, 76, 79, 87, 90, 94, 95, 96)</description>
+        <inputEntry id="row17_in0">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="row17_in1">
+          <text>true</text>
+        </inputEntry>
+        <inputEntry id="row17_in2">
+          <text>true</text>
+        </inputEntry>
+        <inputEntry id="row17_in3">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="row17_in4">
+          <text>false</text>
+        </inputEntry>
+        <inputEntry id="row17_in5">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="row17_in6">
+          <text>false</text>
+        </inputEntry>
+        <inputEntry id="row17_in7">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="row17_in8">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="row17_in9">
+          <text>false</text>
+        </inputEntry>
+        <inputEntry id="row17_in10">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="row17_in11">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="row17_in12">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="row17_in13">
+          <text>-</text>
+        </inputEntry>
+        <outputEntry id="row17_out_OUT_ACTION">
+          <text>"CHALLENGE"</text>
+        </outputEntry>
+        <outputEntry id="row17_out_OUT_REASON">
+          <text>"F07"</text>
+        </outputEntry>
+      </rule>
+      <rule id="row18">
+        <description>RULE-07 (COBOL lines 73, 76, 79, 87, 90, 94, 95, 96)</description>
+        <inputEntry id="row18_in0">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="row18_in1">
+          <text>true</text>
+        </inputEntry>
+        <inputEntry id="row18_in2">
+          <text>true</text>
+        </inputEntry>
+        <inputEntry id="row18_in3">
+          <text>false</text>
+        </inputEntry>
+        <inputEntry id="row18_in4">
+          <text>false</text>
+        </inputEntry>
+        <inputEntry id="row18_in5">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="row18_in6">
+          <text>false</text>
+        </inputEntry>
+        <inputEntry id="row18_in7">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="row18_in8">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="row18_in9">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="row18_in10">
+          <text>true</text>
+        </inputEntry>
+        <inputEntry id="row18_in11">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="row18_in12">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="row18_in13">
+          <text>-</text>
+        </inputEntry>
+        <outputEntry id="row18_out_OUT_ACTION">
+          <text>"CHALLENGE"</text>
+        </outputEntry>
+        <outputEntry id="row18_out_OUT_REASON">
+          <text>"F07"</text>
+        </outputEntry>
+      </rule>
+      <rule id="row19">
+        <description>RULE-07 (COBOL lines 73, 76, 79, 87, 90, 94, 95, 96)</description>
+        <inputEntry id="row19_in0">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="row19_in1">
+          <text>true</text>
+        </inputEntry>
+        <inputEntry id="row19_in2">
+          <text>true</text>
+        </inputEntry>
+        <inputEntry id="row19_in3">
+          <text>false</text>
+        </inputEntry>
+        <inputEntry id="row19_in4">
+          <text>false</text>
+        </inputEntry>
+        <inputEntry id="row19_in5">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="row19_in6">
+          <text>false</text>
+        </inputEntry>
+        <inputEntry id="row19_in7">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="row19_in8">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="row19_in9">
+          <text>false</text>
+        </inputEntry>
+        <inputEntry id="row19_in10">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="row19_in11">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="row19_in12">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="row19_in13">
+          <text>-</text>
+        </inputEntry>
+        <outputEntry id="row19_out_OUT_ACTION">
+          <text>"CHALLENGE"</text>
+        </outputEntry>
+        <outputEntry id="row19_out_OUT_REASON">
+          <text>"F07"</text>
+        </outputEntry>
+      </rule>
+      <rule id="row20">
+        <description>RULE-08 (COBOL lines 73, 76, 79, 87, 90, 94, 98, 99)</description>
+        <inputEntry id="row20_in0">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="row20_in1">
+          <text>true</text>
+        </inputEntry>
+        <inputEntry id="row20_in2">
+          <text>false</text>
+        </inputEntry>
+        <inputEntry id="row20_in3">
+          <text>false</text>
+        </inputEntry>
+        <inputEntry id="row20_in4">
+          <text>false</text>
+        </inputEntry>
+        <inputEntry id="row20_in5">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="row20_in6">
+          <text>false</text>
+        </inputEntry>
+        <inputEntry id="row20_in7">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="row20_in8">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="row20_in9">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="row20_in10">
+          <text>true</text>
+        </inputEntry>
+        <inputEntry id="row20_in11">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="row20_in12">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="row20_in13">
+          <text>-</text>
+        </inputEntry>
+        <outputEntry id="row20_out_OUT_ACTION">
+          <text>"APPROVE"</text>
+        </outputEntry>
+        <outputEntry id="row20_out_OUT_REASON">
+          <text>"F00"</text>
+        </outputEntry>
+      </rule>
+      <rule id="row21">
+        <description>RULE-08 (COBOL lines 73, 76, 79, 87, 90, 94, 98, 99)</description>
+        <inputEntry id="row21_in0">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="row21_in1">
+          <text>true</text>
+        </inputEntry>
+        <inputEntry id="row21_in2">
+          <text>false</text>
+        </inputEntry>
+        <inputEntry id="row21_in3">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="row21_in4">
+          <text>false</text>
+        </inputEntry>
+        <inputEntry id="row21_in5">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="row21_in6">
+          <text>false</text>
+        </inputEntry>
+        <inputEntry id="row21_in7">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="row21_in8">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="row21_in9">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="row21_in10">
+          <text>true</text>
+        </inputEntry>
+        <inputEntry id="row21_in11">
+          <text>true</text>
+        </inputEntry>
+        <inputEntry id="row21_in12">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="row21_in13">
+          <text>-</text>
+        </inputEntry>
+        <outputEntry id="row21_out_OUT_ACTION">
+          <text>"APPROVE"</text>
+        </outputEntry>
+        <outputEntry id="row21_out_OUT_REASON">
+          <text>"F00"</text>
+        </outputEntry>
+      </rule>
+      <rule id="row22">
+        <description>RULE-08 (COBOL lines 73, 76, 79, 87, 90, 94, 98, 99)</description>
+        <inputEntry id="row22_in0">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="row22_in1">
+          <text>true</text>
+        </inputEntry>
+        <inputEntry id="row22_in2">
+          <text>false</text>
+        </inputEntry>
+        <inputEntry id="row22_in3">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="row22_in4">
+          <text>false</text>
+        </inputEntry>
+        <inputEntry id="row22_in5">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="row22_in6">
+          <text>false</text>
+        </inputEntry>
+        <inputEntry id="row22_in7">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="row22_in8">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="row22_in9">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="row22_in10">
+          <text>true</text>
+        </inputEntry>
+        <inputEntry id="row22_in11">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="row22_in12">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="row22_in13">
+          <text>true</text>
+        </inputEntry>
+        <outputEntry id="row22_out_OUT_ACTION">
+          <text>"APPROVE"</text>
+        </outputEntry>
+        <outputEntry id="row22_out_OUT_REASON">
+          <text>"F00"</text>
+        </outputEntry>
+      </rule>
+      <rule id="row23">
+        <description>RULE-08 (COBOL lines 73, 76, 79, 87, 90, 94, 98, 99)</description>
+        <inputEntry id="row23_in0">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="row23_in1">
+          <text>true</text>
+        </inputEntry>
+        <inputEntry id="row23_in2">
+          <text>false</text>
+        </inputEntry>
+        <inputEntry id="row23_in3">
+          <text>false</text>
+        </inputEntry>
+        <inputEntry id="row23_in4">
+          <text>false</text>
+        </inputEntry>
+        <inputEntry id="row23_in5">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="row23_in6">
+          <text>false</text>
+        </inputEntry>
+        <inputEntry id="row23_in7">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="row23_in8">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="row23_in9">
+          <text>false</text>
+        </inputEntry>
+        <inputEntry id="row23_in10">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="row23_in11">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="row23_in12">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="row23_in13">
+          <text>-</text>
+        </inputEntry>
+        <outputEntry id="row23_out_OUT_ACTION">
+          <text>"APPROVE"</text>
+        </outputEntry>
+        <outputEntry id="row23_out_OUT_REASON">
+          <text>"F00"</text>
+        </outputEntry>
+      </rule>
+      <rule id="row24">
+        <description>RULE-08 (COBOL lines 73, 76, 79, 87, 90, 94, 98, 99)</description>
+        <inputEntry id="row24_in0">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="row24_in1">
+          <text>true</text>
+        </inputEntry>
+        <inputEntry id="row24_in2">
+          <text>false</text>
+        </inputEntry>
+        <inputEntry id="row24_in3">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="row24_in4">
+          <text>false</text>
+        </inputEntry>
+        <inputEntry id="row24_in5">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="row24_in6">
+          <text>false</text>
+        </inputEntry>
+        <inputEntry id="row24_in7">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="row24_in8">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="row24_in9">
+          <text>false</text>
+        </inputEntry>
+        <inputEntry id="row24_in10">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="row24_in11">
+          <text>true</text>
+        </inputEntry>
+        <inputEntry id="row24_in12">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="row24_in13">
+          <text>-</text>
+        </inputEntry>
+        <outputEntry id="row24_out_OUT_ACTION">
+          <text>"APPROVE"</text>
+        </outputEntry>
+        <outputEntry id="row24_out_OUT_REASON">
+          <text>"F00"</text>
+        </outputEntry>
+      </rule>
+      <rule id="row25">
+        <description>RULE-08 (COBOL lines 73, 76, 79, 87, 90, 94, 98, 99)</description>
+        <inputEntry id="row25_in0">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="row25_in1">
+          <text>true</text>
+        </inputEntry>
+        <inputEntry id="row25_in2">
+          <text>false</text>
+        </inputEntry>
+        <inputEntry id="row25_in3">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="row25_in4">
+          <text>false</text>
+        </inputEntry>
+        <inputEntry id="row25_in5">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="row25_in6">
+          <text>false</text>
+        </inputEntry>
+        <inputEntry id="row25_in7">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="row25_in8">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="row25_in9">
+          <text>false</text>
+        </inputEntry>
+        <inputEntry id="row25_in10">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="row25_in11">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="row25_in12">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="row25_in13">
+          <text>true</text>
+        </inputEntry>
+        <outputEntry id="row25_out_OUT_ACTION">
+          <text>"APPROVE"</text>
+        </outputEntry>
+        <outputEntry id="row25_out_OUT_REASON">
+          <text>"F00"</text>
+        </outputEntry>
+      </rule>
+    </decisionTable>
+  </decision>
+</definitions>

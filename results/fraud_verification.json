@@ -1,0 +1,38 @@
+{
+  "program": "FRAUDHLD",
+  "rules": 8,
+  "platform": "s390x",
+  "node": "coboldecision",
+  "sets": {
+    "generated_requests": {
+      "records": 20000,
+      "agree": 20000,
+      "no_rule": 0,
+      "several_rules": 0,
+      "cobol_seconds": 0.029,
+      "engine_seconds": 9.58
+    },
+    "boundaries": {
+      "records": 212,
+      "agree": 212,
+      "no_rule": 0,
+      "several_rules": 0,
+      "cobol_seconds": 0.004,
+      "engine_seconds": 0.121
+    }
+  },
+  "per_rule": {
+    "RULE-01": 6957,
+    "RULE-02": 1374,
+    "RULE-03": 3607,
+    "RULE-04": 1623,
+    "RULE-05": 1051,
+    "RULE-06": 673,
+    "RULE-07": 660,
+    "RULE-08": 4267
+  },
+  "examples": [],
+  "agreement": 1.0,
+  "records": 20212,
+  "never_hit": []
+}

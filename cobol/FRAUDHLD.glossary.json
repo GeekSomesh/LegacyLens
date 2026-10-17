@@ -1,0 +1,22 @@
+{
+  "TX-CARD": "card number",
+  "TX-AMOUNT": "amount",
+  "TX-AVG-30D": "30-day average spend",
+  "TX-COUNT-1H": "authorisations in the last hour",
+  "TX-MCC": "merchant category",
+  "GAMBLING": "a gambling merchant",
+  "CASH-LIKE": "a cash-like merchant (ATM, quasi-cash)",
+  "TX-COUNTRY": "merchant country",
+  "TX-HOME": "home country",
+  "TX-HOUR": "hour of day",
+  "NIGHT": "between midnight and 5 am",
+  "TX-CHANNEL": "channel",
+  "E-COMMERCE": "an online purchase",
+  "TX-3DS": "3-D Secure result",
+  "AUTHENTICATED": "authenticated with 3-D Secure",
+  "WS-RISK-FLAG": "high-risk foreign country flag",
+  "FOREIGN-RISK": "abroad in a high-risk country",
+  "WS-RATIO": {"name": "amount as a multiple of average spend", "unit": "times"},
+  "OUT-ACTION": "action",
+  "OUT-REASON": "reason code"
+}

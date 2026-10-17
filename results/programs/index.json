@@ -12,13 +12,35 @@
    "all_proved": true,
    "overlaps": []
   },
-  "seconds": 5.26,
+  "seconds": 5.21,
   "rules": 6,
   "findings": 1,
   "lines_of_code": 64,
   "verified": {
    "cases": 35260,
    "agree": 35260
+  }
+ },
+ {
+  "name": "FRAUDHLD",
+  "origin": "Card authorisation fraud screen written for LegacyLens",
+  "path": "cobol/FRAUDHLD.cbl",
+  "raw_paths": 8,
+  "mode": "whole program",
+  "z3": {
+   "infeasible": 0,
+   "unknown": 0,
+   "conditions_removed": 2,
+   "all_proved": true,
+   "overlaps": []
+  },
+  "seconds": 2.71,
+  "rules": 8,
+  "findings": 1,
+  "lines_of_code": 86,
+  "verified": {
+   "cases": 20212,
+   "agree": 20212
   }
  },
  {
@@ -34,7 +56,7 @@
    "all_proved": true,
    "overlaps": []
   },
-  "seconds": 8.72,
+  "seconds": 8.57,
   "rules": 17,
   "findings": 7,
   "lines_of_code": 119,
@@ -56,7 +78,7 @@
    "all_proved": true,
    "overlaps": null
   },
-  "seconds": 4.49,
+  "seconds": 4.43,
   "rules": 28,
   "findings": 5,
   "lines_of_code": 417,

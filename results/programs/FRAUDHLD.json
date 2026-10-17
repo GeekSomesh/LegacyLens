@@ -1,0 +1,1149 @@
+{
+ "name": "FRAUDHLD",
+ "origin": "Card authorisation fraud screen written for LegacyLens",
+ "path": "cobol/FRAUDHLD.cbl",
+ "lines": [
+  {
+   "no": 1,
+   "text": "      *================================================================*"
+  },
+  {
+   "no": 2,
+   "text": "      * FRAUDHLD - CARD AUTHORISATION FRAUD SCREEN                      *"
+  },
+  {
+   "no": 3,
+   "text": "      * Real-time policy: reads a count, then one authorisation request *"
+  },
+  {
+   "no": 4,
+   "text": "      * per line, and writes ACCOUNT ACTION REASON RATIO per request.   *"
+  },
+  {
+   "no": 5,
+   "text": "      * Record layout (38 bytes):                                       *"
+  },
+  {
+   "no": 6,
+   "text": "      *   CARD 9(6) AMOUNT 9(7)V99 AVG-30D 9(7)V99 COUNT-1H 99 MCC 9(4) *"
+  },
+  {
+   "no": 7,
+   "text": "      *   COUNTRY XX HOME XX HOUR 99 CHANNEL X 3DS X                    *"
+  },
+  {
+   "no": 8,
+   "text": "      *================================================================*"
+  },
+  {
+   "no": 9,
+   "text": "       IDENTIFICATION DIVISION."
+  },
+  {
+   "no": 10,
+   "text": "       PROGRAM-ID. FRAUDHLD."
+  },
+  {
+   "no": 11,
+   "text": "       DATA DIVISION."
+  },
+  {
+   "no": 12,
+   "text": "       WORKING-STORAGE SECTION."
+  },
+  {
+   "no": 13,
+   "text": "       01  WS-COUNT              PIC 9(6)."
+  },
+  {
+   "no": 14,
+   "text": "       01  TX-REC."
+  },
+  {
+   "no": 15,
+   "text": "           05  TX-CARD           PIC 9(6)."
+  },
+  {
+   "no": 16,
+   "text": "           05  TX-AMOUNT         PIC 9(7)V99."
+  },
+  {
+   "no": 17,
+   "text": "           05  TX-AVG-30D        PIC 9(7)V99."
+  },
+  {
+   "no": 18,
+   "text": "           05  TX-COUNT-1H       PIC 99."
+  },
+  {
+   "no": 19,
+   "text": "           05  TX-MCC            PIC 9(4)."
+  },
+  {
+   "no": 20,
+   "text": "               88  GAMBLING      VALUE 7995."
+  },
+  {
+   "no": 21,
+   "text": "               88  CASH-LIKE     VALUE 6010 6011 6051."
+  },
+  {
+   "no": 22,
+   "text": "           05  TX-COUNTRY        PIC XX."
+  },
+  {
+   "no": 23,
+   "text": "           05  TX-HOME           PIC XX."
+  },
+  {
+   "no": 24,
+   "text": "           05  TX-HOUR           PIC 99."
+  },
+  {
+   "no": 25,
+   "text": "               88  NIGHT         VALUE 0 THRU 5."
+  },
+  {
+   "no": 26,
+   "text": "           05  TX-CHANNEL        PIC X."
+  },
+  {
+   "no": 27,
+   "text": "               88  E-COMMERCE    VALUE 'E'."
+  },
+  {
+   "no": 28,
+   "text": "           05  TX-3DS            PIC X."
+  },
+  {
+   "no": 29,
+   "text": "               88  AUTHENTICATED VALUE 'Y'."
+  },
+  {
+   "no": 30,
+   "text": "      *    High-risk countries: a constant table, built the classic way."
+  },
+  {
+   "no": 31,
+   "text": "       01  WS-RISK-INIT          PIC X(10) VALUE 'X1X2X3X4X5'."
+  },
+  {
+   "no": 32,
+   "text": "       01  WS-RISK-TABLE REDEFINES WS-RISK-INIT."
+  },
+  {
+   "no": 33,
+   "text": "           05  WS-RISK-CTRY      PIC XX OCCURS 5."
+  },
+  {
+   "no": 34,
+   "text": "       01  WS-I                  PIC 99."
+  },
+  {
+   "no": 35,
+   "text": "       01  WS-RISK-FLAG          PIC X."
+  },
+  {
+   "no": 36,
+   "text": "           88  FOREIGN-RISK      VALUE 'Y'."
+  },
+  {
+   "no": 37,
+   "text": "       01  WS-RATIO              PIC 9(5)V99."
+  },
+  {
+   "no": 38,
+   "text": "       01  OUT-ACTION            PIC X(9)."
+  },
+  {
+   "no": 39,
+   "text": "       01  OUT-REASON            PIC X(3)."
+  },
+  {
+   "no": 40,
+   "text": "       PROCEDURE DIVISION."
+  },
+  {
+   "no": 41,
+   "text": "       MAIN-PARA."
+  },
+  {
+   "no": 42,
+   "text": "           ACCEPT WS-COUNT"
+  },
+  {
+   "no": 43,
+   "text": "           PERFORM SCREEN-TXN WS-COUNT TIMES"
+  },
+  {
+   "no": 44,
+   "text": "           STOP RUN."
+  },
+  {
+   "no": 45,
+   "text": ""
+  },
+  {
+   "no": 46,
+   "text": "       SCREEN-TXN."
+  },
+  {
+   "no": 47,
+   "text": "           ACCEPT TX-REC"
+  },
+  {
+   "no": 48,
+   "text": "           PERFORM CHECK-COUNTRY"
+  },
+  {
+   "no": 49,
+   "text": "           PERFORM COMPUTE-RATIO"
+  },
+  {
+   "no": 50,
+   "text": "           PERFORM DECIDE"
+  },
+  {
+   "no": 51,
+   "text": "           DISPLAY TX-CARD ' ' OUT-ACTION ' ' OUT-REASON ' ' WS-RATIO."
+  },
+  {
+   "no": 52,
+   "text": ""
+  },
+  {
+   "no": 53,
+   "text": "       CHECK-COUNTRY."
+  },
+  {
+   "no": 54,
+   "text": "           MOVE 'N' TO WS-RISK-FLAG"
+  },
+  {
+   "no": 55,
+   "text": "           IF TX-COUNTRY NOT = TX-HOME"
+  },
+  {
+   "no": 56,
+   "text": "               PERFORM VARYING WS-I FROM 1 BY 1 UNTIL WS-I > 5"
+  },
+  {
+   "no": 57,
+   "text": "                   IF TX-COUNTRY = WS-RISK-CTRY(WS-I)"
+  },
+  {
+   "no": 58,
+   "text": "                       MOVE 'Y' TO WS-RISK-FLAG"
+  },
+  {
+   "no": 59,
+   "text": "                   END-IF"
+  },
+  {
+   "no": 60,
+   "text": "               END-PERFORM"
+  },
+  {
+   "no": 61,
+   "text": "           END-IF."
+  },
+  {
+   "no": 62,
+   "text": ""
+  },
+  {
+   "no": 63,
+   "text": "       COMPUTE-RATIO."
+  },
+  {
+   "no": 64,
+   "text": "      *    Amount as a multiple of the 30-day average spend."
+  },
+  {
+   "no": 65,
+   "text": "           IF TX-AVG-30D = 0"
+  },
+  {
+   "no": 66,
+   "text": "               MOVE 99999.99 TO WS-RATIO"
+  },
+  {
+   "no": 67,
+   "text": "           ELSE"
+  },
+  {
+   "no": 68,
+   "text": "               COMPUTE WS-RATIO = TX-AMOUNT / TX-AVG-30D"
+  },
+  {
+   "no": 69,
+   "text": "           END-IF."
+  },
+  {
+   "no": 70,
+   "text": ""
+  },
+  {
+   "no": 71,
+   "text": "       DECIDE."
+  },
+  {
+   "no": 72,
+   "text": "           EVALUATE TRUE"
+  },
+  {
+   "no": 73,
+   "text": "               WHEN TX-COUNT-1H > 20"
+  },
+  {
+   "no": 74,
+   "text": "                   MOVE 'DECLINE' TO OUT-ACTION"
+  },
+  {
+   "no": 75,
+   "text": "                   MOVE 'F01' TO OUT-REASON"
+  },
+  {
+   "no": 76,
+   "text": "               WHEN FOREIGN-RISK AND E-COMMERCE"
+  },
+  {
+   "no": 77,
+   "text": "                   MOVE 'DECLINE' TO OUT-ACTION"
+  },
+  {
+   "no": 78,
+   "text": "                   MOVE 'F02' TO OUT-REASON"
+  },
+  {
+   "no": 79,
+   "text": "               WHEN GAMBLING OR CASH-LIKE"
+  },
+  {
+   "no": 80,
+   "text": "                   IF WS-RATIO > 5"
+  },
+  {
+   "no": 81,
+   "text": "                       MOVE 'HOLD' TO OUT-ACTION"
+  },
+  {
+   "no": 82,
+   "text": "                       MOVE 'F03' TO OUT-REASON"
+  },
+  {
+   "no": 83,
+   "text": "                   ELSE"
+  },
+  {
+   "no": 84,
+   "text": "                       MOVE 'CHALLENGE' TO OUT-ACTION"
+  },
+  {
+   "no": 85,
+   "text": "                       MOVE 'F04' TO OUT-REASON"
+  },
+  {
+   "no": 86,
+   "text": "                   END-IF"
+  },
+  {
+   "no": 87,
+   "text": "               WHEN WS-RATIO > 10 AND NIGHT"
+  },
+  {
+   "no": 88,
+   "text": "                   MOVE 'HOLD' TO OUT-ACTION"
+  },
+  {
+   "no": 89,
+   "text": "                   MOVE 'F05' TO OUT-REASON"
+  },
+  {
+   "no": 90,
+   "text": "               WHEN E-COMMERCE AND NOT AUTHENTICATED"
+  },
+  {
+   "no": 91,
+   "text": "                    AND TX-AMOUNT > 500"
+  },
+  {
+   "no": 92,
+   "text": "                   MOVE 'CHALLENGE' TO OUT-ACTION"
+  },
+  {
+   "no": 93,
+   "text": "                   MOVE 'F06' TO OUT-REASON"
+  },
+  {
+   "no": 94,
+   "text": "               WHEN FOREIGN-RISK"
+  },
+  {
+   "no": 95,
+   "text": "                   MOVE 'CHALLENGE' TO OUT-ACTION"
+  },
+  {
+   "no": 96,
+   "text": "                   MOVE 'F07' TO OUT-REASON"
+  },
+  {
+   "no": 97,
+   "text": "               WHEN OTHER"
+  },
+  {
+   "no": 98,
+   "text": "                   MOVE 'APPROVE' TO OUT-ACTION"
+  },
+  {
+   "no": 99,
+   "text": "                   MOVE 'F00' TO OUT-REASON"
+  },
+  {
+   "no": 100,
+   "text": "           END-EVALUATE."
+  }
+ ],
+ "copybooks": [],
+ "paragraphs": 5,
+ "fields": 21,
+ "diagnostics": [],
+ "using": [],
+ "mode": "whole program",
+ "entry": "SCREEN-TXN",
+ "decision_fields": [
+  "OUT-ACTION",
+  "OUT-REASON"
+ ],
+ "raw_paths": 8,
+ "rules": [
+  {
+   "id": "RULE-01",
+   "actions": {
+    "OUT-ACTION": "DECLINE",
+    "OUT-REASON": "F01"
+   },
+   "conditions": [
+    {
+     "text": "TX-COUNT-1H > 20",
+     "line": 73,
+     "where": "FRAUDHLD.cbl:73",
+     "tested": "TX-COUNT-1H > 20",
+     "outcome": true,
+     "english": "authorisations in the last hour is more than 20",
+     "implied": false
+    }
+   ],
+   "derived": [
+    {
+     "text": "WS-RISK-FLAG = 'N'",
+     "line": 54
+    },
+    {
+     "text": "if TX-COUNTRY <> TX-HOME: repeat if TX-COUNTRY = WS-RISK-CTRY(WS-I): WS-RISK-FLAG = 'Y' until WS-I > 5",
+     "line": 55
+    },
+    {
+     "text": "if TX-AVG-30D = 0: WS-RATIO = 99999.99 else: WS-RATIO = TX-AMOUNT / TX-AVG-30D",
+     "line": 65
+    }
+   ],
+   "lines": [
+    73,
+    74,
+    75
+   ],
+   "notes": [],
+   "z3": {
+    "removed": 0,
+    "equivalent": true
+   },
+   "example": {
+    "TX-CARD": "0",
+    "TX-AMOUNT": "0",
+    "TX-AVG-30D": "1",
+    "TX-COUNT-1H": "21",
+    "TX-MCC": "0",
+    "TX-HOUR": "0"
+   }
+  },
+  {
+   "id": "RULE-02",
+   "actions": {
+    "OUT-ACTION": "DECLINE",
+    "OUT-REASON": "F02"
+   },
+   "conditions": [
+    {
+     "text": "TX-COUNT-1H <= 20",
+     "line": 73,
+     "where": "FRAUDHLD.cbl:73",
+     "tested": "TX-COUNT-1H > 20",
+     "outcome": false,
+     "english": "authorisations in the last hour is at most 20",
+     "implied": false
+    },
+    {
+     "text": "FOREIGN-RISK AND E-COMMERCE",
+     "line": 76,
+     "where": "FRAUDHLD.cbl:76",
+     "tested": "FOREIGN-RISK AND E-COMMERCE",
+     "outcome": true,
+     "english": "abroad in a high-risk country and an online purchase",
+     "meaning": "E-COMMERCE means TX-CHANNEL is E; FOREIGN-RISK means WS-RISK-FLAG is Y",
+     "implied": false
+    }
+   ],
+   "derived": [
+    {
+     "text": "WS-RISK-FLAG = 'N'",
+     "line": 54
+    },
+    {
+     "text": "if TX-COUNTRY <> TX-HOME: repeat if TX-COUNTRY = WS-RISK-CTRY(WS-I): WS-RISK-FLAG = 'Y' until WS-I > 5",
+     "line": 55
+    },
+    {
+     "text": "if TX-AVG-30D = 0: WS-RATIO = 99999.99 else: WS-RATIO = TX-AMOUNT / TX-AVG-30D",
+     "line": 65
+    }
+   ],
+   "lines": [
+    73,
+    76,
+    77,
+    78
+   ],
+   "notes": [],
+   "z3": {
+    "removed": 0,
+    "equivalent": true
+   },
+   "example": {
+    "TX-CARD": "0",
+    "TX-AMOUNT": "0",
+    "TX-AVG-30D": "1",
+    "TX-COUNT-1H": "0",
+    "TX-MCC": "0",
+    "TX-COUNTRY": "X4",
+    "TX-HOME": "X5",
+    "TX-HOUR": "0",
+    "TX-CHANNEL": "E"
+   }
+  },
+  {
+   "id": "RULE-03",
+   "actions": {
+    "OUT-ACTION": "HOLD",
+    "OUT-REASON": "F03"
+   },
+   "conditions": [
+    {
+     "text": "TX-COUNT-1H <= 20",
+     "line": 73,
+     "where": "FRAUDHLD.cbl:73",
+     "tested": "TX-COUNT-1H > 20",
+     "outcome": false,
+     "english": "authorisations in the last hour is at most 20",
+     "implied": false
+    },
+    {
+     "text": "NOT FOREIGN-RISK OR NOT E-COMMERCE",
+     "line": 76,
+     "where": "FRAUDHLD.cbl:76",
+     "tested": "FOREIGN-RISK AND E-COMMERCE",
+     "outcome": false,
+     "english": "not abroad in a high-risk country or not an online purchase",
+     "meaning": "E-COMMERCE means TX-CHANNEL is E; FOREIGN-RISK means WS-RISK-FLAG is Y",
+     "implied": false
+    },
+    {
+     "text": "GAMBLING OR CASH-LIKE",
+     "line": 79,
+     "where": "FRAUDHLD.cbl:79",
+     "tested": "GAMBLING OR CASH-LIKE",
+     "outcome": true,
+     "english": "a gambling merchant or a cash-like merchant (ATM, quasi-cash)",
+     "meaning": "CASH-LIKE means TX-MCC is 6010 or 6011 or 6051; GAMBLING means TX-MCC is 7995",
+     "implied": false
+    },
+    {
+     "text": "WS-RATIO > 5",
+     "line": 80,
+     "where": "FRAUDHLD.cbl:80",
+     "tested": "WS-RATIO > 5",
+     "outcome": true,
+     "english": "amount as a multiple of average spend is more than 5 times",
+     "implied": false
+    }
+   ],
+   "derived": [
+    {
+     "text": "WS-RISK-FLAG = 'N'",
+     "line": 54
+    },
+    {
+     "text": "if TX-COUNTRY <> TX-HOME: repeat if TX-COUNTRY = WS-RISK-CTRY(WS-I): WS-RISK-FLAG = 'Y' until WS-I > 5",
+     "line": 55
+    },
+    {
+     "text": "if TX-AVG-30D = 0: WS-RATIO = 99999.99 else: WS-RATIO = TX-AMOUNT / TX-AVG-30D",
+     "line": 65
+    }
+   ],
+   "lines": [
+    73,
+    76,
+    79,
+    80,
+    81,
+    82
+   ],
+   "notes": [],
+   "z3": {
+    "removed": 0,
+    "equivalent": true
+   },
+   "example": {
+    "TX-CARD": "0",
+    "TX-AMOUNT": "100005.01",
+    "TX-AVG-30D": "1",
+    "TX-COUNT-1H": "0",
+    "TX-MCC": "6.01E+3",
+    "TX-COUNTRY": "X1X2X3X4X5",
+    "TX-HOME": "X1X2X3X4X5",
+    "TX-HOUR": "0",
+    "TX-CHANNEL": "F02"
+   }
+  },
+  {
+   "id": "RULE-04",
+   "actions": {
+    "OUT-ACTION": "CHALLENGE",
+    "OUT-REASON": "F04"
+   },
+   "conditions": [
+    {
+     "text": "TX-COUNT-1H <= 20",
+     "line": 73,
+     "where": "FRAUDHLD.cbl:73",
+     "tested": "TX-COUNT-1H > 20",
+     "outcome": false,
+     "english": "authorisations in the last hour is at most 20",
+     "implied": false
+    },
+    {
+     "text": "NOT FOREIGN-RISK OR NOT E-COMMERCE",
+     "line": 76,
+     "where": "FRAUDHLD.cbl:76",
+     "tested": "FOREIGN-RISK AND E-COMMERCE",
+     "outcome": false,
+     "english": "not abroad in a high-risk country or not an online purchase",
+     "meaning": "E-COMMERCE means TX-CHANNEL is E; FOREIGN-RISK means WS-RISK-FLAG is Y",
+     "implied": false
+    },
+    {
+     "text": "GAMBLING OR CASH-LIKE",
+     "line": 79,
+     "where": "FRAUDHLD.cbl:79",
+     "tested": "GAMBLING OR CASH-LIKE",
+     "outcome": true,
+     "english": "a gambling merchant or a cash-like merchant (ATM, quasi-cash)",
+     "meaning": "CASH-LIKE means TX-MCC is 6010 or 6011 or 6051; GAMBLING means TX-MCC is 7995",
+     "implied": false
+    },
+    {
+     "text": "WS-RATIO <= 5",
+     "line": 80,
+     "where": "FRAUDHLD.cbl:80",
+     "tested": "WS-RATIO > 5",
+     "outcome": false,
+     "english": "amount as a multiple of average spend is at most 5 times",
+     "implied": false
+    }
+   ],
+   "derived": [
+    {
+     "text": "WS-RISK-FLAG = 'N'",
+     "line": 54
+    },
+    {
+     "text": "if TX-COUNTRY <> TX-HOME: repeat if TX-COUNTRY = WS-RISK-CTRY(WS-I): WS-RISK-FLAG = 'Y' until WS-I > 5",
+     "line": 55
+    },
+    {
+     "text": "if TX-AVG-30D = 0: WS-RATIO = 99999.99 else: WS-RATIO = TX-AMOUNT / TX-AVG-30D",
+     "line": 65
+    }
+   ],
+   "lines": [
+    73,
+    76,
+    79,
+    80,
+    84,
+    85
+   ],
+   "notes": [],
+   "z3": {
+    "removed": 0,
+    "equivalent": true
+   },
+   "example": {
+    "TX-CARD": "0",
+    "TX-AMOUNT": "0",
+    "TX-AVG-30D": "1",
+    "TX-COUNT-1H": "0",
+    "TX-MCC": "6.01E+3",
+    "TX-COUNTRY": "X1X2X3X4X5",
+    "TX-HOME": "X1X2X3X4X5",
+    "TX-HOUR": "0",
+    "TX-CHANNEL": "F02"
+   }
+  },
+  {
+   "id": "RULE-05",
+   "actions": {
+    "OUT-ACTION": "HOLD",
+    "OUT-REASON": "F05"
+   },
+   "conditions": [
+    {
+     "text": "TX-COUNT-1H <= 20",
+     "line": 73,
+     "where": "FRAUDHLD.cbl:73",
+     "tested": "TX-COUNT-1H > 20",
+     "outcome": false,
+     "english": "authorisations in the last hour is at most 20",
+     "implied": false
+    },
+    {
+     "text": "NOT FOREIGN-RISK OR NOT E-COMMERCE",
+     "line": 76,
+     "where": "FRAUDHLD.cbl:76",
+     "tested": "FOREIGN-RISK AND E-COMMERCE",
+     "outcome": false,
+     "english": "not abroad in a high-risk country or not an online purchase",
+     "meaning": "E-COMMERCE means TX-CHANNEL is E; FOREIGN-RISK means WS-RISK-FLAG is Y",
+     "implied": false
+    },
+    {
+     "text": "NOT GAMBLING AND NOT CASH-LIKE",
+     "line": 79,
+     "where": "FRAUDHLD.cbl:79",
+     "tested": "GAMBLING OR CASH-LIKE",
+     "outcome": false,
+     "english": "not a gambling merchant and not a cash-like merchant (ATM, quasi-cash)",
+     "meaning": "CASH-LIKE means TX-MCC is 6010 or 6011 or 6051; GAMBLING means TX-MCC is 7995",
+     "implied": false
+    },
+    {
+     "text": "WS-RATIO > 10 AND NIGHT",
+     "line": 87,
+     "where": "FRAUDHLD.cbl:87",
+     "tested": "WS-RATIO > 10 AND NIGHT",
+     "outcome": true,
+     "english": "amount as a multiple of average spend is more than 10 times and between midnight and 5 am",
+     "meaning": "NIGHT means TX-HOUR is 0 THRU 5",
+     "implied": false
+    }
+   ],
+   "derived": [
+    {
+     "text": "WS-RISK-FLAG = 'N'",
+     "line": 54
+    },
+    {
+     "text": "if TX-COUNTRY <> TX-HOME: repeat if TX-COUNTRY = WS-RISK-CTRY(WS-I): WS-RISK-FLAG = 'Y' until WS-I > 5",
+     "line": 55
+    },
+    {
+     "text": "if TX-AVG-30D = 0: WS-RATIO = 99999.99 else: WS-RATIO = TX-AMOUNT / TX-AVG-30D",
+     "line": 65
+    }
+   ],
+   "lines": [
+    73,
+    76,
+    79,
+    87,
+    88,
+    89
+   ],
+   "notes": [],
+   "z3": {
+    "removed": 0,
+    "equivalent": true
+   },
+   "example": {
+    "TX-CARD": "0",
+    "TX-AMOUNT": "100010.01",
+    "TX-AVG-30D": "1",
+    "TX-COUNT-1H": "0",
+    "TX-MCC": "0",
+    "TX-COUNTRY": "(any other text)",
+    "TX-HOME": "(any other text)",
+    "TX-HOUR": "0",
+    "TX-CHANNEL": "F02"
+   }
+  },
+  {
+   "id": "RULE-06",
+   "actions": {
+    "OUT-ACTION": "CHALLENGE",
+    "OUT-REASON": "F06"
+   },
+   "conditions": [
+    {
+     "text": "TX-COUNT-1H <= 20",
+     "line": 73,
+     "where": "FRAUDHLD.cbl:73",
+     "tested": "TX-COUNT-1H > 20",
+     "outcome": false,
+     "english": "authorisations in the last hour is at most 20",
+     "implied": false
+    },
+    {
+     "text": "NOT FOREIGN-RISK OR NOT E-COMMERCE",
+     "line": 76,
+     "where": "FRAUDHLD.cbl:76",
+     "tested": "FOREIGN-RISK AND E-COMMERCE",
+     "outcome": false,
+     "english": "not abroad in a high-risk country or not an online purchase",
+     "meaning": "E-COMMERCE means TX-CHANNEL is E; FOREIGN-RISK means WS-RISK-FLAG is Y",
+     "implied": false
+    },
+    {
+     "text": "NOT GAMBLING AND NOT CASH-LIKE",
+     "line": 79,
+     "where": "FRAUDHLD.cbl:79",
+     "tested": "GAMBLING OR CASH-LIKE",
+     "outcome": false,
+     "english": "not a gambling merchant and not a cash-like merchant (ATM, quasi-cash)",
+     "meaning": "CASH-LIKE means TX-MCC is 6010 or 6011 or 6051; GAMBLING means TX-MCC is 7995",
+     "implied": false
+    },
+    {
+     "text": "WS-RATIO <= 10 OR NOT NIGHT",
+     "line": 87,
+     "where": "FRAUDHLD.cbl:87",
+     "tested": "WS-RATIO > 10 AND NIGHT",
+     "outcome": false,
+     "english": "amount as a multiple of average spend is at most 10 times or not between midnight and 5 am",
+     "meaning": "NIGHT means TX-HOUR is 0 THRU 5",
+     "implied": false
+    },
+    {
+     "text": "E-COMMERCE AND NOT AUTHENTICATED AND TX-AMOUNT > 500",
+     "line": 90,
+     "where": "FRAUDHLD.cbl:90",
+     "tested": "E-COMMERCE AND NOT AUTHENTICATED AND TX-AMOUNT > 500",
+     "outcome": true,
+     "english": "an online purchase and not authenticated with 3-D Secure and amount is more than 500",
+     "meaning": "AUTHENTICATED means TX-3DS is Y; E-COMMERCE means TX-CHANNEL is E",
+     "implied": false
+    }
+   ],
+   "derived": [
+    {
+     "text": "WS-RISK-FLAG = 'N'",
+     "line": 54
+    },
+    {
+     "text": "if TX-COUNTRY <> TX-HOME: repeat if TX-COUNTRY = WS-RISK-CTRY(WS-I): WS-RISK-FLAG = 'Y' until WS-I > 5",
+     "line": 55
+    },
+    {
+     "text": "if TX-AVG-30D = 0: WS-RATIO = 99999.99 else: WS-RATIO = TX-AMOUNT / TX-AVG-30D",
+     "line": 65
+    }
+   ],
+   "lines": [
+    73,
+    76,
+    79,
+    87,
+    90,
+    92,
+    93
+   ],
+   "notes": [],
+   "z3": {
+    "removed": 0,
+    "equivalent": true
+   },
+   "example": {
+    "TX-CARD": "0",
+    "TX-AMOUNT": "501",
+    "TX-AVG-30D": "50601",
+    "TX-COUNT-1H": "0",
+    "TX-MCC": "0",
+    "TX-COUNTRY": "X1X2X3X4X5",
+    "TX-HOME": "X1X2X3X4X5",
+    "TX-HOUR": "6",
+    "TX-CHANNEL": "E",
+    "TX-3DS": "X2"
+   }
+  },
+  {
+   "id": "RULE-07",
+   "actions": {
+    "OUT-ACTION": "CHALLENGE",
+    "OUT-REASON": "F07"
+   },
+   "conditions": [
+    {
+     "text": "TX-COUNT-1H <= 20",
+     "line": 73,
+     "where": "FRAUDHLD.cbl:73",
+     "tested": "TX-COUNT-1H > 20",
+     "outcome": false,
+     "english": "authorisations in the last hour is at most 20",
+     "implied": false
+    },
+    {
+     "text": "NOT FOREIGN-RISK OR NOT E-COMMERCE",
+     "line": 76,
+     "where": "FRAUDHLD.cbl:76",
+     "tested": "FOREIGN-RISK AND E-COMMERCE",
+     "outcome": false,
+     "english": "not abroad in a high-risk country or not an online purchase",
+     "meaning": "E-COMMERCE means TX-CHANNEL is E; FOREIGN-RISK means WS-RISK-FLAG is Y",
+     "implied": false
+    },
+    {
+     "text": "NOT GAMBLING AND NOT CASH-LIKE",
+     "line": 79,
+     "where": "FRAUDHLD.cbl:79",
+     "tested": "GAMBLING OR CASH-LIKE",
+     "outcome": false,
+     "english": "not a gambling merchant and not a cash-like merchant (ATM, quasi-cash)",
+     "meaning": "CASH-LIKE means TX-MCC is 6010 or 6011 or 6051; GAMBLING means TX-MCC is 7995",
+     "implied": false
+    },
+    {
+     "text": "WS-RATIO <= 10 OR NOT NIGHT",
+     "line": 87,
+     "where": "FRAUDHLD.cbl:87",
+     "tested": "WS-RATIO > 10 AND NIGHT",
+     "outcome": false,
+     "english": "amount as a multiple of average spend is at most 10 times or not between midnight and 5 am",
+     "meaning": "NIGHT means TX-HOUR is 0 THRU 5",
+     "implied": false
+    },
+    {
+     "text": "NOT E-COMMERCE OR AUTHENTICATED OR TX-AMOUNT <= 500",
+     "line": 90,
+     "where": "FRAUDHLD.cbl:90",
+     "tested": "E-COMMERCE AND NOT AUTHENTICATED AND TX-AMOUNT > 500",
+     "outcome": false,
+     "english": "(not an online purchase or authenticated with 3-D Secure) or amount is at most 500",
+     "meaning": "AUTHENTICATED means TX-3DS is Y; E-COMMERCE means TX-CHANNEL is E",
+     "implied": true
+    },
+    {
+     "text": "FOREIGN-RISK",
+     "line": 94,
+     "where": "FRAUDHLD.cbl:94",
+     "tested": "FOREIGN-RISK",
+     "outcome": true,
+     "english": "abroad in a high-risk country",
+     "meaning": "FOREIGN-RISK means WS-RISK-FLAG is Y",
+     "implied": false
+    }
+   ],
+   "derived": [
+    {
+     "text": "WS-RISK-FLAG = 'N'",
+     "line": 54
+    },
+    {
+     "text": "if TX-COUNTRY <> TX-HOME: repeat if TX-COUNTRY = WS-RISK-CTRY(WS-I): WS-RISK-FLAG = 'Y' until WS-I > 5",
+     "line": 55
+    },
+    {
+     "text": "if TX-AVG-30D = 0: WS-RATIO = 99999.99 else: WS-RATIO = TX-AMOUNT / TX-AVG-30D",
+     "line": 65
+    }
+   ],
+   "lines": [
+    73,
+    76,
+    79,
+    87,
+    90,
+    94,
+    95,
+    96
+   ],
+   "notes": [],
+   "z3": {
+    "removed": 1,
+    "equivalent": true
+   },
+   "example": {
+    "TX-CARD": "0",
+    "TX-AMOUNT": "0",
+    "TX-AVG-30D": "1",
+    "TX-COUNT-1H": "0",
+    "TX-MCC": "0",
+    "TX-COUNTRY": "X2",
+    "TX-HOME": "X3",
+    "TX-HOUR": "6",
+    "TX-CHANNEL": "F02"
+   }
+  },
+  {
+   "id": "RULE-08",
+   "actions": {
+    "OUT-ACTION": "APPROVE",
+    "OUT-REASON": "F00"
+   },
+   "conditions": [
+    {
+     "text": "TX-COUNT-1H <= 20",
+     "line": 73,
+     "where": "FRAUDHLD.cbl:73",
+     "tested": "TX-COUNT-1H > 20",
+     "outcome": false,
+     "english": "authorisations in the last hour is at most 20",
+     "implied": false
+    },
+    {
+     "text": "NOT FOREIGN-RISK OR NOT E-COMMERCE",
+     "line": 76,
+     "where": "FRAUDHLD.cbl:76",
+     "tested": "FOREIGN-RISK AND E-COMMERCE",
+     "outcome": false,
+     "english": "not abroad in a high-risk country or not an online purchase",
+     "meaning": "E-COMMERCE means TX-CHANNEL is E; FOREIGN-RISK means WS-RISK-FLAG is Y",
+     "implied": true
+    },
+    {
+     "text": "NOT GAMBLING AND NOT CASH-LIKE",
+     "line": 79,
+     "where": "FRAUDHLD.cbl:79",
+     "tested": "GAMBLING OR CASH-LIKE",
+     "outcome": false,
+     "english": "not a gambling merchant and not a cash-like merchant (ATM, quasi-cash)",
+     "meaning": "CASH-LIKE means TX-MCC is 6010 or 6011 or 6051; GAMBLING means TX-MCC is 7995",
+     "implied": false
+    },
+    {
+     "text": "WS-RATIO <= 10 OR NOT NIGHT",
+     "line": 87,
+     "where": "FRAUDHLD.cbl:87",
+     "tested": "WS-RATIO > 10 AND NIGHT",
+     "outcome": false,
+     "english": "amount as a multiple of average spend is at most 10 times or not between midnight and 5 am",
+     "meaning": "NIGHT means TX-HOUR is 0 THRU 5",
+     "implied": false
+    },
+    {
+     "text": "NOT E-COMMERCE OR AUTHENTICATED OR TX-AMOUNT <= 500",
+     "line": 90,
+     "where": "FRAUDHLD.cbl:90",
+     "tested": "E-COMMERCE AND NOT AUTHENTICATED AND TX-AMOUNT > 500",
+     "outcome": false,
+     "english": "(not an online purchase or authenticated with 3-D Secure) or amount is at most 500",
+     "meaning": "AUTHENTICATED means TX-3DS is Y; E-COMMERCE means TX-CHANNEL is E",
+     "implied": false
+    },
+    {
+     "text": "NOT FOREIGN-RISK",
+     "line": 94,
+     "where": "FRAUDHLD.cbl:94",
+     "tested": "FOREIGN-RISK",
+     "outcome": false,
+     "english": "not abroad in a high-risk country",
+     "meaning": "FOREIGN-RISK means WS-RISK-FLAG is Y",
+     "implied": false
+    }
+   ],
+   "derived": [
+    {
+     "text": "WS-RISK-FLAG = 'N'",
+     "line": 54
+    },
+    {
+     "text": "if TX-COUNTRY <> TX-HOME: repeat if TX-COUNTRY = WS-RISK-CTRY(WS-I): WS-RISK-FLAG = 'Y' until WS-I > 5",
+     "line": 55
+    },
+    {
+     "text": "if TX-AVG-30D = 0: WS-RATIO = 99999.99 else: WS-RATIO = TX-AMOUNT / TX-AVG-30D",
+     "line": 65
+    }
+   ],
+   "lines": [
+    73,
+    76,
+    79,
+    87,
+    90,
+    94,
+    98,
+    99
+   ],
+   "notes": [],
+   "z3": {
+    "removed": 1,
+    "equivalent": true
+   },
+   "example": {
+    "TX-CARD": "0",
+    "TX-AMOUNT": "0",
+    "TX-AVG-30D": "1",
+    "TX-COUNT-1H": "0",
+    "TX-MCC": "0",
+    "TX-COUNTRY": "X1X2X3X4X5",
+    "TX-HOME": "X1X2X3X4X5",
+    "TX-HOUR": "6",
+    "TX-CHANNEL": "F02",
+    "TX-3DS": "Y"
+   }
+  }
+ ],
+ "z3": {
+  "infeasible": 0,
+  "unknown": 0,
+  "conditions_removed": 2,
+  "all_proved": true,
+  "overlaps": []
+ },
+ "findings": [
+  {
+   "kind": "silent overflow",
+   "lines": [
+    68
+   ],
+   "message": "line 68: WS-RATIO (PIC 9(5)V99) can receive a value with more integer digits than it holds; COBOL drops the high-order digits without an error. Example found by z3: TX-CARD=0, TX-AMOUNT=100000, TX-AVG-30D=1, TX-COUNT-1H=21, TX-MCC=0, TX-HOUR=0. Compiled program: prints \"000000 DECLINE   F01 00000.00\"",
+   "confirmed": "prints \"000000 DECLINE   F01 00000.00\""
+  }
+ ],
+ "verification": {
+  "cases": 20212,
+  "agree": 20212,
+  "sets": {
+   "generated_requests": {
+    "records": 20000,
+    "agree": 20000,
+    "no_rule": 0,
+    "several_rules": 0,
+    "cobol_seconds": 0.029,
+    "engine_seconds": 9.58
+   },
+   "boundaries": {
+    "records": 212,
+    "agree": 212,
+    "no_rule": 0,
+    "several_rules": 0,
+    "cobol_seconds": 0.004,
+    "engine_seconds": 0.121
+   }
+  },
+  "platform": "s390x",
+  "kind": "rules"
+ },
+ "dmn": null,
+ "seconds": 2.71
+}
