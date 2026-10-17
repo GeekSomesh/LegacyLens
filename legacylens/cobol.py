@@ -172,6 +172,7 @@ class Compute:
     targets: list
     expr: object
     line: int
+    rounded: tuple = ()    # names of targets with ROUNDED
 
 
 @dataclass
@@ -849,19 +850,19 @@ class ProcParser:
             return Move(src, targets, line)
         if verb == "COMPUTE":
             self.take()
-            targets = []
+            targets, rounded = [], []
             while not self.at("=", "EQUAL"):
                 targets.append(self.ref())
                 if self.at("ROUNDED"):
                     self.take()
-                    self.diag.append(f"line {line}: ROUNDED is treated as truncation")
+                    rounded.append(targets[-1].name)
             self.take()
             expr = self.expr()
             if self.at("ON", "SIZE", "NOT"):
                 return self.unsupported(line, "ON SIZE ERROR", stops)
             if self.at("END-COMPUTE"):
                 self.take()
-            return Compute(targets, expr, line)
+            return Compute(targets, expr, line, tuple(rounded))
         if verb in ("ADD", "SUBTRACT"):
             self.take()
             values = [self.atom()]

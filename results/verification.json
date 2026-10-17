@@ -9,24 +9,24 @@
       "agree": 30000,
       "no_rule": 0,
       "several_rules": 0,
-      "cobol_seconds": 0.05,
-      "engine_seconds": 3.941
+      "cobol_seconds": 0.045,
+      "engine_seconds": 8.291
     },
     "boundaries": {
       "records": 260,
       "agree": 260,
       "no_rule": 0,
       "several_rules": 0,
-      "cobol_seconds": 0.006,
-      "engine_seconds": 0.033
+      "cobol_seconds": 0.004,
+      "engine_seconds": 0.07
     },
     "random": {
       "records": 5000,
       "agree": 5000,
       "no_rule": 0,
       "several_rules": 0,
-      "cobol_seconds": 0.009,
-      "engine_seconds": 0.594
+      "cobol_seconds": 0.008,
+      "engine_seconds": 1.235
     }
   },
   "per_rule": {

@@ -1,0 +1,43 @@
+{
+  "platform": "s390x",
+  "programs": {
+    "C01GOTO": {
+      "covers": "GO TO, PERFORM THRU, EXIT paragraph",
+      "records": 2000,
+      "agree": 2000,
+      "diagnostics": [],
+      "first_difference": null
+    },
+    "C02LOOPS": {
+      "covers": "OCCURS, PERFORM VARYING, TEST AFTER, inline PERFORM UNTIL",
+      "records": 2000,
+      "agree": 2000,
+      "diagnostics": [],
+      "first_difference": null
+    },
+    "C03STORE": {
+      "covers": "REDEFINES, COMP-3, COMP, signed DISPLAY, division",
+      "records": 2000,
+      "agree": 2000,
+      "diagnostics": [],
+      "first_difference": null
+    },
+    "C04EDIT": {
+      "covers": "signed arithmetic, ROUNDED, edited pictures (Z , . - CR $ * floating)",
+      "records": 2000,
+      "agree": 2000,
+      "diagnostics": [],
+      "first_difference": null
+    },
+    "C05TEXT": {
+      "covers": "88 lists, SET TRUE, EVALUATE THRU, reference modification, INITIALIZE",
+      "records": 2000,
+      "agree": 2000,
+      "diagnostics": [],
+      "first_difference": null
+    }
+  },
+  "total": 10000,
+  "agree": 10000,
+  "agreement": 1.0
+}

@@ -9,7 +9,7 @@ from __future__ import annotations
 
 import re
 from dataclasses import dataclass, replace
-from decimal import ROUND_DOWN, Decimal, getcontext
+from decimal import ROUND_DOWN, ROUND_HALF_UP, Decimal, getcontext
 
 getcontext().prec = 60
 
@@ -84,7 +84,7 @@ def with_sign(pic: Pic, leading: bool, separate: bool) -> Pic:
 # ---------------------------------------------------------------- values
 
 
-def store(pic: Pic, value):
+def store(pic: Pic, value, rounded: bool = False):
     """The value a receiving field holds after MOVE/COMPUTE: numeric values lose
     fraction digits beyond the scale and high-order digits beyond the picture,
     and unsigned fields drop the sign; alphanumeric values are left justified."""
@@ -95,7 +95,7 @@ def store(pic: Pic, value):
         d = Decimal(value)
         if not pic.signed and pic.kind == "num":
             d = abs(d)
-        d = d.quantize(Decimal(1).scaleb(-pic.scale), rounding=ROUND_DOWN)
+        d = d.quantize(Decimal(1).scaleb(-pic.scale), rounding=ROUND_HALF_UP if rounded else ROUND_DOWN)
         limit = Decimal(10) ** pic.digits
         sign = -1 if d < 0 else 1
         return sign * (abs(d) % limit)
@@ -199,13 +199,16 @@ def is_numeric_data(pic: Pic | None, raw: bytes) -> bool:
 
 
 def display(pic: Pic, value) -> str:
-    """What DISPLAY prints for a stored value."""
+    """What DISPLAY prints for a stored value: digits with the decimal point
+    for scaled fields, and a leading sign for signed fields (as GnuCOBOL)."""
     if pic.kind == "alnum":
         return str(value)
     if pic.kind == "edited":
         return format_edited(pic, Decimal(value))
     d = Decimal(value)
     text = str(_scaled(pic, d)).rjust(pic.digits + pic.scale, "0")
+    if pic.scale:
+        text = text[: pic.digits] + "." + text[pic.digits:]
     if pic.signed:
         return ("-" if d < 0 else "+") + text
     return text
@@ -225,6 +228,14 @@ def format_edited(pic: Pic, value: Decimal) -> str:
     fill = "*" if "*" in body else " "
     float_char = next((c for c in "+-$" if body.count(c) > 1), None)
     float_done = False
+    if nleft and int(mag) >= 10 ** nleft:
+        # high-order digits were cut off: GnuCOBOL suppresses no zeros then
+        seen = True
+        if float_char:
+            mark = "$" if float_char == "$" else ("-" if neg else ("+" if float_char == "+" else " "))
+            out.append(mark)
+            float_done = True
+            body = body[:body.index(float_char)] + "\x00" + body[body.index(float_char) + 1:]
     i = 0
     while i < len(body):
         ch = body[i]
@@ -257,6 +268,13 @@ def format_edited(pic: Pic, value: Decimal) -> str:
             d = digits[k]
             k += 1
             if ch == "9" or d != "0" or seen or i > len(left):
+                if not seen and float_char:
+                    # the floating symbol lands just left of the first printed digit
+                    mark = "$" if float_char == "$" else ("-" if neg else ("+" if float_char == "+" else " "))
+                    for j in range(len(out) - 1, -1, -1):
+                        if out[j] == " ":
+                            out[j] = mark
+                            break
                 seen = True
                 out.append(d)
             else:

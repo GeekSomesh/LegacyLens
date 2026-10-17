@@ -18,7 +18,7 @@
   "raw_paths": 109,
   "rules": 17,
   "extract_seconds": 0.0,
-  "z3_seconds": 6.17,
+  "z3_seconds": 6.14,
   "z3": {
     "infeasible_paths": 92,
     "unknown": [],
@@ -59,7 +59,7 @@
       "defined": 4506,
       "agreement_on_defined": 1.0,
       "cobol_seconds": 0.04,
-      "engine_seconds": 1.25
+      "engine_seconds": 1.26
     },
     "random": {
       "cases": 3000,
@@ -70,7 +70,7 @@
       "defined": 3000,
       "agreement_on_defined": 1.0,
       "cobol_seconds": 0.04,
-      "engine_seconds": 1.27
+      "engine_seconds": 1.29
     }
   },
   "per_rule": {

@@ -652,7 +652,7 @@ class State:
             return data.decode("latin-1")
         return display(f.pic, decode(f.pic, data))
 
-    def set(self, ref: C.Ref, value, src=None):
+    def set(self, ref: C.Ref, value, src=None, rounded: bool = False):
         buf, off, ln, f = self.locate(ref)
         if isinstance(value, C.Fig):
             if f.pic is not None and f.pic.kind == "num" and not ref.refmod and value.kind == "ZERO":
@@ -665,11 +665,11 @@ class State:
                 if not digits.isdigit():
                     raise NotNumeric(f"MOVE {value!r} to numeric {f.name}")
                 value = Decimal(int(digits))
-            data = encode(f.pic, store(f.pic, value))
+            data = encode(f.pic, store(f.pic, value, rounded))
         elif f.pic is not None and not ref.refmod and f.pic.kind == "edited":
             if isinstance(value, str):
                 value = Decimal(int(value.strip() or "0"))
-            data = format_edited(f.pic, store(f.pic, value)).encode("latin-1")
+            data = format_edited(f.pic, store(f.pic, value, rounded)).encode("latin-1")
         else:
             if isinstance(value, Decimal):
                 value = src if isinstance(src, str) else str(abs(value)).replace(".", "")
@@ -683,7 +683,7 @@ class State:
         if isinstance(source, C.Ref):
             f = self.prog.fields.get(source.name)
             if f is not None and f.pic is not None and f.pic.kind == "num" and not source.refmod:
-                return display(f.pic, self.get(source)).lstrip("+-")
+                return display(f.pic, self.get(source)).lstrip("+-").replace(".", "")
         return None
 
     # evaluation
@@ -796,7 +796,7 @@ class State:
             elif isinstance(s, C.Compute):
                 val = self.value(s.expr)
                 for t in s.targets:
-                    self.set(t, val)
+                    self.set(t, val, rounded=t.name in s.rounded)
             elif isinstance(s, C.If):
                 self.execute(s.then if self.holds(s.cond) else s.else_, inputs, out)
             elif isinstance(s, C.Evaluate):
@@ -813,7 +813,7 @@ class State:
                            "DAY": now.strftime("%y%j"), "DAY-OF-WEEK": str(now.isoweekday())}[s.source]
                     self.set(s.target, val)
                 else:
-                    self.set(s.target, next(inputs))
+                    self._accept(s.target, next(inputs))
             elif isinstance(s, C.Display):
                 if out is not None:
                     out.append("".join(self.text(i) if isinstance(i, C.Ref) else
@@ -865,6 +865,25 @@ class State:
                         self.set(C.Ref(st), "00")
             elif isinstance(s, C.Unsupported):
                 raise ValueError(f"line {s.line}: unsupported statement")
+
+    def _accept(self, ref: C.Ref, line: str):
+        """ACCEPT from the console as GnuCOBOL does: a numeric field takes the
+        line cut to its width and converted as a number (sign allowed)."""
+        f = self.prog.fields[ref.name]
+        if f.pic is None or ref.refmod or f.pic.kind != "num":
+            self.set(ref, line)
+            return
+        text = line[: f.pic.digits + f.pic.scale].strip()
+        sign = -1 if text[:1] == "-" or text[-1:] == "-" else 1
+        body = text.strip("+-").strip()
+        if not body:
+            self.set(ref, Decimal(0))
+            return
+        try:
+            value = Decimal(body)
+        except InvalidOperation:
+            raise NotNumeric(f"ACCEPT {line!r} into {f.name}")
+        self.set(ref, sign * value)
 
     def _perform(self, s: C.Perform, inputs, out):
         def body():

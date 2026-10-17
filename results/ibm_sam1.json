@@ -19,7 +19,7 @@
   "undefined": 1,
   "defined_runs": 300,
   "agreement": 1.0,
-  "compiled_seconds": 0.64,
+  "compiled_seconds": 0.61,
   "model_seconds": 0.56,
   "sets": {
     "file runs (defined)": {

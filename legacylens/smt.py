@@ -275,7 +275,8 @@ class Sym:
                 except Unknown:
                     val = None
                 for t in s.targets:
-                    self.write(t, val)
+                    # ROUNDED results are left unknown (the encoding models truncation)
+                    self.write(t, None if t.name in s.rounded else val)
             elif isinstance(s, C.If):
                 c = self.formula(s.cond)
                 self._branch([(c, s.then)], s.else_)
