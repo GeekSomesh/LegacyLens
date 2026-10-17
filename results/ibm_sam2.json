@@ -1,0 +1,402 @@
+{
+  "program": "SAM2",
+  "source": "IBM zopeneditor-sample COBOL/SAM2.cbl (Apache-2.0)",
+  "platform": "s390x",
+  "parameters": [
+    "CUST-REC",
+    "TRANSACTION-RECORD",
+    "TRAN-OK",
+    "TRAN-MSG"
+  ],
+  "decision_fields": [
+    "CUST-ACCT-BALANCE",
+    "CUST-NAME",
+    "CUST-ORDERS-YTD",
+    "TRAN-MSG",
+    "TRAN-OK"
+  ],
+  "raw_paths": 109,
+  "rules": 17,
+  "extract_seconds": 0.0,
+  "z3_seconds": 6.17,
+  "z3": {
+    "infeasible_paths": 92,
+    "unknown": [],
+    "overlapping_pairs": [],
+    "conditions_removed": 44,
+    "all_simplifications_proved": true,
+    "examples_reaching_their_rule": "10 of 17"
+  },
+  "sets": {
+    "ibm_sample_data": {
+      "cases": 12,
+      "agree": 12,
+      "undefined": 0,
+      "no_rule": 0,
+      "several_rules": 0,
+      "defined": 12,
+      "agreement_on_defined": 1.0,
+      "cobol_seconds": 0.0,
+      "engine_seconds": 0.0
+    },
+    "z3_examples": {
+      "cases": 17,
+      "agree": 17,
+      "undefined": 0,
+      "no_rule": 0,
+      "several_rules": 0,
+      "defined": 17,
+      "agreement_on_defined": 1.0,
+      "cobol_seconds": 0.0,
+      "engine_seconds": 0.01
+    },
+    "grid": {
+      "cases": 4506,
+      "agree": 4506,
+      "undefined": 0,
+      "no_rule": 0,
+      "several_rules": 0,
+      "defined": 4506,
+      "agreement_on_defined": 1.0,
+      "cobol_seconds": 0.04,
+      "engine_seconds": 1.25
+    },
+    "random": {
+      "cases": 3000,
+      "agree": 3000,
+      "undefined": 0,
+      "no_rule": 0,
+      "several_rules": 0,
+      "defined": 3000,
+      "agreement_on_defined": 1.0,
+      "cobol_seconds": 0.04,
+      "engine_seconds": 1.27
+    }
+  },
+  "per_rule": {
+    "RULE-01": 684,
+    "RULE-10": 59,
+    "RULE-19": 88,
+    "RULE-21": 25,
+    "RULE-22": 26,
+    "RULE-24": 28,
+    "RULE-25": 30,
+    "RULE-37": 178,
+    "RULE-38": 97,
+    "RULE-45": 165,
+    "RULE-55": 403,
+    "RULE-64": 283,
+    "RULE-73": 438,
+    "RULE-82": 611,
+    "RULE-91": 954,
+    "RULE-100": 1375,
+    "RULE-109": 2091
+  },
+  "examples": [],
+  "never_hit": [],
+  "rule_list": [
+    {
+      "id": "RULE-01",
+      "actions": {
+        "TRAN-OK": "Y",
+        "TRAN-MSG": "SPACES"
+      },
+      "conditions": [
+        "TRAN-CODE = 'CRUNCH '"
+      ],
+      "removed": []
+    },
+    {
+      "id": "RULE-10",
+      "actions": {
+        "TRAN-OK": "N",
+        "TRAN-MSG": "DATA IS NOT NUMERIC"
+      },
+      "conditions": [
+        "TRAN-CODE = 'UPDATE '",
+        "TRAN-FIELD-NAME = 'BALANCE ' OR TRAN-FIELD-NAME = 'ORDERS  '",
+        "TRAN-UPDATE-NUM IS NOT NUMERIC",
+        "TRAN-ACTION = 'REPLACE ' OR TRAN-ACTION = 'ADD     '"
+      ],
+      "removed": [
+        "TRAN-CODE <> 'CRUNCH '",
+        "TRAN-OK <> 'Y'"
+      ]
+    },
+    {
+      "id": "RULE-19",
+      "actions": {
+        "TRAN-OK": "N",
+        "TRAN-MSG": "INVALID ACTION CODE"
+      },
+      "conditions": [
+        "TRAN-CODE = 'UPDATE '",
+        "TRAN-FIELD-NAME = 'BALANCE ' OR TRAN-FIELD-NAME = 'ORDERS  '",
+        "TRAN-UPDATE-NUM IS NOT NUMERIC",
+        "TRAN-ACTION <> 'REPLACE ' AND TRAN-ACTION <> 'ADD     '"
+      ],
+      "removed": [
+        "TRAN-CODE <> 'CRUNCH '",
+        "TRAN-OK <> 'Y'"
+      ]
+    },
+    {
+      "id": "RULE-21",
+      "actions": {
+        "TRAN-OK": "Y",
+        "TRAN-MSG": "SPACES",
+        "CUST-ACCT-BALANCE": "<CUST-ACCT-BALANCE = WS-UPDATE-NUM>"
+      },
+      "conditions": [
+        "TRAN-CODE = 'UPDATE '",
+        "TRAN-UPDATE-NUM IS NUMERIC",
+        "TRAN-FIELD-NAME = 'BALANCE '",
+        "TRAN-ACTION = 'REPLACE'"
+      ],
+      "removed": [
+        "TRAN-CODE <> 'CRUNCH '",
+        "TRAN-FIELD-NAME = 'BALANCE ' OR TRAN-FIELD-NAME = 'ORDERS  '",
+        "TRAN-ACTION = 'REPLACE ' OR TRAN-ACTION = 'ADD     '",
+        "TRAN-OK = 'Y'",
+        "TRAN-FIELD-NAME <> 'NAME    '"
+      ]
+    },
+    {
+      "id": "RULE-22",
+      "actions": {
+        "TRAN-OK": "Y",
+        "TRAN-MSG": "SPACES",
+        "CUST-ACCT-BALANCE": "<CUST-ACCT-BALANCE = CUST-ACCT-BALANCE + WS-UPDATE-NUM>"
+      },
+      "conditions": [
+        "TRAN-CODE = 'UPDATE '",
+        "TRAN-UPDATE-NUM IS NUMERIC",
+        "TRAN-FIELD-NAME = 'BALANCE '",
+        "TRAN-ACTION = 'ADD     '"
+      ],
+      "removed": [
+        "TRAN-CODE <> 'CRUNCH '",
+        "TRAN-FIELD-NAME = 'BALANCE ' OR TRAN-FIELD-NAME = 'ORDERS  '",
+        "TRAN-ACTION = 'REPLACE ' OR TRAN-ACTION = 'ADD     '",
+        "TRAN-OK = 'Y'",
+        "TRAN-FIELD-NAME <> 'NAME    '",
+        "TRAN-ACTION <> 'REPLACE'"
+      ]
+    },
+    {
+      "id": "RULE-24",
+      "actions": {
+        "TRAN-OK": "Y",
+        "TRAN-MSG": "SPACES",
+        "CUST-ORDERS-YTD": "<CUST-ORDERS-YTD = WS-UPDATE-NUM>"
+      },
+      "conditions": [
+        "TRAN-CODE = 'UPDATE '",
+        "TRAN-UPDATE-NUM IS NUMERIC",
+        "TRAN-FIELD-NAME = 'ORDERS  '",
+        "TRAN-ACTION = 'REPLACE'"
+      ],
+      "removed": [
+        "TRAN-CODE <> 'CRUNCH '",
+        "TRAN-FIELD-NAME = 'BALANCE ' OR TRAN-FIELD-NAME = 'ORDERS  '",
+        "TRAN-ACTION = 'REPLACE ' OR TRAN-ACTION = 'ADD     '",
+        "TRAN-OK = 'Y'",
+        "TRAN-FIELD-NAME <> 'NAME    '",
+        "TRAN-FIELD-NAME <> 'BALANCE '"
+      ]
+    },
+    {
+      "id": "RULE-25",
+      "actions": {
+        "TRAN-OK": "Y",
+        "TRAN-MSG": "SPACES",
+        "CUST-ORDERS-YTD": "<CUST-ORDERS-YTD = CUST-ORDERS-YTD + WS-UPDATE-NUM>"
+      },
+      "conditions": [
+        "TRAN-CODE = 'UPDATE '",
+        "TRAN-UPDATE-NUM IS NUMERIC",
+        "TRAN-FIELD-NAME = 'ORDERS  '",
+        "TRAN-ACTION = 'ADD     '"
+      ],
+      "removed": [
+        "TRAN-CODE <> 'CRUNCH '",
+        "TRAN-FIELD-NAME = 'BALANCE ' OR TRAN-FIELD-NAME = 'ORDERS  '",
+        "TRAN-ACTION = 'REPLACE ' OR TRAN-ACTION = 'ADD     '",
+        "TRAN-OK = 'Y'",
+        "TRAN-FIELD-NAME <> 'NAME    '",
+        "TRAN-FIELD-NAME <> 'BALANCE '",
+        "TRAN-ACTION <> 'REPLACE'"
+      ]
+    },
+    {
+      "id": "RULE-37",
+      "actions": {
+        "TRAN-OK": "N",
+        "TRAN-MSG": "INVALID ACTION CODE"
+      },
+      "conditions": [
+        "TRAN-CODE = 'UPDATE '",
+        "TRAN-FIELD-NAME = 'BALANCE ' OR TRAN-FIELD-NAME = 'ORDERS  '",
+        "TRAN-UPDATE-NUM IS NUMERIC",
+        "TRAN-ACTION <> 'REPLACE ' AND TRAN-ACTION <> 'ADD     '"
+      ],
+      "removed": [
+        "TRAN-CODE <> 'CRUNCH '",
+        "TRAN-OK <> 'Y'"
+      ]
+    },
+    {
+      "id": "RULE-38",
+      "actions": {
+        "TRAN-OK": "Y",
+        "TRAN-MSG": "SPACES",
+        "CUST-NAME": "<CUST-NAME = TRAN-UPDATE-DATA>"
+      },
+      "conditions": [
+        "TRAN-CODE = 'UPDATE '",
+        "TRAN-ACTION = 'REPLACE ' OR TRAN-ACTION = 'ADD     '",
+        "TRAN-FIELD-NAME = 'NAME    '"
+      ],
+      "removed": [
+        "TRAN-CODE <> 'CRUNCH '",
+        "TRAN-FIELD-NAME <> 'BALANCE ' AND TRAN-FIELD-NAME <> 'ORDERS  '",
+        "TRAN-OK = 'Y'"
+      ]
+    },
+    {
+      "id": "RULE-45",
+      "actions": {
+        "TRAN-OK": "N",
+        "TRAN-MSG": "FIELD NAME INVALID"
+      },
+      "conditions": [
+        "TRAN-CODE = 'UPDATE '",
+        "TRAN-ACTION = 'REPLACE ' OR TRAN-ACTION = 'ADD     '",
+        "TRAN-FIELD-NAME <> 'NAME    '",
+        "TRAN-FIELD-NAME <> 'BALANCE '",
+        "TRAN-FIELD-NAME <> 'ORDERS  '"
+      ],
+      "removed": [
+        "TRAN-CODE <> 'CRUNCH '",
+        "TRAN-FIELD-NAME <> 'BALANCE ' AND TRAN-FIELD-NAME <> 'ORDERS  '",
+        "TRAN-OK = 'Y'"
+      ]
+    },
+    {
+      "id": "RULE-55",
+      "actions": {
+        "TRAN-OK": "N",
+        "TRAN-MSG": "INVALID ACTION CODE"
+      },
+      "conditions": [
+        "TRAN-CODE = 'UPDATE '",
+        "TRAN-FIELD-NAME <> 'BALANCE ' AND TRAN-FIELD-NAME <> 'ORDERS  '",
+        "TRAN-ACTION <> 'REPLACE ' AND TRAN-ACTION <> 'ADD     '"
+      ],
+      "removed": [
+        "TRAN-CODE <> 'CRUNCH '",
+        "TRAN-OK <> 'Y'"
+      ]
+    },
+    {
+      "id": "RULE-64",
+      "actions": {
+        "TRAN-OK": "N",
+        "TRAN-MSG": "DATA IS NOT NUMERIC"
+      },
+      "conditions": [
+        "TRAN-CODE <> 'CRUNCH '",
+        "TRAN-CODE <> 'UPDATE '",
+        "TRAN-FIELD-NAME = 'BALANCE ' OR TRAN-FIELD-NAME = 'ORDERS  '",
+        "TRAN-UPDATE-NUM IS NOT NUMERIC",
+        "TRAN-ACTION = 'REPLACE ' OR TRAN-ACTION = 'ADD     '"
+      ],
+      "removed": [
+        "TRAN-OK <> 'Y'"
+      ]
+    },
+    {
+      "id": "RULE-73",
+      "actions": {
+        "TRAN-OK": "N",
+        "TRAN-MSG": "INVALID ACTION CODE"
+      },
+      "conditions": [
+        "TRAN-CODE <> 'CRUNCH '",
+        "TRAN-CODE <> 'UPDATE '",
+        "TRAN-FIELD-NAME = 'BALANCE ' OR TRAN-FIELD-NAME = 'ORDERS  '",
+        "TRAN-UPDATE-NUM IS NOT NUMERIC",
+        "TRAN-ACTION <> 'REPLACE ' AND TRAN-ACTION <> 'ADD     '"
+      ],
+      "removed": [
+        "TRAN-OK <> 'Y'"
+      ]
+    },
+    {
+      "id": "RULE-82",
+      "actions": {
+        "TRAN-OK": "N",
+        "TRAN-MSG": "REQUEST TYPE IS INVALID"
+      },
+      "conditions": [
+        "TRAN-CODE <> 'CRUNCH '",
+        "TRAN-CODE <> 'UPDATE '",
+        "TRAN-FIELD-NAME = 'BALANCE ' OR TRAN-FIELD-NAME = 'ORDERS  '",
+        "TRAN-UPDATE-NUM IS NUMERIC",
+        "TRAN-ACTION = 'REPLACE ' OR TRAN-ACTION = 'ADD     '"
+      ],
+      "removed": [
+        "TRAN-OK <> 'Y'"
+      ]
+    },
+    {
+      "id": "RULE-91",
+      "actions": {
+        "TRAN-OK": "N",
+        "TRAN-MSG": "INVALID ACTION CODE"
+      },
+      "conditions": [
+        "TRAN-CODE <> 'CRUNCH '",
+        "TRAN-CODE <> 'UPDATE '",
+        "TRAN-FIELD-NAME = 'BALANCE ' OR TRAN-FIELD-NAME = 'ORDERS  '",
+        "TRAN-UPDATE-NUM IS NUMERIC",
+        "TRAN-ACTION <> 'REPLACE ' AND TRAN-ACTION <> 'ADD     '"
+      ],
+      "removed": [
+        "TRAN-OK <> 'Y'"
+      ]
+    },
+    {
+      "id": "RULE-100",
+      "actions": {
+        "TRAN-OK": "N",
+        "TRAN-MSG": "REQUEST TYPE IS INVALID"
+      },
+      "conditions": [
+        "TRAN-CODE <> 'CRUNCH '",
+        "TRAN-CODE <> 'UPDATE '",
+        "TRAN-FIELD-NAME <> 'BALANCE ' AND TRAN-FIELD-NAME <> 'ORDERS  '",
+        "TRAN-ACTION = 'REPLACE ' OR TRAN-ACTION = 'ADD     '"
+      ],
+      "removed": [
+        "TRAN-OK <> 'Y'"
+      ]
+    },
+    {
+      "id": "RULE-109",
+      "actions": {
+        "TRAN-OK": "N",
+        "TRAN-MSG": "INVALID ACTION CODE"
+      },
+      "conditions": [
+        "TRAN-CODE <> 'CRUNCH '",
+        "TRAN-CODE <> 'UPDATE '",
+        "TRAN-FIELD-NAME <> 'BALANCE ' AND TRAN-FIELD-NAME <> 'ORDERS  '",
+        "TRAN-ACTION <> 'REPLACE ' AND TRAN-ACTION <> 'ADD     '"
+      ],
+      "removed": [
+        "TRAN-OK <> 'Y'"
+      ]
+    }
+  ]
+}

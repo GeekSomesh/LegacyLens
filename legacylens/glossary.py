@@ -36,7 +36,11 @@ def term(e, names: dict) -> str:
         return name_of(names.get(e.name), e.name)
     if isinstance(e, C.Lit):
         v = e.value
-        return f"{int(v):,}" if not isinstance(v, str) and v == int(v) else e.text
+        if isinstance(v, C.Fig):
+            return {"SPACE": "blank", "ZERO": "zero", "LOW": "low-values", "HIGH": "high-values"}.get(v.kind, e.text)
+        if isinstance(v, str):
+            return f"'{v.strip()}'"
+        return f"{int(v):,}" if v == int(v) else e.text
     return expr_text(e)
 
 
@@ -46,10 +50,18 @@ def english(c, names: dict, top: bool = True) -> str:
         return f"{term(c.left, names)} {OPS[c.op]} {term(c.right, names)}" + (f" {unit}" if unit else "")
     if isinstance(c, C.CondRef):
         return name_of(names.get(c.name), c.name)
+    if isinstance(c, C.ClassCond):
+        return f"{term(c.operand, names)} is {c.kind.lower().replace('-', ' ')}"
+    if isinstance(c, C.AtEnd):
+        return f"the end of {c.file.lower().replace('-', ' ')} is reached"
     if isinstance(c, C.Not):
         inner = c.cond
         if isinstance(inner, C.CondRef):
             return f"not {name_of(names.get(inner.name), inner.name)}"
+        if isinstance(inner, C.ClassCond):
+            return f"{term(inner.operand, names)} is not {inner.kind.lower().replace('-', ' ')}"
+        if isinstance(inner, C.AtEnd):
+            return f"the end of {inner.file.lower().replace('-', ' ')} is not reached"
         return english(negate(inner), names, top)
     if isinstance(c, (C.And, C.Or)):
         word = "and" if isinstance(c, C.And) else "or"

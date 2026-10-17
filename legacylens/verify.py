@@ -22,7 +22,7 @@ def input_layout(prog: C.Program, rules: list):
     """The record ACCEPTed by the decision paragraph and its numeric fields."""
     for kind, *rest in rules[0].steps:
         if kind == "accept":
-            group = prog.fields[rest[0]]
+            group = prog.fields[rest[0].target.name]
             kids = [prog.fields[c] for c in group.children] if group.is_group else [group]
             return group, kids
     raise ValueError("decision paragraph does not ACCEPT a record")
@@ -41,7 +41,7 @@ def _get(rec: str, f: C.Field, base: int) -> int:
 
 def _cond_holds(prog, rule, upto: int, group, rec: str):
     st = R.State(prog)
-    st.set(group.name, rec)
+    st.set(C.Ref(group.key), rec)
     for kind, *rest in rule.steps[:upto]:
         if kind == "exec":
             st.execute([rest[0]])
