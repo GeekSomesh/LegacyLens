@@ -125,3 +125,15 @@ tr.alert td { color: var(--red); font-weight: 600; }
 .review-actions button { padding: 3px 10px; border: 1px solid var(--line); background: var(--panel); color: var(--ink);
   border-radius: 4px; cursor: pointer; font-size: 13px; margin-left: 4px; }
 .review-actions button:hover { border-color: var(--blue); }
+
+@media (max-width: 860px) {
+  .card table { display: block; overflow-x: auto; max-width: 100%; }
+  .card { overflow-wrap: anywhere; }
+  .mono, code { overflow-wrap: anywhere; word-break: break-word; }
+  .stat { min-width: 0; flex: 1 1 140px; }
+  .prog-tabs button { flex: 1 1 100%; }
+}
+@media (max-width: 860px) {
+  .tabs { flex-wrap: wrap; }
+  .tabs button { padding: 10px 10px; }
+}
