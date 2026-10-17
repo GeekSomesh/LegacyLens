@@ -105,9 +105,11 @@ Evidence: [docs/linuxone_system.txt](docs/linuxone_system.txt) (machine type 917
 | ![LinuxONE virtual server](docs/screenshots/01-linuxone-virtual-server.jpg) | ![A held limit increase](docs/screenshots/02-decision-hold.jpg) |
 | The `coboldecision` server in the LinuxONE Community Cloud (AI_LAB flavor) | A decision: COBOL says INCREASE (RULE-05), AI risk is MEDIUM, so the increase is held; Granite explains |
 | ![IBM SAM2 in the program explorer](docs/screenshots/03-cobol-rules.jpg) | ![IBM SAM1 findings](docs/screenshots/05-ibm-sam1-findings.jpg) |
-| IBM's SAM2: 109 paths, 92 proved impossible, 17 rules; struck conditions are implied (z3 proof) | IBM's SAM1: five findings, and the whole program matches the compiled build on 300 file runs |
+| IBM's SAM2: 109 paths, 92 proved impossible, 17 rules; z3 finds silent overflows and sign loss, each example confirmed on the compiled program | IBM's SAM1: five findings, and the whole program matches the compiled build on 300 file runs |
+| ![Rules documented by Granite, with review](docs/screenshots/06-rules-granite-review.jpg) | ![Change impact](docs/screenshots/07-change-impact.jpg) |
+| Each rule documented by IBM Granite on the server (numbers and decision words checked); struck conditions are implied (z3 proof); Approve/Flag go to the hash-chained audit trail | Change impact: z3 finds the 6 regions where version 2 decides differently, both compiled programs confirm them, and the 200 accounts moved to a softer action had a 58% default rate |
 | ![Evidence](docs/screenshots/04-evidence.jpg) | |
-| Evidence: IBM SAM2 and SAM1 checks, construct conformance, speed | |
+| Evidence: IBM SAM2 and SAM1 checks, construct conformance, speed, fault injection, DMN | |
 
 ## Results (all measured on the LinuxONE server)
 

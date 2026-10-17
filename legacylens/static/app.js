@@ -284,7 +284,7 @@ function renderEvidence(res) {
       <tr><th>Transactions / customer records</th><td class="num">${money(s1.transactions)} / ${money(s1.customers)}</td></tr>
       <tr><th>Undefined runs (arithmetic on text) excluded</th><td class="num">${money(s1.undefined || 0)}</td></tr>
       <tr><th>Same output file, report, console and return code</th><td class="num">${money(s1.agree)} of ${money(s1.defined_runs)} (${pct(s1.agreement)})</td></tr></table>
-      <h3>Found while running</h3>${Object.entries(s1.runtime_findings || {}).map(([m, n]) => `<div class="finding">${esc(m)} <span class="muted">(${n} runs)</span></div>`).join("")}`;
+      <h3>Found while running</h3>${Object.entries(s1.runtime_findings || {}).map(([m, n]) => `<div class="finding">${esc(m)} <span class="muted">(${n} run${n === 1 ? "" : "s"})</span></div>`).join("")}`;
   }
   const cf = res.conformance;
   if (cf) {

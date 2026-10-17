@@ -25,6 +25,7 @@
   }
 }
 * { box-sizing: border-box; }
+a, a:visited { color: var(--blue); }
 body { margin: 0; background: var(--bg); color: var(--ink);
   font: 15px/1.5 "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", sans-serif; }
 header { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; justify-content: space-between;
