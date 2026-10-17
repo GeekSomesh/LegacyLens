@@ -9,5 +9,16 @@
     "agree_with_compiled_cobol": 35262,
     "first_difference": null,
     "file": "results/dmn/CREDREV.dmn"
+  },
+  "FRAUDHLD": {
+    "exported": true,
+    "schema_valid": true,
+    "schema_note": "",
+    "rows": 26,
+    "rules": 8,
+    "records": 25192,
+    "agree_with_compiled_cobol": 25192,
+    "first_difference": null,
+    "file": "results/dmn/FRAUDHLD.dmn"
   }
 }

@@ -40,4 +40,4 @@ Python, GnuCOBOL 3.1.2, z3 4.8.12, IBM Snap ML 1.17.2 + zDNN, scikit-learn + skl
 - Open-source resources: see the table at the end of README.md (IBM Z Open Editor samples, UCI credit data, GnuCOBOL, z3, Snap ML, zDNN, scikit-learn, skl2onnx, ONNX, llama.cpp, IBM Granite, FastAPI, podman, OMG DMN schemas)
 
 **Screenshots to attach** (`docs/screenshots/`)
-01 LinuxONE virtual server · 02 decision desk · 03 IBM SAM2 rules with z3 · 05 IBM SAM1 findings · 04 evidence. Add a screenshot of the terminal on the server (`uname -m`, `grep -o nnpa /proc/cpuinfo | head -1`, `podman ps`) taken by you.
+01 LinuxONE virtual server · 02 decision desk · 03 IBM SAM2 findings with z3 · 05 IBM SAM1 findings · 06 rules documented by Granite, with review · 07 change impact · 04 evidence. Add a screenshot of the terminal on the server (`uname -m`, `grep -o nnpa /proc/cpuinfo | head -1`, `podman ps`) taken by you.

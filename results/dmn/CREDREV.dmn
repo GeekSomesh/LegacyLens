@@ -24,33 +24,33 @@
       <text>500000</text>
     </literalExpression>
   </decision>
-  <decision id="d_WS_UTIL_0" name="WS_UTIL">
-    <variable id="d_WS_UTIL_0_v" name="WS_UTIL" typeRef="number" />
-    <informationRequirement id="ir_WS_UTIL_0_IN_BILL">
+  <decision id="d_WS_UTIL" name="WS_UTIL">
+    <variable id="d_WS_UTIL_v" name="WS_UTIL" typeRef="number" />
+    <informationRequirement id="ir_WS_UTIL_IN_BILL">
       <requiredInput href="#in_IN_BILL" />
     </informationRequirement>
-    <informationRequirement id="ir_WS_UTIL_0_IN_LIMIT">
+    <informationRequirement id="ir_WS_UTIL_IN_LIMIT">
       <requiredInput href="#in_IN_LIMIT" />
     </informationRequirement>
-    <literalExpression id="d_WS_UTIL_0_e">
+    <literalExpression id="d_WS_UTIL_e">
       <text>if IN_LIMIT = 0 then modulo(abs((if (999) &gt;= 0 then floor((999)) else ceiling((999)))), 100000) else modulo(abs((if (((IN_BILL * 100) / IN_LIMIT)) &gt;= 0 then floor((((IN_BILL * 100) / IN_LIMIT))) else ceiling((((IN_BILL * 100) / IN_LIMIT))))), 100000)</text>
     </literalExpression>
   </decision>
-  <decision id="d_WS_MIN_DUE_1" name="WS_MIN_DUE">
-    <variable id="d_WS_MIN_DUE_1_v" name="WS_MIN_DUE" typeRef="number" />
-    <informationRequirement id="ir_WS_MIN_DUE_1_IN_BILL">
+  <decision id="d_WS_MIN_DUE" name="WS_MIN_DUE">
+    <variable id="d_WS_MIN_DUE_v" name="WS_MIN_DUE" typeRef="number" />
+    <informationRequirement id="ir_WS_MIN_DUE_IN_BILL">
       <requiredInput href="#in_IN_BILL" />
     </informationRequirement>
-    <literalExpression id="d_WS_MIN_DUE_1_e">
+    <literalExpression id="d_WS_MIN_DUE_e">
       <text>modulo(abs((if ((IN_BILL / 10)) &gt;= 0 then floor(((IN_BILL / 10))) else ceiling(((IN_BILL / 10))))), 10000000)</text>
     </literalExpression>
   </decision>
-  <decision id="d_WS_SEVERITY_2" name="WS_SEVERITY">
-    <variable id="d_WS_SEVERITY_2_v" name="WS_SEVERITY" typeRef="number" />
-    <informationRequirement id="ir_WS_SEVERITY_2_IN_DELINQ">
+  <decision id="d_WS_SEVERITY" name="WS_SEVERITY">
+    <variable id="d_WS_SEVERITY_v" name="WS_SEVERITY" typeRef="number" />
+    <informationRequirement id="ir_WS_SEVERITY_IN_DELINQ">
       <requiredInput href="#in_IN_DELINQ" />
     </informationRequirement>
-    <literalExpression id="d_WS_SEVERITY_2_e">
+    <literalExpression id="d_WS_SEVERITY_e">
       <text>modulo(abs((if (IN_DELINQ) &gt;= 0 then floor((IN_DELINQ)) else ceiling((IN_DELINQ)))), 10)</text>
     </literalExpression>
   </decision>
@@ -74,13 +74,13 @@
       <requiredInput href="#in_IN_LATE_6M" />
     </informationRequirement>
     <informationRequirement id="ir_policy_d_WS_UTIL">
-      <requiredDecision href="#d_WS_UTIL_0" />
+      <requiredDecision href="#d_WS_UTIL" />
     </informationRequirement>
     <informationRequirement id="ir_policy_d_WS_MIN_DUE">
-      <requiredDecision href="#d_WS_MIN_DUE_1" />
+      <requiredDecision href="#d_WS_MIN_DUE" />
     </informationRequirement>
     <informationRequirement id="ir_policy_d_WS_SEVERITY">
-      <requiredDecision href="#d_WS_SEVERITY_2" />
+      <requiredDecision href="#d_WS_SEVERITY" />
     </informationRequirement>
     <informationRequirement id="ir_policy_c_WS_HIGH_LIMIT">
       <requiredDecision href="#c_WS_HIGH_LIMIT" />
