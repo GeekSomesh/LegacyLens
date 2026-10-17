@@ -466,9 +466,11 @@ def path_formula(enc: Encoder, rule: Rule):
     return conds, sym
 
 
-def _check(formulas, extra=(), timeout=TIMEOUT_MS):
+def _check(formulas, extra=(), timeout=TIMEOUT_MS, seed=None):
     s = z3.Solver()
     s.set("timeout", timeout)
+    if seed is not None:
+        s.set("random_seed", seed)
     s.add(*formulas, *extra)
     return s.check(), s
 
@@ -503,11 +505,17 @@ def safe_check(formulas: list, inputs: dict, codes: dict, timeout: int = TIMEOUT
 
 def sat_status(base: list, defs: list, goal: list):
     """'unsat' if base+goal is impossible (proved without, then with, the
-    definitions of computed fields), else 'sat' or 'unknown'."""
+    definitions of computed fields), else 'sat' or 'unknown'. z3 is incomplete on
+    nonlinear arithmetic (IN-BILL * 100 / IN-LIMIT), and whether it solves such a
+    query in time can depend on the order the terms were built in, so 'unknown'
+    is retried with other random seeds before it is reported."""
     r, _ = _check(base + goal)
     if r == z3.unsat:
         return "unsat", None
-    r, s = _check(base + defs + goal)
+    for seed in (None, 1, 2, 3):
+        r, s = _check(base + defs + goal, seed=seed)
+        if r != z3.unknown:
+            break
     return ("unsat" if r == z3.unsat else "sat" if r == z3.sat else "unknown"), s
 
 

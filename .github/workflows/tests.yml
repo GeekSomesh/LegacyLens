@@ -6,14 +6,17 @@ jobs:
   test:
     runs-on: ubuntu-24.04
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - name: Install GnuCOBOL, z3 and the Python stack
         run: |
           sudo apt-get update
           sudo apt-get install -y gnucobol3 python3-numpy python3-pandas python3-sklearn python3-onnx \
             python3-z3 python3-lxml python3-pytest
       - name: Unit tests
-        run: python3 -m pytest -q tests
+        # Failing tests are also reported as annotations, which are visible without signing in.
+        run: |
+          set -o pipefail
+          python3 -m pytest -q -rf tests 2>&1 | tee pytest.log || { grep '^FAILED' pytest.log | sed 's/^/::error::/'; exit 1; }
       - name: Interpreter vs GnuCOBOL on the construct programs
         run: python3 scripts/conformance.py 300
       - name: FRAUDHLD rules vs its compiled program
