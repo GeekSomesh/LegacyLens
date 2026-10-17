@@ -1,0 +1,55 @@
+{
+  "platform": "s390x",
+  "node": "coboldecision",
+  "accounts": 30000,
+  "cobol_batch": {
+    "seconds": 0.0455,
+    "per_second": 658779
+  },
+  "risk_nnpa": {
+    "batch_seconds": 0.1661,
+    "per_second": 180603,
+    "one_account_us_p50": 15.1,
+    "one_account_us_p99": 20.2
+  },
+  "risk_cpu": {
+    "batch_seconds": 0.0321,
+    "per_second": 934523,
+    "one_account_us_p50": 7.9,
+    "one_account_us_p99": 9.5
+  },
+  "hybrid_portfolio": {
+    "seconds": 0.24,
+    "per_second": 124957,
+    "note": "compiled COBOL policy + ONNX risk on NNPA + hybrid rule, all 30,000 accounts"
+  },
+  "api_decide": {
+    "calls": 200,
+    "ms_p50": 4.76,
+    "ms_p95": 6.9,
+    "note": "one account through the web service: rules, live COBOL check, ONNX risk, factors, hybrid"
+  },
+  "nnpa_vs_cpu_by_model_size": {
+    "note": "Snap ML tree inference, all 30,000 accounts, best of 3, same ONNX export; zdnn_tensors = on-chip AI accelerator (NNPA), compress_trees = CPU with z17 vector instructions",
+    "rows": [
+      {
+        "trees": 200,
+        "depth": 3,
+        "nnpa_per_second": 172549,
+        "cpu_per_second": 947986
+      },
+      {
+        "trees": 500,
+        "depth": 6,
+        "nnpa_per_second": 39553,
+        "cpu_per_second": 175607
+      },
+      {
+        "trees": 1000,
+        "depth": 8,
+        "nnpa_per_second": 15063,
+        "cpu_per_second": 62696
+      }
+    ]
+  }
+}
