@@ -141,6 +141,26 @@ def run_credrev(n_max, rng):
     return rows
 
 
+def sam2_cases() -> list:
+    """The SAM2 inputs every mutant is run on (a grid plus two CRUNCH requests)."""
+    import importlib.util
+    spec = importlib.util.spec_from_file_location("vi", ROOT / "scripts" / "verify_ibm.py")
+    vi = importlib.util.module_from_spec(spec)
+    argv, sys.argv = sys.argv, sys.argv[:1]
+    spec.loader.exec_module(vi)
+    sys.argv = argv
+    custs = [l.encode("latin-1") for l in (IBM / "RESOURCES" / "SAMPLE.CUSTFILE.txt").read_text(encoding="latin-1").splitlines() if len(l) >= 387]
+    cases = []
+    for code in ["UPDATE", "ADD   ", "      "]:
+        for action in ["REPLACE ", "ADD     ", "XXXXXXXX"]:
+            for field in ["NAME      ", "BALANCE   ", "ORDERS    ", "CITY      "]:
+                for d in ["000012345", "-00001234", "+00000099", "12345678X", "999999999", "NEW NAME"]:
+                    cases.append({"CUST-REC": custs[0], "TRANSACTION-RECORD": vi.tran(code=code, action=action, field=field, data=d),
+                                  "TRAN-OK": b"X", "TRAN-MSG": b" " * 50})
+    cases += [{"CUST-REC": custs[0], "TRANSACTION-RECORD": vi.crunch(n), "TRAN-OK": b"X", "TRAN-MSG": b" " * 50} for n in (0, 2)]
+    return cases
+
+
 def run_sam2(n_max, rng):
     orig_path = IBM / "COBOL" / "SAM2.cbl"
     dirs = [IBM / "COPYBOOK"]
@@ -154,15 +174,7 @@ def run_sam2(n_max, rng):
     spec = importlib.util.spec_from_file_location("vi", ROOT / "scripts" / "verify_ibm.py")
     vi = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(vi)
-    custs = [l.encode("latin-1") for l in (IBM / "RESOURCES" / "SAMPLE.CUSTFILE.txt").read_text(encoding="latin-1").splitlines() if len(l) >= 387]
-    cases = []
-    for code in ["UPDATE", "ADD   ", "      "]:
-        for action in ["REPLACE ", "ADD     ", "XXXXXXXX"]:
-            for field in ["NAME      ", "BALANCE   ", "ORDERS    ", "CITY      "]:
-                for d in ["000012345", "-00001234", "+00000099", "12345678X", "999999999", "NEW NAME"]:
-                    cases.append({"CUST-REC": custs[0], "TRANSACTION-RECORD": vi.tran(code=code, action=action, field=field, data=d),
-                                  "TRAN-OK": b"X", "TRAN-MSG": b" " * 50})
-    cases += [{"CUST-REC": custs[0], "TRANSACTION-RECORD": vi.crunch(n), "TRAN-OK": b"X", "TRAN-MSG": b" " * 50} for n in (0, 2)]
+    cases = sam2_cases()
     expected = []
     for c in cases:
         rule, _, st, _ = eng.decide(c)
@@ -213,8 +225,9 @@ def summary(rows):
     for key in ("detected", "equivalent", "missed", "does not compile"):
         s[key] = sum(r["status"] == key for r in rows)
     compiled = [r for r in rows if r["status"] != "does not compile"]
-    s["re_extraction_exact"] = sum(r["re_extracted_agree"] == r["inputs"] for r in compiled)
-    s["re_extraction_programs"] = len(compiled)
+    checked = [r for r in compiled if "re_extracted_agree" in r]
+    s["re_extraction_exact"] = sum(r["re_extracted_agree"] == r["inputs"] for r in checked)
+    s["re_extraction_programs"] = len(checked)
     return s
 
 

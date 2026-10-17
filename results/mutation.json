@@ -1,0 +1,1026 @@
+{
+  "seconds": 337,
+  "summary": {
+    "credrev": {
+      "mutants": 80,
+      "detected": 70,
+      "equivalent": 2,
+      "missed": 2,
+      "does not compile": 6,
+      "re_extraction_exact": 62,
+      "re_extraction_programs": 74
+    },
+    "sam2": {
+      "mutants": 50,
+      "detected": 19,
+      "equivalent": 18,
+      "missed": 0,
+      "does not compile": 13,
+      "re_extraction_exact": 34,
+      "re_extraction_programs": 36
+    }
+  },
+  "credrev": [
+    {
+      "mutant": "line 23: 9 -> 10",
+      "status": "does not compile"
+    },
+    {
+      "mutant": "line 74: 'R06' -> 'R0X'",
+      "status": "detected",
+      "inputs_differing": 785,
+      "z3_regions": 1,
+      "re_extracted_agree": 3000,
+      "inputs": 3000
+    },
+    {
+      "mutant": "line 27: 9 -> 10",
+      "status": "equivalent",
+      "inputs_differing": 0,
+      "z3_regions": 0,
+      "re_extracted_agree": 3000,
+      "inputs": 3000
+    },
+    {
+      "mutant": "line 65: '<' -> '>='",
+      "status": "detected",
+      "inputs_differing": 420,
+      "z3_regions": 2,
+      "re_extracted_agree": 3000,
+      "inputs": 3000
+    },
+    {
+      "mutant": "line 46: / -> *",
+      "status": "detected",
+      "inputs_differing": 2465,
+      "z3_regions": 14,
+      "re_extracted_agree": 3000,
+      "inputs": 3000
+    },
+    {
+      "mutant": "line 27: 3 -> 2",
+      "status": "detected",
+      "inputs_differing": 328,
+      "z3_regions": 5,
+      "re_extracted_agree": 3000,
+      "inputs": 3000
+    },
+    {
+      "mutant": "line 68: '<' -> '='",
+      "status": "detected",
+      "inputs_differing": 671,
+      "z3_regions": 2,
+      "re_extracted_agree": 3000,
+      "inputs": 3000
+    },
+    {
+      "mutant": "line 55: statement removed",
+      "status": "detected",
+      "inputs_differing": 547,
+      "z3_regions": 1,
+      "re_extracted_agree": 2453,
+      "inputs": 3000
+    },
+    {
+      "mutant": "line 65: '>' -> '='",
+      "status": "detected",
+      "inputs_differing": 385,
+      "z3_regions": 2,
+      "re_extracted_agree": 3000,
+      "inputs": 3000
+    },
+    {
+      "mutant": "line 63: 'DECREASE' -> 'DECREASX'",
+      "status": "detected",
+      "inputs_differing": 308,
+      "z3_regions": 1,
+      "re_extracted_agree": 3000,
+      "inputs": 3000
+    },
+    {
+      "mutant": "line 57: '>=' -> '>'",
+      "status": "detected",
+      "inputs_differing": 190,
+      "z3_regions": 3,
+      "re_extracted_agree": 3000,
+      "inputs": 3000
+    },
+    {
+      "mutant": "line 68: 0 -> 1",
+      "status": "detected",
+      "inputs_differing": 852,
+      "z3_regions": 2,
+      "re_extracted_agree": 3000,
+      "inputs": 3000
+    },
+    {
+      "mutant": "line 43: '=' -> '>'",
+      "status": "detected",
+      "inputs_differing": 2944,
+      "z3_regions": 7,
+      "re_extracted_agree": 2944,
+      "inputs": 3000
+    },
+    {
+      "mutant": "line 68: '=' -> '<'",
+      "status": "detected",
+      "inputs_differing": 666,
+      "z3_regions": 1,
+      "re_extracted_agree": 3000,
+      "inputs": 3000
+    },
+    {
+      "mutant": "line 57: '>' -> '<'",
+      "status": "detected",
+      "inputs_differing": 840,
+      "z3_regions": 7,
+      "re_extracted_agree": 3000,
+      "inputs": 3000
+    },
+    {
+      "mutant": "line 70: 'INCREASE' -> 'INCREASX'",
+      "status": "detected",
+      "inputs_differing": 666,
+      "z3_regions": 1,
+      "re_extracted_agree": 3000,
+      "inputs": 3000
+    },
+    {
+      "mutant": "line 59: 'R02' -> 'R0X'",
+      "status": "detected",
+      "inputs_differing": 316,
+      "z3_regions": 1,
+      "re_extracted_agree": 3000,
+      "inputs": 3000
+    },
+    {
+      "mutant": "line 62: '>=' -> '='",
+      "status": "detected",
+      "inputs_differing": 231,
+      "z3_regions": 2,
+      "re_extracted_agree": 3000,
+      "inputs": 3000
+    },
+    {
+      "mutant": "line 54: 'BLOCK' -> 'BLOCX'",
+      "status": "detected",
+      "inputs_differing": 547,
+      "z3_regions": 1,
+      "re_extracted_agree": 3000,
+      "inputs": 3000
+    },
+    {
+      "mutant": "line 73: statement removed",
+      "status": "detected",
+      "inputs_differing": 785,
+      "z3_regions": 1,
+      "re_extracted_agree": 2217,
+      "inputs": 3000
+    },
+    {
+      "mutant": "line 74: statement removed",
+      "status": "detected",
+      "inputs_differing": 785,
+      "z3_regions": 1,
+      "re_extracted_agree": 2217,
+      "inputs": 3000
+    },
+    {
+      "mutant": "line 70: statement removed",
+      "status": "detected",
+      "inputs_differing": 666,
+      "z3_regions": 1,
+      "re_extracted_agree": 2334,
+      "inputs": 3000
+    },
+    {
+      "mutant": "line 57: 90 -> 89",
+      "status": "detected",
+      "inputs_differing": 1,
+      "z3_regions": 3,
+      "re_extracted_agree": 3000,
+      "inputs": 3000
+    },
+    {
+      "mutant": "line 55: 'R01' -> 'R0X'",
+      "status": "detected",
+      "inputs_differing": 547,
+      "z3_regions": 1,
+      "re_extracted_agree": 3000,
+      "inputs": 3000
+    },
+    {
+      "mutant": "line 68: '<' -> '>'",
+      "status": "detected",
+      "inputs_differing": 978,
+      "z3_regions": 2,
+      "re_extracted_agree": 3000,
+      "inputs": 3000
+    },
+    {
+      "mutant": "line 49: 10 -> 9",
+      "status": "detected",
+      "inputs_differing": 9,
+      "z3_regions": 1,
+      "re_extracted_agree": 3000,
+      "inputs": 3000
+    },
+    {
+      "mutant": "line 43: '=' -> '<'",
+      "status": "detected",
+      "inputs_differing": 56,
+      "z3_regions": 0,
+      "re_extracted_agree": 2944,
+      "inputs": 3000
+    },
+    {
+      "mutant": "line 67: 'R04' -> 'R0X'",
+      "status": "detected",
+      "inputs_differing": 378,
+      "z3_regions": 1,
+      "re_extracted_agree": 3000,
+      "inputs": 3000
+    },
+    {
+      "mutant": "line 57: '>=' -> '<='",
+      "status": "detected",
+      "inputs_differing": 439,
+      "z3_regions": 6,
+      "re_extracted_agree": 3000,
+      "inputs": 3000
+    },
+    {
+      "mutant": "line 73: 'KEEP' -> 'KEEX'",
+      "status": "detected",
+      "inputs_differing": 785,
+      "z3_regions": 1,
+      "re_extracted_agree": 3000,
+      "inputs": 3000
+    },
+    {
+      "mutant": "line 63: statement removed",
+      "status": "detected",
+      "inputs_differing": 308,
+      "z3_regions": 1,
+      "re_extracted_agree": 2692,
+      "inputs": 3000
+    },
+    {
+      "mutant": "line 57: 90 -> 91",
+      "status": "detected",
+      "inputs_differing": 3,
+      "z3_regions": 3,
+      "re_extracted_agree": 3000,
+      "inputs": 3000
+    },
+    {
+      "mutant": "line 64: statement removed",
+      "status": "detected",
+      "inputs_differing": 308,
+      "z3_regions": 1,
+      "re_extracted_agree": 2692,
+      "inputs": 3000
+    },
+    {
+      "mutant": "line 27: 3 -> 4",
+      "status": "detected",
+      "inputs_differing": 151,
+      "z3_regions": 5,
+      "re_extracted_agree": 3000,
+      "inputs": 3000
+    },
+    {
+      "mutant": "line 27: 9 -> 8",
+      "status": "detected",
+      "inputs_differing": 65,
+      "z3_regions": 5,
+      "re_extracted_agree": 3000,
+      "inputs": 3000
+    },
+    {
+      "mutant": "line 23: 1 -> 0",
+      "status": "does not compile"
+    },
+    {
+      "mutant": "line 57: '>' -> '>='",
+      "status": "detected",
+      "inputs_differing": 1,
+      "z3_regions": 3,
+      "re_extracted_agree": 3000,
+      "inputs": 3000
+    },
+    {
+      "mutant": "line 57: '>=' -> '<'",
+      "status": "detected",
+      "inputs_differing": 629,
+      "z3_regions": 6,
+      "re_extracted_agree": 3000,
+      "inputs": 3000
+    },
+    {
+      "mutant": "line 71: statement removed",
+      "status": "detected",
+      "inputs_differing": 666,
+      "z3_regions": 1,
+      "re_extracted_agree": 2334,
+      "inputs": 3000
+    },
+    {
+      "mutant": "line 68: 30 -> 29",
+      "status": "detected",
+      "inputs_differing": 9,
+      "z3_regions": 1,
+      "re_extracted_agree": 3000,
+      "inputs": 3000
+    },
+    {
+      "mutant": "line 23: 500000 -> 499999",
+      "status": "missed",
+      "inputs_differing": 0,
+      "z3_regions": 1,
+      "re_extracted_agree": 3000,
+      "inputs": 3000
+    },
+    {
+      "mutant": "line 62: 3 -> 4",
+      "status": "detected",
+      "inputs_differing": 77,
+      "z3_regions": 2,
+      "re_extracted_agree": 3000,
+      "inputs": 3000
+    },
+    {
+      "mutant": "line 65: '>' -> '<'",
+      "status": "detected",
+      "inputs_differing": 933,
+      "z3_regions": 3,
+      "re_extracted_agree": 3000,
+      "inputs": 3000
+    },
+    {
+      "mutant": "line 57: 1 -> 2",
+      "status": "detected",
+      "inputs_differing": 190,
+      "z3_regions": 3,
+      "re_extracted_agree": 3000,
+      "inputs": 3000
+    },
+    {
+      "mutant": "line 68: '=' -> '<='",
+      "status": "equivalent",
+      "inputs_differing": 0,
+      "z3_regions": 0,
+      "re_extracted_agree": 3000,
+      "inputs": 3000
+    },
+    {
+      "mutant": "line 68: '<' -> '>='",
+      "status": "detected",
+      "inputs_differing": 983,
+      "z3_regions": 2,
+      "re_extracted_agree": 3000,
+      "inputs": 3000
+    },
+    {
+      "mutant": "line 65: '<' -> '<='",
+      "status": "missed",
+      "inputs_differing": 0,
+      "z3_regions": 1,
+      "re_extracted_agree": 3000,
+      "inputs": 3000
+    },
+    {
+      "mutant": "line 57: '>' -> '<='",
+      "status": "detected",
+      "inputs_differing": 841,
+      "z3_regions": 7,
+      "re_extracted_agree": 3000,
+      "inputs": 3000
+    },
+    {
+      "mutant": "line 64: 'R03' -> 'R0X'",
+      "status": "detected",
+      "inputs_differing": 308,
+      "z3_regions": 1,
+      "re_extracted_agree": 3000,
+      "inputs": 3000
+    },
+    {
+      "mutant": "line 65: '<' -> '>'",
+      "status": "detected",
+      "inputs_differing": 420,
+      "z3_regions": 2,
+      "re_extracted_agree": 3000,
+      "inputs": 3000
+    },
+    {
+      "mutant": "line 62: '>=' -> '<='",
+      "status": "detected",
+      "inputs_differing": 2060,
+      "z3_regions": 5,
+      "re_extracted_agree": 3000,
+      "inputs": 3000
+    },
+    {
+      "mutant": "line 46: 100 -> 99",
+      "status": "detected",
+      "inputs_differing": 1344,
+      "z3_regions": 14,
+      "re_extracted_agree": 3000,
+      "inputs": 3000
+    },
+    {
+      "mutant": "line 65: '>' -> '<='",
+      "status": "detected",
+      "inputs_differing": 940,
+      "z3_regions": 3,
+      "re_extracted_agree": 3000,
+      "inputs": 3000
+    },
+    {
+      "mutant": "line 68: '=' -> '>='",
+      "status": "detected",
+      "inputs_differing": 250,
+      "z3_regions": 1,
+      "re_extracted_agree": 3000,
+      "inputs": 3000
+    },
+    {
+      "mutant": "line 23: 500000 -> 500001",
+      "status": "detected",
+      "inputs_differing": 33,
+      "z3_regions": 1,
+      "re_extracted_agree": 3000,
+      "inputs": 3000
+    },
+    {
+      "mutant": "line 57: 1 -> 0",
+      "status": "detected",
+      "inputs_differing": 313,
+      "z3_regions": 3,
+      "re_extracted_agree": 3000,
+      "inputs": 3000
+    },
+    {
+      "mutant": "line 49: / -> *",
+      "status": "detected",
+      "inputs_differing": 32,
+      "z3_regions": 2,
+      "re_extracted_agree": 3000,
+      "inputs": 3000
+    },
+    {
+      "mutant": "line 23: 1 -> 2",
+      "status": "does not compile"
+    },
+    {
+      "mutant": "line 44: statement removed",
+      "status": "detected",
+      "inputs_differing": 56,
+      "z3_regions": 0,
+      "re_extracted_agree": 2970,
+      "inputs": 3000
+    },
+    {
+      "mutant": "line 67: statement removed",
+      "status": "detected",
+      "inputs_differing": 378,
+      "z3_regions": 1,
+      "re_extracted_agree": 2622,
+      "inputs": 3000
+    },
+    {
+      "mutant": "line 62: '>=' -> '>'",
+      "status": "detected",
+      "inputs_differing": 77,
+      "z3_regions": 2,
+      "re_extracted_agree": 3000,
+      "inputs": 3000
+    },
+    {
+      "mutant": "line 71: 'R05' -> 'R0X'",
+      "status": "detected",
+      "inputs_differing": 666,
+      "z3_regions": 1,
+      "re_extracted_agree": 3000,
+      "inputs": 3000
+    },
+    {
+      "mutant": "line 27: 88 -> 87",
+      "status": "does not compile"
+    },
+    {
+      "mutant": "line 66: 'REVIEW' -> 'REVIEX'",
+      "status": "detected",
+      "inputs_differing": 378,
+      "z3_regions": 1,
+      "re_extracted_agree": 3000,
+      "inputs": 3000
+    },
+    {
+      "mutant": "line 62: 3 -> 2",
+      "status": "detected",
+      "inputs_differing": 138,
+      "z3_regions": 2,
+      "re_extracted_agree": 3000,
+      "inputs": 3000
+    },
+    {
+      "mutant": "line 65: '>' -> '>='",
+      "status": "detected",
+      "inputs_differing": 7,
+      "z3_regions": 1,
+      "re_extracted_agree": 3000,
+      "inputs": 3000
+    },
+    {
+      "mutant": "line 65: '<' -> '='",
+      "status": "detected",
+      "inputs_differing": 378,
+      "z3_regions": 2,
+      "re_extracted_agree": 3000,
+      "inputs": 3000
+    },
+    {
+      "mutant": "line 43: '=' -> '>='",
+      "status": "detected",
+      "inputs_differing": 2944,
+      "z3_regions": 7,
+      "re_extracted_agree": 3000,
+      "inputs": 3000
+    },
+    {
+      "mutant": "line 68: '<' -> '<='",
+      "status": "detected",
+      "inputs_differing": 5,
+      "z3_regions": 1,
+      "re_extracted_agree": 3000,
+      "inputs": 3000
+    },
+    {
+      "mutant": "line 44: 999 -> 1000",
+      "status": "detected",
+      "inputs_differing": 56,
+      "z3_regions": 0,
+      "re_extracted_agree": 3000,
+      "inputs": 3000
+    },
+    {
+      "mutant": "line 57: AND -> OR",
+      "status": "detected",
+      "inputs_differing": 838,
+      "z3_regions": 4,
+      "re_extracted_agree": 3000,
+      "inputs": 3000
+    },
+    {
+      "mutant": "line 27: 88 -> 89",
+      "status": "does not compile"
+    },
+    {
+      "mutant": "line 58: 'REVIEW' -> 'REVIEX'",
+      "status": "detected",
+      "inputs_differing": 316,
+      "z3_regions": 1,
+      "re_extracted_agree": 3000,
+      "inputs": 3000
+    },
+    {
+      "mutant": "line 46: 100 -> 101",
+      "status": "detected",
+      "inputs_differing": 1345,
+      "z3_regions": 14,
+      "re_extracted_agree": 3000,
+      "inputs": 3000
+    },
+    {
+      "mutant": "line 68: 30 -> 31",
+      "status": "detected",
+      "inputs_differing": 5,
+      "z3_regions": 1,
+      "re_extracted_agree": 3000,
+      "inputs": 3000
+    },
+    {
+      "mutant": "line 23: 9 -> 8",
+      "status": "does not compile"
+    },
+    {
+      "mutant": "line 57: '>=' -> '='",
+      "status": "detected",
+      "inputs_differing": 126,
+      "z3_regions": 3,
+      "re_extracted_agree": 3000,
+      "inputs": 3000
+    },
+    {
+      "mutant": "line 65: 80 -> 79",
+      "status": "detected",
+      "inputs_differing": 7,
+      "z3_regions": 1,
+      "re_extracted_agree": 3000,
+      "inputs": 3000
+    },
+    {
+      "mutant": "line 66: statement removed",
+      "status": "detected",
+      "inputs_differing": 362,
+      "z3_regions": 1,
+      "re_extracted_agree": 2622,
+      "inputs": 3000
+    },
+    {
+      "mutant": "line 57: '>' -> '='",
+      "status": "detected",
+      "inputs_differing": 317,
+      "z3_regions": 6,
+      "re_extracted_agree": 3000,
+      "inputs": 3000
+    }
+  ],
+  "report": {
+    "credrev": {
+      "mutants": 80,
+      "compiled": 74,
+      "detected_by_tests": 70,
+      "found_by_z3_only": 2,
+      "detected_by_tests_or_z3": 72,
+      "proved_equivalent": 2,
+      "missed_by_both": 0,
+      "re_extraction_exact": 62,
+      "re_extraction_gaps": [
+        {
+          "mutant": "line 55: statement removed",
+          "agree": 2453,
+          "inputs": 3000,
+          "why": "flagged: a decision field is left unset on some path (result depends on history)"
+        },
+        {
+          "mutant": "line 43: '=' -> '>'",
+          "agree": 2944,
+          "inputs": 3000,
+          "why": "division whose divisor can be zero: COBOL leaves the field unchanged (history)"
+        },
+        {
+          "mutant": "line 73: statement removed",
+          "agree": 2217,
+          "inputs": 3000,
+          "why": "flagged: a decision field is left unset on some path (result depends on history)"
+        },
+        {
+          "mutant": "line 74: statement removed",
+          "agree": 2217,
+          "inputs": 3000,
+          "why": "flagged: a decision field is left unset on some path (result depends on history)"
+        },
+        {
+          "mutant": "line 70: statement removed",
+          "agree": 2334,
+          "inputs": 3000,
+          "why": "flagged: a decision field is left unset on some path (result depends on history)"
+        },
+        {
+          "mutant": "line 43: '=' -> '<'",
+          "agree": 2944,
+          "inputs": 3000,
+          "why": "division whose divisor can be zero: COBOL leaves the field unchanged (history)"
+        },
+        {
+          "mutant": "line 63: statement removed",
+          "agree": 2692,
+          "inputs": 3000,
+          "why": "flagged: a decision field is left unset on some path (result depends on history)"
+        },
+        {
+          "mutant": "line 64: statement removed",
+          "agree": 2692,
+          "inputs": 3000,
+          "why": "flagged: a decision field is left unset on some path (result depends on history)"
+        },
+        {
+          "mutant": "line 71: statement removed",
+          "agree": 2334,
+          "inputs": 3000,
+          "why": "flagged: a decision field is left unset on some path (result depends on history)"
+        },
+        {
+          "mutant": "line 44: statement removed",
+          "agree": 2970,
+          "inputs": 3000,
+          "why": "division whose divisor can be zero: COBOL leaves the field unchanged (history)"
+        },
+        {
+          "mutant": "line 67: statement removed",
+          "agree": 2622,
+          "inputs": 3000,
+          "why": "flagged: a decision field is left unset on some path (result depends on history)"
+        },
+        {
+          "mutant": "line 66: statement removed",
+          "agree": 2622,
+          "inputs": 3000,
+          "why": "flagged: a decision field is left unset on some path (result depends on history)"
+        }
+      ]
+    },
+    "sam2": {
+      "mutants": 50,
+      "compiled": 37,
+      "detected_by_tests": 19,
+      "found_by_z3_only": 0,
+      "detected_by_tests_or_z3": 19,
+      "proved_equivalent": 18,
+      "missed_by_both": 0,
+      "re_extraction_exact": 35,
+      "re_extraction_gaps": [
+        {
+          "mutant": "line 61: '=' -> '>'",
+          "agree": 146,
+          "inputs": 218,
+          "why": "undefined in COBOL on 72 of 218 inputs: the mutant sends them down a path that reads a numeric field holding text"
+        },
+        {
+          "mutant": "line 61: '=' -> '<'",
+          "agree": 74,
+          "inputs": 218,
+          "why": "undefined in COBOL on 144 of 218 inputs: the mutant sends them down a path that reads a numeric field holding text"
+        }
+      ]
+    }
+  },
+  "sam2": [
+    {
+      "mutant": "line 148: 311-CRUNCH-LOOP.",
+      "status": "does not compile"
+    },
+    {
+      "mutant": "line 117: 1 -> 2",
+      "status": "equivalent",
+      "re_extracted_agree": 218,
+      "inputs": 218
+    },
+    {
+      "mutant": "line 122: + -> -",
+      "status": "equivalent",
+      "re_extracted_agree": 218,
+      "inputs": 218
+    },
+    {
+      "mutant": "line 144: 0 -> 1",
+      "status": "equivalent",
+      "re_extracted_agree": 218,
+      "inputs": 218
+    },
+    {
+      "mutant": "line 65: '=' -> '>'",
+      "status": "detected",
+      "re_extracted_agree": 218,
+      "inputs": 218
+    },
+    {
+      "mutant": "line 158: 12 -> 13",
+      "status": "equivalent",
+      "re_extracted_agree": 218,
+      "inputs": 218
+    },
+    {
+      "mutant": "line 117: 1 -> 0",
+      "status": "equivalent",
+      "re_extracted_agree": 218,
+      "inputs": 218
+    },
+    {
+      "mutant": "line 89: '0' -> 'X'",
+      "status": "detected",
+      "re_extracted_agree": 218,
+      "inputs": 218
+    },
+    {
+      "mutant": "line 34: 06 WS-UPDATE-NUM      PIC S9(9)V99 COMP-",
+      "status": "does not compile"
+    },
+    {
+      "mutant": "line 87: '=' -> '<'",
+      "status": "detected",
+      "re_extracted_agree": 218,
+      "inputs": 218
+    },
+    {
+      "mutant": "line 61: '=' -> '>'",
+      "status": "detected",
+      "re_extracted_agree": 146,
+      "inputs": 218
+    },
+    {
+      "mutant": "line 40: 05 MONTH-SUB          PIC 8(16) VALUE 0.",
+      "status": "does not compile"
+    },
+    {
+      "mutant": "line 152: '>' -> '<='",
+      "status": "equivalent",
+      "re_extracted_agree": 218,
+      "inputs": 218
+    },
+    {
+      "mutant": "line 61: '=' -> '<'",
+      "status": "detected",
+      "re_extracted_agree": 74,
+      "inputs": 218
+    },
+    {
+      "mutant": "line 86: 'N' -> 'X'",
+      "status": "equivalent",
+      "re_extracted_agree": 218,
+      "inputs": 218
+    },
+    {
+      "mutant": "line 143: 299-PROCESS-CPU-CRUNCH.",
+      "status": "does not compile"
+    },
+    {
+      "mutant": "line 62: PERFORM 299-PROCESS-CPU-CRUNCH",
+      "status": "does not compile"
+    },
+    {
+      "mutant": "line 38: 0 -> 1",
+      "status": "equivalent",
+      "re_extracted_agree": 218,
+      "inputs": 218
+    },
+    {
+      "mutant": "line 78: 'REQUEST TYPE IS INVALID' -> 'REQUEST TYPE IS INVALIX'",
+      "status": "detected",
+      "re_extracted_agree": 218,
+      "inputs": 218
+    },
+    {
+      "mutant": "line 156: + -> -",
+      "status": "equivalent",
+      "re_extracted_agree": 218,
+      "inputs": 218
+    },
+    {
+      "mutant": "line 158: 12 -> 11",
+      "status": "equivalent",
+      "re_extracted_agree": 218,
+      "inputs": 218
+    },
+    {
+      "mutant": "line 159: + -> -",
+      "status": "detected",
+      "note": "never ends"
+    },
+    {
+      "mutant": "line 72: 099-VALIDATE-TRAN.",
+      "status": "does not compile"
+    },
+    {
+      "mutant": "line 87: '=' -> '>='",
+      "status": "detected",
+      "re_extracted_agree": 218,
+      "inputs": 218
+    },
+    {
+      "mutant": "line 91: '=' -> '>'",
+      "status": "detected",
+      "re_extracted_agree": 218,
+      "inputs": 218
+    },
+    {
+      "mutant": "line 91: '=' -> '>='",
+      "status": "detected",
+      "re_extracted_agree": 218,
+      "inputs": 218
+    },
+    {
+      "mutant": "line 152: '>' -> '<'",
+      "status": "equivalent",
+      "re_extracted_agree": 218,
+      "inputs": 218
+    },
+    {
+      "mutant": "line 40: 04 MONTH-SUB          PIC 9(16) VALUE 0.",
+      "status": "does not compile"
+    },
+    {
+      "mutant": "line 35: 06 WS-UPDATE-NUM-NEG  PIC X VALUE SPACES",
+      "status": "does not compile"
+    },
+    {
+      "mutant": "line 58: 'Y' -> 'X'",
+      "status": "detected",
+      "re_extracted_agree": 218,
+      "inputs": 218
+    },
+    {
+      "mutant": "line 99: '=' -> '>'",
+      "status": "detected",
+      "re_extracted_agree": 218,
+      "inputs": 218
+    },
+    {
+      "mutant": "line 143: 301-PROCESS-CPU-CRUNCH.",
+      "status": "does not compile"
+    },
+    {
+      "mutant": "line 109: 'N' -> 'X'",
+      "status": "detected",
+      "re_extracted_agree": 218,
+      "inputs": 218
+    },
+    {
+      "mutant": "line 151: 1 -> 0",
+      "status": "equivalent",
+      "re_extracted_agree": 218,
+      "inputs": 218
+    },
+    {
+      "mutant": "line 34: 04 WS-UPDATE-NUM      PIC S9(9)V99 COMP-",
+      "status": "does not compile"
+    },
+    {
+      "mutant": "line 88: 'Y' -> 'X'",
+      "status": "detected",
+      "re_extracted_agree": 218,
+      "inputs": 218
+    },
+    {
+      "mutant": "line 99: '=' -> '>='",
+      "status": "equivalent",
+      "re_extracted_agree": 218,
+      "inputs": 218
+    },
+    {
+      "mutant": "line 77: 'N' -> 'X'",
+      "status": "detected",
+      "re_extracted_agree": 218,
+      "inputs": 218
+    },
+    {
+      "mutant": "line 35: 04 WS-UPDATE-NUM-NEG  PIC X VALUE SPACES",
+      "status": "does not compile"
+    },
+    {
+      "mutant": "line 57: 0 -> 1",
+      "status": "equivalent",
+      "re_extracted_agree": 218,
+      "inputs": 218
+    },
+    {
+      "mutant": "line 110: 'INVALID ACTION CODE   ' -> 'INVALID ACTION CODE  X'",
+      "status": "detected",
+      "re_extracted_agree": 218,
+      "inputs": 218
+    },
+    {
+      "mutant": "line 37: 0 -> 1",
+      "status": "equivalent",
+      "re_extracted_agree": 218,
+      "inputs": 218
+    },
+    {
+      "mutant": "line 91: '=' -> '<='",
+      "status": "equivalent",
+      "re_extracted_agree": 218,
+      "inputs": 218
+    },
+    {
+      "mutant": "line 87: '=' -> '>'",
+      "status": "detected",
+      "re_extracted_agree": 218,
+      "inputs": 218
+    },
+    {
+      "mutant": "line 122: 1 -> 0",
+      "status": "equivalent",
+      "re_extracted_agree": 218,
+      "inputs": 218
+    },
+    {
+      "mutant": "line 36: 06 TRAN-COUNT         PIC 9(5) COMP-3 VA",
+      "status": "does not compile"
+    },
+    {
+      "mutant": "line 84: statement removed",
+      "status": "detected",
+      "re_extracted_agree": 218,
+      "inputs": 218
+    },
+    {
+      "mutant": "line 126: 1 -> 2",
+      "status": "equivalent",
+      "re_extracted_agree": 218,
+      "inputs": 218
+    },
+    {
+      "mutant": "line 36: 05 TRAN-COUNT         PIC 8(5) COMP-3 VA",
+      "status": "does not compile"
+    },
+    {
+      "mutant": "line 95: statement removed",
+      "status": "detected",
+      "re_extracted_agree": 218,
+      "inputs": 218
+    }
+  ]
+}

@@ -20,6 +20,17 @@ def reason_for_gap(path: Path, dirs) -> str:
     """Why rules re-extracted from a mutant cannot reproduce it record by record."""
     prog = C.parse_program(path, dirs)
     _, rules = R.extract(prog)
+    if prog.using:                                     # a CALLed program: look for undefined behaviour
+        sys.path.insert(0, str(ROOT / "scripts"))
+        from mutation import sam2_cases
+        from legacylens import smt
+        _, kept, _ = smt.analyse(prog, rules, pairwise=False)
+        eng = R.Engine(prog, kept)
+        cases = sam2_cases()
+        undefined = sum(1 for c in cases if eng.decide(c)[0] is None and eng.decide(c)[1].get("undefined"))
+        if undefined:
+            return (f"undefined in COBOL on {undefined} of {len(cases)} inputs: the mutant sends them down a "
+                    f"path that reads a numeric field holding text")
     if any("keeps the value left by an earlier" in n for r in rules for n in r.notes):
         return "flagged: a decision field is left unset on some path (result depends on history)"
     for p in prog.paragraphs:
