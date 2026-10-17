@@ -96,6 +96,8 @@ def run_credrev(n_max, rng):
     orig_path = ROOT / "cobol" / "CREDREV.cbl"
     orig = C.parse_program(orig_path)
     _, orig_rules = R.extract(orig)
+    from legacylens import smt
+    _, orig_kept, _ = smt.analyse(orig, orig_rules, pairwise=False)
     eng = R.Engine(orig, orig_rules)
     df = data.load()
     recs = [data.to_record(r) for _, r in df.sample(2000, random_state=1).iterrows()]
@@ -113,10 +115,17 @@ def run_credrev(n_max, rng):
         if not compile_mutant(src, [], module=False):
             rows.append({"mutant": desc, "status": "does not compile"})
             continue
-        out = run_batch(src.with_suffix(""), recs)
+        try:
+            out = run_batch(src.with_suffix(""), recs, timeout=20)
+        except subprocess.TimeoutExpired:
+            rows.append({"mutant": desc, "status": "detected", "note": "never ends"})
+            continue
+        except RuntimeError:
+            rows.append({"mutant": desc, "status": "detected", "note": "stops with a runtime error"})
+            continue
         detected = sum(a != b for a, b in zip(expected, out))
         mut = C.parse_program(src)
-        rep = impact.compare(orig, mut)
+        rep = impact.compare(orig, mut, orig_kept)
         rep.pop("_rules")
         equivalent = not rep["regions"]
         _, mrules = R.extract(mut)
@@ -172,9 +181,17 @@ def run_sam2(n_max, rng):
         except Exception:
             rows.append({"mutant": desc, "status": "does not compile"})
             continue
-        out = subprog.run(mut, exe, lib, cases)
+        try:
+            out = subprog.run(mut, exe, lib, cases, timeout=20)
+        except RuntimeError:
+            rows.append({"mutant": desc, "status": "detected", "note": "stops with a runtime error"})
+            continue
+        except subprocess.TimeoutExpired:
+            rows.append({"mutant": desc, "status": "detected", "note": "never ends"})
+            print(f"SAM2    {k:3d} detected   {desc} | never ends", flush=True)
+            continue
         detected = sum(a != b for a, b in zip(expected, out))
-        rep = impact.compare(orig, mut)
+        rep = impact.compare(orig, mut, orig_rules)
         rep.pop("_rules")
         equivalent = not rep["regions"]
         _, mrules = R.extract(mut)
@@ -207,9 +224,11 @@ def main():
     OUT.mkdir(parents=True)
     rng = random.Random(9)
     t0 = time.perf_counter()
-    res = {"credrev": run_credrev(n_max, rng), "sam2": run_sam2(n_max, rng)}
-    report = {"seconds": round(time.perf_counter() - t0), "summary": {k: summary(v) for k, v in res.items()}, **res}
-    (ROOT / "results" / "mutation.json").write_text(json.dumps(report, indent=2))
+    res = {}
+    for name, fn, n in (("credrev", run_credrev, n_max), ("sam2", run_sam2, max(n_max * 5 // 8, 1))):
+        res[name] = fn(n, rng)
+        report = {"seconds": round(time.perf_counter() - t0), "summary": {k: summary(v) for k, v in res.items()}, **res}
+        (ROOT / "results" / "mutation.json").write_text(json.dumps(report, indent=2))
     print(json.dumps(report["summary"], indent=2))
 
 

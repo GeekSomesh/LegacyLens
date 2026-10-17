@@ -36,10 +36,11 @@ def source_diff(old: C.Program, new: C.Program) -> list:
     return list(difflib.unified_diff(a, b, Path(old.path).name, Path(new.path).name, lineterm="", n=1))
 
 
-def compare(old: C.Program, new: C.Program) -> dict:
-    _, raw_old = R.extract(old)
+def compare(old: C.Program, new: C.Program, old_rules: list | None = None) -> dict:
+    if old_rules is None:
+        _, raw_old = R.extract(old)
+        _, old_rules, _ = smt.analyse(old, raw_old, pairwise=False)
     _, raw_new = R.extract(new)
-    _, old_rules, _ = smt.analyse(old, raw_old, pairwise=False)
     _, new_rules, _ = smt.analyse(new, raw_new, pairwise=False)
     codes: dict = {}
     a_old = smt.Analysis(old, old_rules, codes)

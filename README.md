@@ -2,16 +2,19 @@
 
 **[TEAM NAME_IBM Z Datathon 2026 Project]** · Theme: Real-Time AI for Critical Decisions · Event code SSF2026
 
-LegacyLens reads legacy COBOL, turns every decision path into a readable rule, **proves** the rules (z3) and **checks** them against the compiled program, then adds a real-time AI risk check and a plain-English explanation. It works on IBM's own sample programs as well as on our credit policy, and it found five defects in IBM's sample along the way. Everything runs on an **IBM LinuxONE** virtual server (IBM z17, s390x) in the LinuxONE Community Cloud.
+LegacyLens reads legacy COBOL, turns every decision path into a readable rule, **proves** the rules with z3 and **checks** them against the compiled program, shows exactly what a code change does before it goes live, exports the rules as standard DMN, and adds a real-time AI risk check with a plain-English explanation. It works on IBM's own sample programs as well as on two policy programs of ours, and its checks found real defects in all of them. Everything runs on an **IBM LinuxONE** virtual server (IBM z17, s390x) in the LinuxONE Community Cloud.
 
 | At a glance (all measured on LinuxONE) | |
 |---|---|
-| Rules = compiled COBOL, credit policy CREDREV | **35,260 / 35,260** records |
+| Rules = compiled COBOL: credit policy CREDREV, fraud screen FRAUDHLD | **35,260 / 35,260** and **20,212 / 20,212** |
 | Rules = compiled COBOL, IBM SAM2 (copybooks, REDEFINES, COMP-3, OCCURS) | **7,535 / 7,535** calls |
 | Interpreter = compiled COBOL, IBM SAM1 with real files and a CALL to SAM2 | **300 / 300** file runs |
 | Interpreter = GnuCOBOL on five construct programs | **10,000 / 10,000** records |
 | z3 on SAM2 | 109 code paths → 92 proved impossible → **17 rules**, 44 redundant conditions removed, every simplification proved equivalent |
-| Defects found in IBM's SAM1 sample | **5** (wrong status code reported twice, file never closed, write past a table, arithmetic on text) |
+| Defects found, each with a reproducible example | IBM SAM1: **5** · IBM SAM2: a debit stored as a credit, balances silently losing high-order digits · our own programs: a utilisation and a spend ratio that wrap to small numbers |
+| Change impact (CREDREV v1 → v2) | 6 changed-decision regions found by z3, **6/6 confirmed** by both compiled programs; 1,039 of 30,000 accounts change outcome, all inside a predicted region |
+| DMN 1.3 export | schema-valid; the exported model matches the compiled COBOL on **35,262 / 35,262** (CREDREV) and **25,192 / 25,192** (FRAUDHLD) |
+| Fault injection | MUTATION_GLANCE |
 | AI on the credit policy (4,501 held-out accounts) | keeps **57%** of defaulters from getting a limit increase |
 | Speed on the z17 | ONNX risk score **15 µs** on the AI accelerator; whole portfolio **125,000 decisions/s**; one API decision **4.8 ms** |
 
@@ -42,14 +45,18 @@ Adding AI to these decisions makes this worse unless three things hold:
 | Extract rules | Every path through the decision logic becomes a rule: the tests on the way (with lines) and the values written. Large batch programs get one small rule table per decision statement, with PERFORMed paragraphs shown as routing | `legacylens/rules.py` |
 | Prove and simplify (z3) | Each rule path is executed symbolically. z3 drops impossible paths, removes conditions implied by the others and proves the shorter rule equivalent, checks that no two rules overlap, and finds a concrete example input for each rule | `legacylens/smt.py` |
 | Check against the program | The rules (or, for whole batch programs, the interpreter) and the GnuCOBOL build process the same inputs; outputs are compared byte for byte. CALLed programs get a generated driver; batch programs run on real files | `verify.py`, `subprog.py`, `scripts/verify_*.py` |
-| Find defects | Static checks (a test of one file's status that reports another's, files never closed, unused paragraphs) and anything the interpreter sees while running (writes outside a table, arithmetic on text) | `legacylens/lint.py` |
+| Find defects | z3 proves where a numeric store can silently lose its high-order digits or its sign, with an example the compiled program confirms; static checks (a test of one file's status that reports another's, files never closed, unused paragraphs, a decision left unset on some path); and anything the interpreter sees while running (writes outside a table, arithmetic on text) | `legacylens/smt.py`, `lint.py` |
+| Change impact | Compare two versions of a program: rules unchanged/changed/added, every region where the decision changes (z3, with an example), both compiled programs on the examples and on a whole portfolio | `legacylens/impact.py` |
+| Export | The rules as a DMN 1.3 decision model (derived values as FEEL, a FIRST-hit decision table), validated against the OMG schema and run against the compiled program | `legacylens/dmn.py` |
+| Review | Reviewers approve or flag each rule; every action goes into a SHA-256 hash-chained audit trail, and approvals go stale when the rule changes | `legacylens/review.py` |
 | Score risk | A gradient-boosted model trained with scikit-learn on 30,000 real card accounts, exported to **ONNX**, served by **IBM Snap ML** on the z17's on-chip AI accelerator (NNPA, through zDNN) | `legacylens/model.py`, `models/risk_gbm.onnx` |
 | Decide | Policy plus AI: hold a risky limit increase, escalate an account, set review priority, or send a restrictive decision for a second look. The AI never approves on its own | `legacylens/hybrid.py` |
 | Explain | A factual draft note is built from the computed values and a glossary of COBOL names; **IBM Granite 3.3 2B** on LinuxONE rewrites it in plain English. A guard rejects any rewrite that adds a number, percentage or decision word not in the draft, or drops the decision or rule; the draft is shown instead. Granite also documents every rule | `legacylens/explain.py`, `glossary.py` |
-| Serve | FastAPI service and web UI (decision desk, program explorer, evidence), rootless podman container on s390x, systemd units | `legacylens/api.py`, `Containerfile`, `deploy/` |
+| Serve | FastAPI service and web UI (decision desk, program explorer, change impact, evidence), a command line (`python -m legacylens rules / findings / dmn / verify / impact`), rootless podman container on s390x, systemd units, CycloneDX SBOM, GitHub Actions on x86 | `legacylens/api.py`, `__main__.py`, `Containerfile`, `deploy/` |
 
 Programs analysed:
-- `cobol/CREDREV.cbl`: a monthly credit line review written for this project in batch COBOL style (64 lines of code).
+- `cobol/CREDREV.cbl`: a monthly credit line review written for this project in batch COBOL style (64 lines of code), and `CREDREV_v2.cbl`, a realistic change request to it.
+- `cobol/FRAUDHLD.cbl`: a real-time card authorisation fraud screen written for this project, with a high-risk country table built through REDEFINES and OCCURS.
 - `samples/ibm-zopeneditor/COBOL/SAM2.cbl`: IBM's customer-update subroutine from the [IBM Z Open Editor samples](https://github.com/IBM/zopeneditor-sample), with its copybooks (Apache-2.0, unmodified).
 - `samples/ibm-zopeneditor/COBOL/SAM1.cbl`: IBM's batch program that reads a customer file and a transaction file, CALLs SAM2 and writes an updated file and a report.
 
@@ -107,6 +114,7 @@ Numbers come from `results/*.json`, produced by the scripts in `scripts/`.
 | Program | What was compared | Inputs | Same |
 |---|---|---|---|
 | CREDREV | extracted rules vs the compiled program, whole output line | 30,000 real accounts, 260 boundary cases, 5,000 random records | **35,260 / 35,260** |
+| FRAUDHLD | extracted rules vs the compiled program, whole output line | 20,000 generated requests and 212 boundary cases | **20,212 / 20,212** |
 | IBM SAM2 | extracted rules vs the compiled subroutine, all four parameters | IBM's sample data (12), z3 example inputs (17), a grid of codes/actions/fields/amounts (4,506), random (3,000) | **7,535 / 7,535** |
 | IBM SAM1 | interpreter (calling its model of SAM2) vs the compiled program: updated customer file, report, console, return code | IBM's sample files + 300 generated file pairs; 1,607 transactions | **300 / 300** defined runs (1 run is undefined behaviour, below) |
 | Five construct programs (`tests/cobol`) | interpreter vs compiled program, every DISPLAY line | 2,000 random records each | **10,000 / 10,000** |
@@ -118,22 +126,60 @@ The construct programs cover GO TO and PERFORM THRU; OCCURS and VARYING/TEST AFT
 | Program | Code paths | Impossible (proved) | Rules | Redundant conditions removed | Simplifications proved | Overlapping rules |
 |---|---|---|---|---|---|---|
 | CREDREV | 6 | 0 | 6 | 3 | all | none |
+| FRAUDHLD | 8 | 0 | 8 | 2 | all | none |
 | IBM SAM2 | 109 | 92 | **17** | 44 | all | none |
 | IBM SAM1 (per decision) | 28 | 0 | 28 | 8 | all | – |
 
 Each rule also gets an example input found by z3; for SAM2 those 17 inputs are part of the comparison above.
 
-### 3. Defects found in IBM's SAM1 sample
+### 3. Defects found
 
-| # | Finding | How |
+| Program | Finding | How |
 |---|---|---|
-| 1 | When reading the transaction file fails, the error message reports the **customer** file's status code (`MOVE WS-CUSTFILE-STATUS TO ERR-MSG-DATA2` in 710-READ-TRAN-FILE) | static check on the rules |
-| 2 | The output-file write error also reports the customer input file's status (740-WRITE-CUSTOUT-FILE) | static check |
-| 3 | CUSTOMER-FILE-OUT is opened but never closed | static check |
-| 4 | `PERFORM TEST AFTER VARYING I FROM 1 BY 1 UNTIL I > 12` runs once more with I = 13 and writes `WS-CUST-MONTH(13)`, nine bytes into the next field (every ADD transaction; GnuCOBOL does not check subscripts, and the interpreter reproduces the overwrite) | while running |
-| 5 | An UPDATE for a contact record ('C') reaches SAM2, which treats it as a customer record and adds to a numeric field that holds text | while running |
+| IBM SAM1 | When reading the transaction file fails, the error message reports the **customer** file's status code (`MOVE WS-CUSTFILE-STATUS TO ERR-MSG-DATA2` in 710-READ-TRAN-FILE) | static check on the rules |
+| IBM SAM1 | The output-file write error also reports the customer input file's status (740-WRITE-CUSTOUT-FILE) | static check |
+| IBM SAM1 | CUSTOMER-FILE-OUT is opened but never closed | static check |
+| IBM SAM1 | `PERFORM TEST AFTER VARYING I FROM 1 BY 1 UNTIL I > 12` runs once more with I = 13 and writes `WS-CUST-MONTH(13)`, nine bytes into the next field (every ADD transaction; GnuCOBOL does not check subscripts, and the interpreter reproduces the overwrite) | while running |
+| IBM SAM1 | An UPDATE for a contact record ('C') reaches SAM2, which treats it as a customer record and adds to a numeric field that holds text | while running |
+| IBM SAM2 | **A debit becomes a credit**: REPLACE BALANCE with -123.45 stores the unsigned balance as 0000123.45 (line 121; the same on ADD, line 124, and for the order count, lines 131 and 134) | z3, confirmed on the compiled program |
+| IBM SAM2 | **Money disappears silently**: adding 999,999.99 to a balance of 9,999,999.99 gives 10,999,999.98, stored as 0999999.98 (line 124; the order count wraps the same way) | z3, confirmed on the compiled program |
+| CREDREV (ours) | Utilisation over 99,999% wraps: a bill 1,000 times the limit reads as 0% (line 46) | z3, confirmed |
+| FRAUDHLD (ours) | A spend 100,000 times the average makes the ratio wrap to a small number, so the spike looks normal to the screen (line 68) | z3, confirmed |
 
-### 4. Risk model (4,501 held-out test accounts)
+### 4. Change impact: CREDREV v1 → v2
+
+`cobol/CREDREV_v2.cbl` is a realistic change request: review accounts at 85% utilisation instead of 90%, lower the high-limit cap from 500,000 to 400,000, and add a rule R07 (no payment on a large bill). LegacyLens compares the two versions (`results/impact_credrev.json`, UI tab "Change impact"):
+
+| | |
+|---|---|
+| Rules | 1 unchanged, 5 with changed tests, 1 added |
+| Regions where the outcome changes (z3) | 6, each with an example account; **6 / 6 confirmed** by running both compiled programs |
+| Accounts whose outcome changes (both compiled programs on all 30,000) | **1,039** (960 change decision, 79 only the reason), every one inside a region z3 predicted |
+
+| From → to | Accounts | Defaulted next month |
+|---|---|---|
+| INCREASE (R05) → KEEP (R06) | 706 | 61 (8.6%) |
+| **DECREASE (R03) → REVIEW (R02)** | **200** | **116 (58.0%)** |
+| REVIEW (R04) → REVIEW (R02) | 79 | 50 (63.3%) |
+| KEEP (R06) → REVIEW (R07) | 44 | 14 (31.8%) |
+| KEEP (R06) → REVIEW (R02) | 10 | 7 (70.0%) |
+
+The change looks like a tightening, but it also moves 200 accounts from DECREASE to a softer REVIEW, and 58% of them defaulted the next month: exactly the kind of side effect a change board needs to see before a critical policy goes live.
+
+### 5. DMN export
+
+| Program | Table rows | OMG DMN 1.3 schema | Exported model = compiled COBOL |
+|---|---|---|---|
+| CREDREV | 19 | valid | **35,262 / 35,262** records |
+| FRAUDHLD | 26 | valid | **25,192 / 25,192** records |
+
+The models are in `results/dmn/` and downloadable from the program explorer. Derived values are FEEL literal expressions that keep COBOL's truncation; the country table loop is unrolled into single-assignment decisions. The comparison runs the exported XML through a FEEL-subset evaluator and cuts the decision fields out of the compiled program's output line.
+
+### 6. Fault injection
+
+MUTATION_SECTION
+
+### 7. Risk model (4,501 held-out test accounts)
 
 | Metric | Value |
 |---|---|
@@ -149,7 +195,7 @@ Each rule also gets an example input found by z3; for SAM2 those 17 inputs are p
 | ONNX reference evaluator (exact) | 2.6 ms | reference |
 | scikit-learn | 0.136 ms | – |
 
-### 5. Policy alone vs policy + AI (same test accounts)
+### 8. Policy alone vs policy + AI (same test accounts)
 
 | | Accounts | Defaulted next month |
 |---|---|---|
@@ -161,7 +207,7 @@ Each rule also gets an example input found by z3; for SAM2 those 17 inputs are p
 
 The hybrid keeps **57% of the defaulters** among limit increases from getting one, and flags 250 accounts the policy would have left unchanged, half of which defaulted. The combination table was chosen on the validation accounts; these are test numbers.
 
-### 6. Explanations
+### 9. Explanations
 
 IBM Granite 3.3 2B Instruct (Q4_0, big-endian) on the server's 3 vCPUs, no GPU. Eleven demo accounts, two per scenario (`results/llm_bench.json`):
 
@@ -174,7 +220,7 @@ IBM Granite 3.3 2B Instruct (Q4_0, big-endian) on the server's 3 vCPUs, no GPU. 
 
 The faster Granite 3.0 1B-A400M (about 4 s) passed the guard on only 1 of 11, so LegacyLens uses the 2B model. The decision appears at once; the explanation follows, and demo accounts are explained in the background at start-up. The UI always shows the facts the explanation was written from.
 
-### 7. Speed on the z17 (`results/benchmark.json`)
+### 10. Speed on the z17 (`results/benchmark.json`)
 
 | Step | Throughput | One decision |
 |---|---|---|
@@ -198,11 +244,24 @@ mkdir -p ~/data && cd ~/data && curl -LO "https://archive.ics.uci.edu/static/pub
 ~/venv/bin/python scripts/verify_ibm.py        # IBM SAM2 rules vs compiled COBOL -> results/ibm_sam2.json
 ~/venv/bin/python scripts/verify_sam1.py       # IBM SAM1 end to end on files     -> results/ibm_sam1.json
 ~/venv/bin/python scripts/conformance.py       # construct programs               -> results/conformance.json
+~/venv/bin/python scripts/verify_fraud.py      # FRAUDHLD rules vs compiled COBOL -> results/fraud_verification.json
+~/venv/bin/python scripts/impact_credrev.py    # CREDREV v1 -> v2 change impact   -> results/impact_credrev.json
+~/venv/bin/python scripts/export_dmn.py        # DMN models + schema + check      -> results/dmn/
+~/venv/bin/python scripts/mutation.py          # fault injection                  -> results/mutation.json
 ~/venv/bin/python scripts/analyse_programs.py  # rules, z3, examples, findings    -> results/programs/
 ~/venv/bin/python scripts/train_model.py       # ONNX model + runtimes            -> models/, results/model.json
 ~/venv/bin/python scripts/evaluate_hybrid.py   # policy vs hybrid                 -> results/hybrid.json
 ~/venv/bin/python scripts/benchmark.py         # speed                            -> results/benchmark.json
 ~/venv/bin/python -m pytest tests              # unit tests
+~/venv/bin/python scripts/sbom.py              # CycloneDX SBOM                   -> sbom.cdx.json
+```
+
+The command line works on any COBOL file in the supported subset:
+```bash
+python -m legacylens rules    samples/ibm-zopeneditor/COBOL/SAM2.cbl -I samples/ibm-zopeneditor/COPYBOOK
+python -m legacylens findings samples/ibm-zopeneditor/COBOL/SAM1.cbl -I samples/ibm-zopeneditor/COPYBOOK
+python -m legacylens impact   cobol/CREDREV.cbl cobol/CREDREV_v2.cbl
+python -m legacylens dmn      cobol/FRAUDHLD.cbl -o FRAUDHLD.dmn
 ```
 
 The explanation model (llama.cpp for s390x and a big-endian Granite GGUF):
@@ -243,6 +302,8 @@ ssh -L 8800:127.0.0.1:8000 linux1@<server>     # from your laptop, then open htt
 - SAM1's rules are per decision statement, so they are documentation and routing. The whole program is checked through the interpreter, not by replaying its rules.
 - Rule-level behavioural checks replay each input from the program's initial state; SAM1's run checks state carried across records.
 - `CREDREV.cbl` was written for this project. The data set (Taiwan, 2005) is public and old; the model demonstrates the pipeline and is not a credit model to deploy.
+- The DMN check uses LegacyLens's own FEEL-subset evaluator: the exported files are schema-valid, but they were not run in a third-party DMN engine. Programs whose derived values need byte overlays (such as SAM2) are not exported.
+- Fault injection covers single-point mutations of comparison operators, connectors, literals, arithmetic and statements; it does not prove that every possible bug is caught.
 - Granite's rewrite can still read awkwardly. The guard catches added numbers and decision words, not every wrong phrasing.
 
 ## Open-source resources
@@ -253,6 +314,7 @@ ssh -L 8800:127.0.0.1:8000 linux1@<server>     # from your laptop, then open htt
 | [UCI Default of Credit Card Clients](https://doi.org/10.24432/C55S3H) (Yeh & Lien, 2009) | training and test data | CC BY 4.0 |
 | [GnuCOBOL](https://gnucobol.sourceforge.io/) 3.1.2 | compiles and runs the COBOL on s390x | GPL-3.0 |
 | [z3](https://github.com/Z3Prover/z3) 4.8.12 (Ubuntu package) | symbolic analysis and proofs | MIT |
+| [OMG DMN 1.3 schemas](https://www.omg.org/spec/DMN/1.3/) (`legacylens/schemas`) | validating the exported decision models | OMG |
 | [IBM Snap ML](https://snapml.readthedocs.io/) 1.17.2 | ONNX import and inference on the AI accelerator | IBM licence (PyPI) |
 | [zDNN](https://github.com/IBM/zDNN) (libzdnn0) | NNPA access for Snap ML | Apache-2.0 |
 | [scikit-learn](https://scikit-learn.org/), [skl2onnx](https://github.com/onnx/sklearn-onnx), [ONNX](https://onnx.ai/) | training, export, exact reference evaluation | BSD-3 / Apache-2.0 |

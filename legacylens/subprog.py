@@ -67,7 +67,7 @@ def build(prog: C.Program, copy_dirs=(), out_dir: Path = BUILD) -> tuple:
     return exe, out_dir
 
 
-def run(prog: C.Program, exe: Path, lib: Path, cases: list, timeout: int = 600) -> list:
+def run(prog: C.Program, exe: Path, lib: Path, cases: list, timeout: int = 600) -> list:  # noqa: C901
     """cases: list of dicts param -> bytes. Returns list of lists of parameter texts."""
     n = len(prog.using)
     lines = [f"{len(cases):06d}"]
