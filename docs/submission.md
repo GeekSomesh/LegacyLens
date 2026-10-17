@@ -2,7 +2,9 @@
 
 Copy these into the Hack2Skill form. Replace the bracketed parts.
 
-**Project title:** `[TEAM NAME]_IBM Z Datathon 2026 Project` (the format the rules ask for), with LegacyLens as the product name in the description.
+**Project title:** `Aviator_IBM Z Datathon 2026 Project` (the format the rules ask for), with LegacyLens as the product name in the description.
+
+**Team:** Aviator: Piyush Anand, Somesh Srivastava, Praman Patel, Paraj Prasad, Mohit Kumar A
 
 **Event code:** SSF2026 · **Theme:** Real-Time AI for Critical Decisions
 

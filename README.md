@@ -1,6 +1,8 @@
 # LegacyLens
 
-**[TEAM NAME_IBM Z Datathon 2026 Project]** · Theme: Real-Time AI for Critical Decisions · Event code SSF2026
+**Aviator_IBM Z Datathon 2026 Project** · Theme: Real-Time AI for Critical Decisions · Event code SSF2026
+
+Team **Aviator**: Piyush Anand · Somesh Srivastava · Praman Patel · Paraj Prasad · Mohit Kumar A
 
 LegacyLens reads legacy COBOL, turns every decision path into a readable rule, **proves** the rules with z3 and **checks** them against the compiled program, shows exactly what a code change does before it goes live, exports the rules as standard DMN, and adds a real-time AI risk check with a plain-English explanation. It works on IBM's own sample programs as well as on two policy programs of ours, and its checks found real defects in all of them. Everything runs on an **IBM LinuxONE** virtual server (IBM z17, s390x) in the LinuxONE Community Cloud.
 
@@ -340,7 +342,11 @@ ssh -L 8800:127.0.0.1:8000 linux1@<server>     # from your laptop, then open htt
 
 ## How this was built
 
-DISCLOSURE_PLACEHOLDER
+Before the Datathon, the team built an earlier prototype on a related idea on a different server, using access credentials that were not the ones provided for this competition. Because the rules require the submission to be created during the event on the LinuxONE Community Cloud, that prototype is not part of this submission.
+
+Everything in this repository was built from scratch on 17 and 18 October 2026 on the LinuxONE Community Cloud virtual server `coboldecision` (IBM z17, Ubuntu 24.04 s390x), accessed with the credentials that match our competition registration. No code, data or results from the earlier prototype are used. The git history records each step, and every result in this README was produced by running the code on that server ([docs/linuxone_system.txt](docs/linuxone_system.txt)).
+
+Third-party material is limited to the open-source software, IBM samples and public data listed under [Open-source resources](#open-source-resources), each used under its licence.
 
 ## Licence
 
