@@ -1,0 +1,10 @@
+# Python packages from PyPI (s390x wheels or pure Python). On Ubuntu 24.04 the
+# scientific stack comes from apt: python3-numpy 1.26.4, python3-pandas 2.1.4,
+# python3-sklearn 1.4.1, python3-onnx 1.14.1; GnuCOBOL from gnucobol3 3.1.2 and
+# zDNN from libzdnn0 1.0.1 (needed for Snap ML to use the AI accelerator).
+snapml==1.17.2
+skl2onnx==1.20.0
+fastapi==0.143.3
+uvicorn==0.54.0
+pydantic==2.14.1
+xlrd==2.0.2

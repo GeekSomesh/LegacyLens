@@ -7,13 +7,15 @@ April-September 2005, with whether each defaulted in October 2005.
 """
 from __future__ import annotations
 
+import os
 from pathlib import Path
 
 import numpy as np
 import pandas as pd
 
 ROOT = Path(__file__).resolve().parent.parent
-DATA = Path.home() / "data" / "default of credit card clients.xls"
+DATA = Path(os.environ.get("LEGACYLENS_DATA",
+                          Path.home() / "data" / "default of credit card clients.xls"))
 
 PAY = ["PAY_0", "PAY_2", "PAY_3", "PAY_4", "PAY_5", "PAY_6"]
 BILL = [f"BILL_AMT{i}" for i in range(1, 7)]

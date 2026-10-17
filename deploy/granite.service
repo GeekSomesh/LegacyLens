@@ -1,0 +1,13 @@
+# systemd unit for the IBM Granite LLM (llama.cpp server, big-endian GGUF) on LinuxONE.
+#   sudo cp deploy/granite.service /etc/systemd/system/ && sudo systemctl enable --now granite
+[Unit]
+Description=IBM Granite 3.3 2B Instruct (llama.cpp) for LegacyLens explanations
+After=network.target
+
+[Service]
+User=linux1
+ExecStart=/home/linux1/work/llama.cpp/build/bin/llama-server -m /home/linux1/models/granite-3.3-2b-instruct-be.Q4_0.gguf --host 127.0.0.1 --port 8080 -c 4096 -t 3 --alias granite-3.3-2b-instruct
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target

@@ -204,7 +204,9 @@ class Rule:
     def condition_texts(self) -> list:
         return [cond_text(c if holds else negate(c)) for c, holds, _ in self.conditions]
 
-    def to_dict(self, prog: C.Program) -> dict:
+    def to_dict(self, prog: C.Program, names: dict | None = None) -> dict:
+        from .glossary import english
+        names = names or {}
         derived = []
         for kind, *rest in self.steps:
             if kind == "exec" and not (set(getattr(rest[0], "targets", [])) & set(self.actions)):
@@ -213,10 +215,11 @@ class Rule:
         conds = []
         for c, holds, line in self.conditions:
             shown = c if holds else negate(c)
-            entry = {"text": cond_text(shown), "line": line, "tested": cond_text(c), "outcome": holds}
-            names = refs_in(c) & set(prog.conds)
-            if names:
-                entry["meaning"] = "; ".join(cond_name_text(prog.conds[n]) for n in sorted(names))
+            entry = {"text": cond_text(shown), "line": line, "tested": cond_text(c), "outcome": holds,
+                     "english": english(shown, names)}
+            cond_names = refs_in(c) & set(prog.conds)
+            if cond_names:
+                entry["meaning"] = "; ".join(cond_name_text(prog.conds[n]) for n in sorted(cond_names))
             conds.append(entry)
         return {"id": self.id, "actions": {k: str(v).strip() for k, v in self.actions.items()},
                 "conditions": conds, "derived": derived, "lines": self.lines,

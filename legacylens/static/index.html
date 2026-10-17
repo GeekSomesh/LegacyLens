@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>LegacyLens</title>
+<link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+<header>
+  <div class="brand">
+    <h1>LegacyLens</h1>
+    <p>Legacy COBOL credit decisions, verified and AI-assisted on IBM LinuxONE</p>
+  </div>
+  <div class="badges" id="badges"></div>
+</header>
+
+<nav class="tabs" role="tablist">
+  <button role="tab" aria-selected="true" data-tab="decide">Decide</button>
+  <button role="tab" aria-selected="false" data-tab="rules">COBOL rules</button>
+  <button role="tab" aria-selected="false" data-tab="evidence">Evidence</button>
+</nav>
+
+<main>
+  <section id="tab-decide" class="tab active">
+    <div class="grid">
+      <div class="card" id="input-card">
+        <h2>Account</h2>
+        <p class="hint">Pick a held-out test account by scenario, or type an account id from the UCI data set.</p>
+        <div class="scenarios">
+          <button data-scenario="held_increase">Risky limit increase</button>
+          <button data-scenario="early_warning">Early warning</button>
+          <button data-scenario="urgent_review">Urgent review</button>
+          <button data-scenario="approved_increase">Safe increase</button>
+          <button data-scenario="blocked">Blocked</button>
+          <button data-scenario="random">Random</button>
+        </div>
+        <form id="id-form">
+          <label for="acct-id">Account id</label>
+          <input id="acct-id" type="number" min="1" max="30000" placeholder="e.g. 1234">
+          <button type="submit">Decide</button>
+        </form>
+        <div id="account"></div>
+      </div>
+
+      <div class="card" id="decision-card">
+        <h2>Decision</h2>
+        <div id="decision"><p class="hint">No account yet.</p></div>
+      </div>
+
+      <div class="card wide" id="source-card">
+        <h2>CREDREV.cbl <span class="hint" id="source-hint"></span></h2>
+        <pre id="source" class="source"></pre>
+      </div>
+    </div>
+  </section>
+
+  <section id="tab-rules" class="tab">
+    <div class="card wide">
+      <h2>Rules extracted from CREDREV.cbl</h2>
+      <p class="hint" id="rules-hint"></p>
+      <div id="rules"></div>
+    </div>
+  </section>
+
+  <section id="tab-evidence" class="tab">
+    <div class="grid">
+      <div class="card" id="ev-verify"></div>
+      <div class="card" id="ev-model"></div>
+      <div class="card wide" id="ev-hybrid"></div>
+    </div>
+  </section>
+</main>
+
+<footer>
+  Data: UCI Default of Credit Card Clients (Yeh &amp; Lien, CC BY 4.0). Rules from the COBOL source; risk from an ONNX model on Snap ML;
+  explanations by IBM Granite. The AI never approves on its own.
+</footer>
+<script src="/static/app.js"></script>
+</body>
+</html>
