@@ -12,7 +12,7 @@
    "all_proved": true,
    "overlaps": []
   },
-  "seconds": 5.21,
+  "seconds": 12.49,
   "rules": 6,
   "findings": 1,
   "lines_of_code": 64,
@@ -34,7 +34,7 @@
    "all_proved": true,
    "overlaps": []
   },
-  "seconds": 2.71,
+  "seconds": 3.11,
   "rules": 8,
   "findings": 1,
   "lines_of_code": 86,
@@ -56,7 +56,7 @@
    "all_proved": true,
    "overlaps": []
   },
-  "seconds": 8.57,
+  "seconds": 9.22,
   "rules": 17,
   "findings": 7,
   "lines_of_code": 119,
@@ -78,7 +78,7 @@
    "all_proved": true,
    "overlaps": null
   },
-  "seconds": 4.43,
+  "seconds": 4.68,
   "rules": 28,
   "findings": 5,
   "lines_of_code": 417,

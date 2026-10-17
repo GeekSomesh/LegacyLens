@@ -1,0 +1,201 @@
+{
+  "program": "SAM1",
+  "rules": {
+    "100-PROCESS-TRANSACTIONS/1.1": {
+      "facts": "100-PROCESS-TRANSACTIONS/1.1 sets ERR-MSG-DATA1 to 'TRANSACTION OUT OF SEQUENCE', sets ERR-MSG-DATA2 to blank, routes to 299-REPORT-BAD-TRAN, 830-REPORT-TRAN-PROCESSED (COBOL lines 264 to 289). It applies when WS-TRAN-EOF is not 'Y' and TRAN-KEY is less than WS-PREV-TRAN-KEY and TRAN-COMMENT is not '*' and WS-TRAN-OK is 'Y'.",
+      "ms": 28016,
+      "model": "granite-3.3-2b-instruct",
+      "text": "100-PROCESS-TRANSACTIONS/1.1 sets an error message for data issue 'TRANSACTION OUT OF SEQUENCE', leaves message-2 blank, directs to 299-REPORT-BAD-TRAN and 830-REPORT-TRAN-PROCESSED (COBOL lines 264 to 289) when WS-TRAN-EOF is not 'Y', TRAN-KEY is less than WS-PREV-TRAN-KEY, TRAN-COMMENT is not '*', and WS-TRAN-OK is",
+      "source": "granite"
+    },
+    "100-PROCESS-TRANSACTIONS/1.2": {
+      "facts": "100-PROCESS-TRANSACTIONS/1.2 sets ERR-MSG-DATA1 to 'TRANSACTION OUT OF SEQUENCE', sets ERR-MSG-DATA2 to blank, routes to 299-REPORT-BAD-TRAN (COBOL lines 264 to 288). It applies when WS-TRAN-EOF is not 'Y' and TRAN-KEY is less than WS-PREV-TRAN-KEY and TRAN-COMMENT is not '*' and WS-TRAN-OK is not 'Y'.",
+      "ms": 38781,
+      "model": "granite-3.3-2b-instruct",
+      "text": "100-PROCESS-TRANSACTIONS/1.2 sets an error message DATA1 to 'TRANSACTION OUT OF SEQUENCE', leaves DATA2 blank, and routes to 299-REPORT-BAD-TRAN (lines 264 to 288) when WS-TRAN-EOF is not 'Y', TRAN-KEY is less than WS-PREV-TRAN-KEY, TRAN-COMMENT is not '*', and WS-TRAN-OK is not 'Y'.",
+      "source": "granite"
+    },
+    "100-PROCESS-TRANSACTIONS/1.3": {
+      "facts": "100-PROCESS-TRANSACTIONS/1.3 routes to 200-PROCESS-UPDATE-TRAN, 830-REPORT-TRAN-PROCESSED (COBOL lines 264 to 289). It applies when WS-TRAN-EOF is not 'Y' and TRAN-KEY is at least WS-PREV-TRAN-KEY or TRAN-COMMENT is '*' and TRAN-CODE is 'UPDATE' and WS-TRAN-OK is 'Y'.",
+      "ms": 24953,
+      "model": "granite-3.3-2b-instruct",
+      "text": "100-PROCESS-TRANSACTIONS/1.3 routes the transaction to 200-PROCESS-UPDATE-TRAN and 830-REPORT-TRAN-PROCESSED (lines 264 to 289) when WS-TRAN-EOF is not 'Y', TRAN-KEY is at least WS-PREV-TRAN-KEY, TRAN-COMMENT is '*' and TRAN-CODE is 'UPDATE', and WS-TRAN-OK is 'Y'.",
+      "source": "granite"
+    },
+    "100-PROCESS-TRANSACTIONS/1.4": {
+      "facts": "100-PROCESS-TRANSACTIONS/1.4 routes to 200-PROCESS-UPDATE-TRAN (COBOL lines 264 to 288). It applies when WS-TRAN-EOF is not 'Y' and TRAN-KEY is at least WS-PREV-TRAN-KEY or TRAN-COMMENT is '*' and TRAN-CODE is 'UPDATE' and WS-TRAN-OK is not 'Y'.",
+      "ms": 22084,
+      "model": "granite-3.3-2b-instruct",
+      "text": "100-PROCESS-TRANSACTIONS/1.4 directs the transaction to 200-PROCESS-UPDATE-TRAN (lines 264 to 288) when WS-TRAN-EOF is not 'Y', TRAN-KEY is at least WS-PREV-TRAN-KEY, TRAN-COMMENT is '*', TRAN-CODE is 'UPDATE', and WS-TRAN-OK is not 'Y'.",
+      "source": "granite"
+    },
+    "100-PROCESS-TRANSACTIONS/1.5": {
+      "facts": "100-PROCESS-TRANSACTIONS/1.5 routes to 210-PROCESS-ADD-TRAN, 830-REPORT-TRAN-PROCESSED (COBOL lines 264 to 289). It applies when WS-TRAN-EOF is not 'Y' and TRAN-KEY is at least WS-PREV-TRAN-KEY or TRAN-COMMENT is '*' and TRAN-CODE is 'ADD' and WS-TRAN-OK is 'Y'.",
+      "ms": 25565,
+      "model": "granite-3.3-2b-instruct",
+      "text": "100-PROCESS-TRANSACTIONS/1.5 routes the transaction to 210-PROCESS-ADD-TRAN and 830-REPORT-TRAN-PROCESSED (lines 264 to 289) when WS-TRAN-EOF is not 'Y', TRAN-KEY is at least WS-PREV-TRAN-KEY, or TRAN-COMMENT is '*' and TRAN-CODE is 'ADD', provided WS-TRAN-OK is 'Y'.",
+      "source": "granite"
+    },
+    "100-PROCESS-TRANSACTIONS/1.6": {
+      "facts": "100-PROCESS-TRANSACTIONS/1.6 routes to 210-PROCESS-ADD-TRAN (COBOL lines 264 to 288). It applies when WS-TRAN-EOF is not 'Y' and TRAN-KEY is at least WS-PREV-TRAN-KEY or TRAN-COMMENT is '*' and TRAN-CODE is 'ADD' and WS-TRAN-OK is not 'Y'.",
+      "ms": 22220,
+      "model": "granite-3.3-2b-instruct",
+      "text": "100-PROCESS-TRANSACTIONS/1.6 directs the transaction to 210-PROCESS-ADD-TRAN (lines 264 to 288) if WS-TRAN-EOF is not 'Y', TRAN-KEY is at least WS-PREV-TRAN-KEY, TRAN-COMMENT is '*', TRAN-CODE is 'ADD', and WS-TRAN-OK is not 'Y'.",
+      "source": "granite"
+    },
+    "100-PROCESS-TRANSACTIONS/1.7": {
+      "facts": "100-PROCESS-TRANSACTIONS/1.7 routes to 220-PROCESS-DELETE-TRAN, 830-REPORT-TRAN-PROCESSED (COBOL lines 264 to 289). It applies when WS-TRAN-EOF is not 'Y' and TRAN-KEY is at least WS-PREV-TRAN-KEY or TRAN-COMMENT is '*' and TRAN-CODE is 'DELETE' and WS-TRAN-OK is 'Y'.",
+      "ms": 25190,
+      "model": "granite-3.3-2b-instruct",
+      "text": "100-PROCESS-TRANSACTIONS/1.7 routes transactions to 220-PROCESS-DELETE-TRAN, 830-REPORT-TRAN-PROCESSED (COBOL lines 264 to 289) when WS-TRAN-EOF is not 'Y', TRAN-KEY is at least WS-PREV-TRAN-KEY, or TRAN-COMMENT is '*' and TRAN-CODE is 'DELETE', and WS-TRAN-OK is 'Y'.",
+      "source": "granite"
+    },
+    "100-PROCESS-TRANSACTIONS/1.8": {
+      "facts": "100-PROCESS-TRANSACTIONS/1.8 routes to 220-PROCESS-DELETE-TRAN (COBOL lines 264 to 288). It applies when WS-TRAN-EOF is not 'Y' and TRAN-KEY is at least WS-PREV-TRAN-KEY or TRAN-COMMENT is '*' and TRAN-CODE is 'DELETE' and WS-TRAN-OK is not 'Y'.",
+      "ms": 21509,
+      "model": "granite-3.3-2b-instruct",
+      "text": "100-PROCESS-TRANSACTIONS/1.8 directs the transaction to 220-PROCESS-DELETE-TRAN (lines 264 to 288) if WS-TRAN-EOF is not 'Y', TRAN-KEY is at least WS-PREV-TRAN-KEY, TRAN-COMMENT is '*', TRAN-CODE is 'DELETE', and WS-TRAN-OK is not 'Y'.",
+      "source": "granite"
+    },
+    "100-PROCESS-TRANSACTIONS/1.9": {
+      "facts": "100-PROCESS-TRANSACTIONS/1.9 sets ERR-MSG-DATA1 to 'INVALID TRAN CODE:', updates ERR-MSG-DATA2 (ERR-MSG-DATA2 = TRAN-CODE), routes to 299-REPORT-BAD-TRAN, 830-REPORT-TRAN-PROCESSED (COBOL lines 264 to 289). It applies when WS-TRAN-EOF is not 'Y' and TRAN-KEY is at least WS-PREV-TRAN-KEY or TRAN-COMMENT is '*' and TRAN-CODE is not 'UPDATE' and TRAN-CODE is not 'ADD' and TRAN-CODE is not 'DELETE' and TRAN-COMMENT is not '*' and WS-TRAN-OK is 'Y'.",
+      "ms": 28694,
+      "model": "granite-3.3-2b-instruct",
+      "text": "100-PROCESS-TRANSACTIONS/1.9 sets an error message 'INVALID TRAN CODE:' for DATA1, updates DATA2 with the TRAN-CODE, and directs to 299-REPORT-BAD-TRAN and 830-REPORT-TRAN-PROCESSED (COBOL lines 264 to 289) when WS-TRAN-EOF is not 'Y', TRAN-KEY is at least WS-PREV-TRAN-KEY, TRAN-COMMENT is '*', TRAN-CODE is",
+      "source": "granite"
+    },
+    "100-PROCESS-TRANSACTIONS/1.10": {
+      "facts": "100-PROCESS-TRANSACTIONS/1.10 sets ERR-MSG-DATA1 to 'INVALID TRAN CODE:', updates ERR-MSG-DATA2 (ERR-MSG-DATA2 = TRAN-CODE), routes to 299-REPORT-BAD-TRAN (COBOL lines 264 to 288). It applies when WS-TRAN-EOF is not 'Y' and TRAN-KEY is at least WS-PREV-TRAN-KEY or TRAN-COMMENT is '*' and TRAN-CODE is not 'UPDATE' and TRAN-CODE is not 'ADD' and TRAN-CODE is not 'DELETE' and TRAN-COMMENT is not '*' and WS-TRAN-OK is not 'Y'.",
+      "ms": 28842,
+      "model": "granite-3.3-2b-instruct",
+      "text": "100-PROCESS-TRANSACTIONS/1.10 sets an error message 'INVALID TRAN CODE:' for DATA1, updates DATA2 with the TRAN-CODE, and routes to 299-REPORT-BAD-TRAN (lines 264 to 288) when WS-TRAN-EOF is not 'Y', TRAN-KEY is not less than WS-PREV-TRAN-KEY, TRAN-COMMENT is not '*', and TRAN-CODE is not 'UPDATE', 'ADD', or 'DELETE', and DATA",
+      "source": "granite"
+    },
+    "100-PROCESS-TRANSACTIONS/1.11": {
+      "facts": "100-PROCESS-TRANSACTIONS/1.11 routes to 830-REPORT-TRAN-PROCESSED (COBOL lines 264 to 289). It applies when WS-TRAN-EOF is not 'Y' and TRAN-KEY is at least WS-PREV-TRAN-KEY or TRAN-COMMENT is '*' and TRAN-CODE is not 'UPDATE' and TRAN-CODE is not 'ADD' and TRAN-CODE is not 'DELETE' and TRAN-COMMENT is '*'.",
+      "ms": 25264,
+      "model": "granite-3.3-2b-instruct",
+      "text": "100-PROCESS-TRANSACTIONS/1.11 routes the transaction to 830-REPORT-TRAN-PROCESSED (lines 264 to 289) when WS-TRAN-EOF is not 'Y', TRAN-KEY is at least WS-PREV-TRAN-KEY, or TRAN-COMMENT is '*' and TRAN-CODE is not 'UPDATE', 'ADD', or 'DELETE', and TRAN-CODE is not 'DELETE'.",
+      "source": "granite"
+    },
+    "200-PROCESS-UPDATE-TRAN/1.1": {
+      "facts": "200-PROCESS-UPDATE-TRAN/1.1 sets ERR-MSG-DATA1 to 'NO MATCHING KEY:', updates ERR-MSG-DATA2 (ERR-MSG-DATA2 = TRAN-KEY), routes to 299-REPORT-BAD-TRAN (COBOL lines 296 to 299). It applies when CUST-KEY is not TRAN-KEY or WS-CUST-FILE-EOF is 'Y'.",
+      "ms": 22406,
+      "model": "granite-3.3-2b-instruct",
+      "text": "200-PROCESS-UPDATE-TRAN/1.1 sets an error message 'NO MATCHING KEY:' for DATA1, updates DATA2 with TRAN-KEY, and routes to 299-REPORT-BAD-TRAN (lines 296 to 299) when CUST-KEY does not match TRAN-KEY or when WS-CUST-FILE-EOF is 'Y'.",
+      "source": "granite"
+    },
+    "200-PROCESS-UPDATE-TRAN/1.2": {
+      "facts": "200-PROCESS-UPDATE-TRAN/1.2 updates ERR-MSG-DATA1 (ERR-MSG-DATA1 = WS-TRAN-MSG), sets ERR-MSG-DATA2 to blank, routes to 299-REPORT-BAD-TRAN (COBOL lines 296 to 309). It applies when CUST-KEY is TRAN-KEY and WS-CUST-FILE-EOF is not 'Y' and WS-TRAN-OK is not 'Y'.",
+      "ms": 27103,
+      "model": "granite-3.3-2b-instruct",
+      "text": "200-PROCESS-UPDATE-TRAN/1.2 updates the error message (ERR-MSG-DATA1) with the transaction message (WS-TRAN-MSG), clears ERR-MSG-DATA2, and sends the transaction to 299-REPORT-BAD-TRAN (lines 296 to 309) when the CUST-KEY matches the TRAN-KEY, WS-CUST-FILE-EOF is not 'Y', and WS-TRAN-OK is not 'Y'.",
+      "source": "granite"
+    },
+    "210-PROCESS-ADD-TRAN/1.1": {
+      "facts": "210-PROCESS-ADD-TRAN/1.1 sets ERR-MSG-DATA1 to 'DUPLICATE KEY:', updates ERR-MSG-DATA2 (ERR-MSG-DATA2 = TRAN-KEY), routes to 299-REPORT-BAD-TRAN (COBOL lines 318 to 321). It applies when CUST-KEY is TRAN-KEY.",
+      "ms": 19075,
+      "model": "granite-3.3-2b-instruct",
+      "text": "210-PROCESS-ADD-TRAN/1.1 sets an error message 'DUPLICATE KEY:' for DATA1, updates ERR-MSG-DATA2 with TRAN-KEY, and routes to 299-REPORT-BAD-TRAN (lines 318 to 321) when CUST-KEY matches TRAN-KEY.",
+      "source": "granite"
+    },
+    "210-PROCESS-ADD-TRAN/1.2": {
+      "facts": "210-PROCESS-ADD-TRAN/1.2 sets WS-CUST-ACCT-BALANCE to '0.00', sets WS-CUST-ORDERS-YTD to '0', routes to 740-WRITE-CUSTOUT-FILE (COBOL lines 318 to 331). It applies when CUST-KEY is not TRAN-KEY.",
+      "ms": 18510,
+      "model": "granite-3.3-2b-instruct",
+      "text": "210-PROCESS-ADD-TRAN/1.2 sets the customer account balance to '0.00' and orders YTD to '0', then routes to 740-WRITE-CUSTOUT-FILE (lines 318 to 331) when the customer key is not the transaction key.",
+      "source": "granite"
+    },
+    "220-PROCESS-DELETE-TRAN/1.1": {
+      "facts": "220-PROCESS-DELETE-TRAN/1.1 sets ERR-MSG-DATA1 to 'NO MATCHING KEY:', updates ERR-MSG-DATA2 (ERR-MSG-DATA2 = TRAN-KEY), routes to 299-REPORT-BAD-TRAN (COBOL lines 338 to 341). It applies when CUST-KEY is not TRAN-KEY or WS-CUST-FILE-EOF is 'Y'.",
+      "ms": 22335,
+      "model": "granite-3.3-2b-instruct",
+      "text": "220-PROCESS-DELETE-TRAN/1.1 sets an error message 'NO MATCHING KEY:' for DATA1, updates DATA2 with TRAN-KEY, and routes to 299-REPORT-BAD-TRAN (lines 338 to 341), if CUST-KEY does not match TRAN-KEY or if WS-CUST-FILE-EOF is 'Y'.",
+      "source": "granite"
+    },
+    "220-PROCESS-DELETE-TRAN/1.2": {
+      "facts": "220-PROCESS-DELETE-TRAN/1.2 routes to 730-READ-CUSTOMER-FILE (COBOL lines 338 to 344). It applies when CUST-KEY is TRAN-KEY and WS-CUST-FILE-EOF is not 'Y'.",
+      "ms": 19704,
+      "model": "granite-3.3-2b-instruct",
+      "text": "220-PROCESS-DELETE-TRAN/1.2 directs the deletion process to 730-READ-CUSTOMER-FILE (lines 338 to 344) when the CUST-KEY matches the TRAN-KEY and the end-of-file indicator in WS-CUST-FILE-EOF is not 'Y'.",
+      "source": "granite"
+    },
+    "700-OPEN-FILES/1.1": {
+      "facts": "700-OPEN-FILES/1.1 sets RETURN-CODE to '16' (COBOL lines 361 to 365). It applies when WS-CUSTFILE-STATUS is not '00'.",
+      "ms": 14111,
+      "model": "granite-3.3-2b-instruct",
+      "text": "700-OPEN-FILES/1.1 sets the RETURN-CODE to '16' (lines 361 to 365) if the customer file status is not '00'.",
+      "source": "granite"
+    },
+    "700-OPEN-FILES/2.1": {
+      "facts": "700-OPEN-FILES/2.1 sets RETURN-CODE to '16' (COBOL lines 368 to 372). It applies when WS-CUSTOUT-STATUS is not '00'.",
+      "ms": 13392,
+      "model": "granite-3.3-2b-instruct",
+      "text": "700-OPEN-FILES/2.1 sets the RETURN-CODE to '16' (lines 368 to 372) if the customer output status is not '00'.",
+      "source": "granite"
+    },
+    "700-OPEN-FILES/3.1": {
+      "facts": "700-OPEN-FILES/3.1 sets RETURN-CODE to '16' (COBOL lines 375 to 378). It applies when WS-TRANFILE-STATUS is not '00'.",
+      "ms": 15543,
+      "model": "granite-3.3-2b-instruct",
+      "text": "700-OPEN-FILES/3.1 sets the RETURN-CODE to '16' (lines 375 to 378) if the WS-TRANFILE-STATUS is not '00'.",
+      "source": "granite"
+    },
+    "700-OPEN-FILES/4.1": {
+      "facts": "700-OPEN-FILES/4.1 sets RETURN-CODE to '16' (COBOL lines 381 to 384). It applies when WS-REPORT-STATUS is not '00'.",
+      "ms": 13425,
+      "model": "granite-3.3-2b-instruct",
+      "text": "700-OPEN-FILES/4.1 sets the RETURN-CODE to '16' (lines 381 to 384) if the WS-REPORT-STATUS is not '00'.",
+      "source": "granite"
+    },
+    "710-READ-TRAN-FILE/1.1": {
+      "facts": "710-READ-TRAN-FILE/1.1 sets ERR-MSG-DATA1 to 'Error on tran file read.  Code:', updates ERR-MSG-DATA2 (ERR-MSG-DATA2 = WS-CUSTFILE-STATUS), routes to 299-REPORT-BAD-TRAN (COBOL lines 393 to 401). It applies when WS-TRANFILE-STATUS is not '00' and WS-TRANFILE-STATUS is not '10'.",
+      "ms": 27033,
+      "model": "granite-3.3-2b-instruct",
+      "text": "710-READ-TRAN-FILE/1.1 sets an error message ERR-MSG-DATA1 to 'Error on tran file read. Code:' and updates ERR-MSG-DATA2 with the customed file status, then routes to 299-REPORT-BAD-TRAN (COBOL lines 393 to 401) when the WS-TRANFILE-STATUS is neither '00' nor '10'.",
+      "source": "granite"
+    },
+    "710-READ-TRAN-FILE/2.1": {
+      "facts": "710-READ-TRAN-FILE/2.1 routes to 721-COPY-RECORDS (COBOL lines 404 to 405). It applies when WS-TRAN-EOF is 'Y'.",
+      "ms": 16304,
+      "model": "granite-3.3-2b-instruct",
+      "text": "710-READ-TRAN-FILE/2.1 directs the flow to 721-COPY-RECORDS (lines 404 to 405) when the end-of-file indicator WS-TRAN-EOF is 'Y'.",
+      "source": "granite"
+    },
+    "720-POSITION-CUST-FILE/1.1": {
+      "facts": "720-POSITION-CUST-FILE/1.1 routes to 721-COPY-RECORDS (COBOL lines 410 to 412). It applies when CUST-KEY is less than TRAN-KEY.",
+      "ms": 16055,
+      "model": "granite-3.3-2b-instruct",
+      "text": "720-POSITION-CUST-FILE/1.1 directs the routing to 721-COPY-RECORDS (lines 410 to 412) when the CUST-KEY is less than the TRAN-KEY.",
+      "source": "granite"
+    },
+    "730-READ-CUSTOMER-FILE/1.1": {
+      "facts": "730-READ-CUSTOMER-FILE/1.1 sets ERR-MSG-DATA1 to 'Customer input File I/O Error on Re', updates ERR-MSG-DATA2 (ERR-MSG-DATA2 = WS-CUSTFILE-STATUS), routes to 299-REPORT-BAD-TRAN (COBOL lines 428 to 437). It applies when WS-CUSTFILE-STATUS is not '00' and WS-CUSTFILE-STATUS is not '04' and WS-CUSTFILE-STATUS is not '10'.",
+      "ms": 26674,
+      "model": "granite-3.3-2b-instruct",
+      "text": "730-READ-CUSTOMER-FILE/1.1 sets an error message ERR-MSG-DATA1 to 'Customer input File I/O Error on Read', updates ERR-MSG-DATA2 with the status WS-CUSTFILE-STATUS, and routes to 299-REPORT-BAD-TRAN (COBOL lines 428 to 437) when WS-CUSTFILE-STATUS is not '00', '04', or '10'.",
+      "source": "granite"
+    },
+    "740-WRITE-CUSTOUT-FILE/1.1": {
+      "facts": "740-WRITE-CUSTOUT-FILE/1.1 sets ERR-MSG-DATA1 to 'CUSTOMER OUTPUT FILE I/O ERROR ON W', updates ERR-MSG-DATA2 (ERR-MSG-DATA2 = WS-CUSTFILE-STATUS), routes to 299-REPORT-BAD-TRAN (COBOL lines 448 to 454). It applies when WS-CUSTOUT-STATUS is not '00'.",
+      "ms": 26719,
+      "model": "granite-3.3-2b-instruct",
+      "text": "740-WRITE-CUSTOUT-FILE/1.1 sets an error message (ERR-MSG-DATA1 to 'CUSTOMER OUTPUT FILE I/O ERROR ON W') and updates ERR-MSG-DATA2 (ERR-MSG-DATA2 = WS-CUSTFILE-STATUS), then routes to 299-REPORT-BAD-TRAN (COBOL lines 448 to 454) when the WS-CUSTOUT-STATUS is not '00'.",
+      "source": "granite"
+    },
+    "830-REPORT-TRAN-PROCESSED/1.1": {
+      "facts": "830-REPORT-TRAN-PROCESSED/1.1 sets RPT-TRAN-MSG1 to blank (COBOL lines 473 to 474). It applies when TRAN-COMMENT is '*'.",
+      "ms": 12351,
+      "model": "granite-3.3-2b-instruct",
+      "text": "830-REPORT-TRAN-PROCESSED/1.1 sets RPT-TRAN-MSG1 to blank (lines 473 to 474) if TRAN-COMMENT is '*'.",
+      "source": "granite"
+    },
+    "830-REPORT-TRAN-PROCESSED/1.2": {
+      "facts": "830-REPORT-TRAN-PROCESSED/1.2 sets RPT-TRAN-MSG1 to 'Transaction processed:' (COBOL lines 473 to 476). It applies when TRAN-COMMENT is not '*'.",
+      "ms": 12665,
+      "model": "granite-3.3-2b-instruct",
+      "text": "830-REPORT-TRAN-PROCESSED/1.2 sets RPT-TRAN-MSG1 to 'Transaction processed:' (lines 473 to 476) if TRAN-COMMENT is not '*'.",
+      "source": "granite"
+    }
+  }
+}

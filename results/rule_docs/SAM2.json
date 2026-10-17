@@ -1,0 +1,124 @@
+{
+  "program": "SAM2",
+  "rules": {
+    "RULE-01": {
+      "facts": "RULE-01 sets TRAN-OK to 'Y', sets TRAN-MSG to blank (COBOL lines 58 to 61). It applies when TRAN-CODE is 'CRUNCH'.",
+      "ms": 36171,
+      "model": "granite-3.3-2b-instruct",
+      "text": "RULE-01 sets the transaction status to 'Y' and clears the TRAN-MSG field (lines 58 to 61) when the TRAN-CODE is 'CRUNCH'.",
+      "source": "granite"
+    },
+    "RULE-10": {
+      "facts": "RULE-10 sets TRAN-OK to 'N', sets TRAN-MSG to 'DATA IS NOT NUMERIC' (COBOL lines 58 to 105). It applies when TRAN-CODE is 'UPDATE' and TRAN-FIELD-NAME is 'BALANCE' or TRAN-FIELD-NAME is 'ORDERS' and TRAN-UPDATE-NUM is not numeric and TRAN-ACTION is 'REPLACE' or TRAN-ACTION is 'ADD'.",
+      "ms": 63641,
+      "model": "granite-3.3-2b-instruct",
+      "text": "RULE-10 sets TRAN-OK to 'N', TRAN-MSG to 'DATA IS NOT NUMERIC' (lines 58 to 105), when the TRAN-CODE is 'UPDATE', and either the TRAN-FIELD-NAME is 'BALANCE' or the TRAN-FIELD-NAME is 'ORDERS', and the TRAN-UPDATE-NUM is not numeric, and the TRAN-ACTION is 'REPLACE' or 'ADD'.",
+      "source": "granite"
+    },
+    "RULE-19": {
+      "facts": "RULE-19 sets TRAN-OK to 'N', sets TRAN-MSG to 'INVALID ACTION CODE' (COBOL lines 58 to 110). It applies when TRAN-CODE is 'UPDATE' and TRAN-FIELD-NAME is 'BALANCE' or TRAN-FIELD-NAME is 'ORDERS' and TRAN-UPDATE-NUM is not numeric and TRAN-ACTION is not 'REPLACE' and TRAN-ACTION is not 'ADD'.",
+      "ms": 52886,
+      "model": "granite-3.3-2b-instruct",
+      "text": "RULE-19 sets TRAN-OK to 'N', TRAN-MSG to 'INVALID ACTION CODE' (lines 58 to 110), when the transaction code is 'UPDATE' and the transaction field name is 'BALANCE' or 'ORDERS', and the transaction update number is not numeric, and the transaction action is neither 'REPLACE' nor 'ADD'.",
+      "source": "granite"
+    },
+    "RULE-21": {
+      "facts": "RULE-21 sets TRAN-OK to 'Y', sets TRAN-MSG to blank, updates CUST-ACCT-BALANCE (CUST-ACCT-BALANCE = WS-UPDATE-NUM) (COBOL lines 58 to 121). It applies when TRAN-CODE is 'UPDATE' and TRAN-UPDATE-NUM is numeric and TRAN-FIELD-NAME is 'BALANCE' and TRAN-ACTION is 'REPLACE'.",
+      "ms": 58260,
+      "model": "granite-3.3-2b-instruct",
+      "text": "RULE-21 sets TRAN-OK to 'Y', clears TRAN-MSG, and updates CUST-ACCT-BALANCE with the value from WS-UPDATE-NUM (lines 58 to 121) when TRAN-CODE is 'UPDATE', TRAN-UPDATE-NUM is numeric, TRAN-FIELD-NAME is 'BALANCE', and TRAN-ACTION is 'REPLACE'.",
+      "source": "granite"
+    },
+    "RULE-22": {
+      "facts": "RULE-22 sets TRAN-OK to 'Y', sets TRAN-MSG to blank, updates CUST-ACCT-BALANCE (CUST-ACCT-BALANCE = CUST-ACCT-BALANCE + WS-UPDATE-NUM) (COBOL lines 58 to 124). It applies when TRAN-CODE is 'UPDATE' and TRAN-UPDATE-NUM is numeric and TRAN-FIELD-NAME is 'BALANCE' and TRAN-ACTION is 'ADD'.",
+      "ms": 75674,
+      "model": "granite-3.3-2b-instruct",
+      "text": "RULE-22 sets TRAN-OK to 'Y', clears TRAN-MSG, and updates CUST-ACCT-BALANCE by adding WS-UPDATE-NUM to CUST-ACCT-BALANCE (lines 58 to 124) when TRAN-CODE is 'UPDATE', TRAN-UPDATE-NUM is numeric, TRAN-FIELD-NAME is 'BALANCE', and TRAN-ACTION is 'ADD'.",
+      "source": "granite"
+    },
+    "RULE-24": {
+      "facts": "RULE-24 sets TRAN-OK to 'Y', sets TRAN-MSG to blank, updates CUST-ORDERS-YTD (CUST-ORDERS-YTD = WS-UPDATE-NUM) (COBOL lines 58 to 131). It applies when TRAN-CODE is 'UPDATE' and TRAN-UPDATE-NUM is numeric and TRAN-FIELD-NAME is 'ORDERS' and TRAN-ACTION is 'REPLACE'.",
+      "ms": 69084,
+      "model": "granite-3.3-2b-instruct",
+      "text": "RULE-24 sets TRAN-OK to 'Y', clears TRAN-MSG, and updates CUST-ORDERS-YTD with the value of WS-UPDATE-NUM (lines 58 to 131) when TRAN-CODE is 'UPDATE', TRAN-UPDATE-NUM is numeric, TRAN-FIELD-NAME is 'ORDERS', and TRAN-ACTION is 'REPLACE'.",
+      "source": "granite"
+    },
+    "RULE-25": {
+      "facts": "RULE-25 sets TRAN-OK to 'Y', sets TRAN-MSG to blank, updates CUST-ORDERS-YTD (CUST-ORDERS-YTD = CUST-ORDERS-YTD + WS-UPDATE-NUM) (COBOL lines 58 to 134). It applies when TRAN-CODE is 'UPDATE' and TRAN-UPDATE-NUM is numeric and TRAN-FIELD-NAME is 'ORDERS' and TRAN-ACTION is 'ADD'.",
+      "ms": 30497,
+      "model": "granite-3.3-2b-instruct",
+      "text": "RULE-25 sets TRAN-OK to 'Y', clears TRAN-MSG, and updates CUST-ORDERS-YTD by adding the value of WS-UPDATE-NUM to CUST-ORDERS-YTD (lines 58 to 134), provided TRAN-CODE is 'UPDATE', TRAN-UPDATE-NUM is numeric, TRAN-FIELD-NAME is 'ORDERS', and TRAN-ACTION is 'ADD'.",
+      "source": "granite"
+    },
+    "RULE-37": {
+      "facts": "RULE-37 sets TRAN-OK to 'N', sets TRAN-MSG to 'INVALID ACTION CODE' (COBOL lines 58 to 110). It applies when TRAN-CODE is 'UPDATE' and TRAN-FIELD-NAME is 'BALANCE' or TRAN-FIELD-NAME is 'ORDERS' and TRAN-UPDATE-NUM is numeric and TRAN-ACTION is not 'REPLACE' and TRAN-ACTION is not 'ADD'.",
+      "ms": 22717,
+      "model": "granite-3.3-2b-instruct",
+      "text": "RULE-37 sets TRAN-OK to 'N', TRAN-MSG to 'INVALID ACTION CODE' (lines 58 to 110) when the transaction code is 'UPDATE' and the TRAN-FIELD-NAME is 'BALANCE' or when the TRAN-FIELD-NAME is 'ORDERS', the TRAN-UPDATE-NUM is numeric, but the TRAN-ACTION is neither 'REPLACE' nor 'ADD'.",
+      "source": "granite"
+    },
+    "RULE-38": {
+      "facts": "RULE-38 sets TRAN-OK to 'Y', sets TRAN-MSG to blank, updates CUST-NAME (CUST-NAME = TRAN-UPDATE-DATA) (COBOL lines 58 to 116). It applies when TRAN-CODE is 'UPDATE' and TRAN-ACTION is 'REPLACE' or TRAN-ACTION is 'ADD' and TRAN-FIELD-NAME is 'NAME'.",
+      "ms": 18752,
+      "model": "granite-3.3-2b-instruct",
+      "text": "RULE-38 sets TRAN-OK to 'Y', clears TRAN-MSG, and updates CUST-NAME with TRAN-UPDATE-DATA (lines 58 to 116) when TRAN-CODE is 'UPDATE', TRAN-ACTION is 'REPLACE', or TRAN-ACTION is 'ADD' and TRAN-FIELD-NAME is 'NAME'.",
+      "source": "granite"
+    },
+    "RULE-45": {
+      "facts": "RULE-45 sets TRAN-OK to 'N', sets TRAN-MSG to 'FIELD NAME INVALID' (COBOL lines 58 to 140). It applies when TRAN-CODE is 'UPDATE' and TRAN-ACTION is 'REPLACE' or TRAN-ACTION is 'ADD' and TRAN-FIELD-NAME is not 'NAME' and TRAN-FIELD-NAME is not 'BALANCE' and TRAN-FIELD-NAME is not 'ORDERS'.",
+      "ms": 19091,
+      "model": "granite-3.3-2b-instruct",
+      "text": "RULE-45 sets TRAN-OK to 'N', and TRAN-MSG to 'FIELD NAME INVALID' (lines 58 to 140), when TRAN-CODE is 'UPDATE' or 'REPLACE', and TRAN-ACTION is 'ADD', but TRAN-FIELD-NAME is not 'NAME', 'BALANCE', or 'ORDERS'.",
+      "source": "granite"
+    },
+    "RULE-55": {
+      "facts": "RULE-55 sets TRAN-OK to 'N', sets TRAN-MSG to 'INVALID ACTION CODE' (COBOL lines 58 to 110). It applies when TRAN-CODE is 'UPDATE' and TRAN-FIELD-NAME is not 'BALANCE' and TRAN-FIELD-NAME is not 'ORDERS' and TRAN-ACTION is not 'REPLACE' and TRAN-ACTION is not 'ADD'.",
+      "ms": 19642,
+      "model": "granite-3.3-2b-instruct",
+      "text": "RULE-55 sets TRAN-OK to 'N', TRAN-MSG to 'INVALID ACTION CODE' (lines 58 to 110) when the TRAN-CODE is 'UPDATE', but TRAN-FIELD-NAME is neither 'BALANCE' nor 'ORDERS', and TRAN-ACTION is neither 'REPLACE' nor 'ADD'.",
+      "source": "granite"
+    },
+    "RULE-64": {
+      "facts": "RULE-64 sets TRAN-OK to 'N', sets TRAN-MSG to 'DATA IS NOT NUMERIC' (COBOL lines 58 to 105). It applies when TRAN-CODE is not 'CRUNCH' and TRAN-CODE is not 'UPDATE' and TRAN-FIELD-NAME is 'BALANCE' or TRAN-FIELD-NAME is 'ORDERS' and TRAN-UPDATE-NUM is not numeric and TRAN-ACTION is 'REPLACE' or TRAN-ACTION is 'ADD'.",
+      "ms": 22533,
+      "model": "granite-3.3-2b-instruct",
+      "text": "RULE-64 sets TRAN-OK to 'N', sets TRAN-MSG to 'DATA IS NOT NUMERIC' (lines 58 to 105), when TRAN-CODE is not 'CRUNCH' and not 'UPDATE', and TRAN-FIELD-NAME is 'BALANCE' or 'ORDERS', and TRAN-UPDATE-NUM is not numeric, and TRAN-ACTION is 'REPLACE' or 'ADD'.",
+      "source": "granite"
+    },
+    "RULE-73": {
+      "facts": "RULE-73 sets TRAN-OK to 'N', sets TRAN-MSG to 'INVALID ACTION CODE' (COBOL lines 58 to 110). It applies when TRAN-CODE is not 'CRUNCH' and TRAN-CODE is not 'UPDATE' and TRAN-FIELD-NAME is 'BALANCE' or TRAN-FIELD-NAME is 'ORDERS' and TRAN-UPDATE-NUM is not numeric and TRAN-ACTION is not 'REPLACE' and TRAN-ACTION is not 'ADD'.",
+      "ms": 27373,
+      "model": "granite-3.3-2b-instruct",
+      "text": "RULE-73 sets TRAN-OK to 'N', sets TRAN-MSG to 'INVALID ACTION CODE' (lines 58 to 110) when TRAN-CODE is not 'CRUNCH' and not 'UPDATE', and TRAN-FIELD-NAME is 'BALANCE' or 'ORDERS', and TRAN-UPDATE-NUM is not numeric, and TRAN-ACTION is not 'REPLACE' or 'ADD'.",
+      "source": "granite"
+    },
+    "RULE-82": {
+      "facts": "RULE-82 sets TRAN-OK to 'N', sets TRAN-MSG to 'REQUEST TYPE IS INVALID' (COBOL lines 58 to 105). It applies when TRAN-CODE is not 'CRUNCH' and TRAN-CODE is not 'UPDATE' and TRAN-FIELD-NAME is 'BALANCE' or TRAN-FIELD-NAME is 'ORDERS' and TRAN-UPDATE-NUM is numeric and TRAN-ACTION is 'REPLACE' or TRAN-ACTION is 'ADD'.",
+      "ms": 22961,
+      "model": "granite-3.3-2b-instruct",
+      "text": "RULE-82 sets TRAN-OK to 'N', sets TRAN-MSG to 'REQUEST TYPE IS INVALID' (lines 58 to 105), when TRAN-CODE is not 'CRUNCH' and not 'UPDATE', and TRAN-FIELD-NAME is 'BALANCE' or 'ORDERS', and TRAN-UPDATE-NUM is numeric, and TRAN-ACTION is 'REPLACE' or 'ADD'.",
+      "source": "granite"
+    },
+    "RULE-91": {
+      "facts": "RULE-91 sets TRAN-OK to 'N', sets TRAN-MSG to 'INVALID ACTION CODE' (COBOL lines 58 to 110). It applies when TRAN-CODE is not 'CRUNCH' and TRAN-CODE is not 'UPDATE' and TRAN-FIELD-NAME is 'BALANCE' or TRAN-FIELD-NAME is 'ORDERS' and TRAN-UPDATE-NUM is numeric and TRAN-ACTION is not 'REPLACE' and TRAN-ACTION is not 'ADD'.",
+      "ms": 22400,
+      "model": "granite-3.3-2b-instruct",
+      "text": "RULE-91 sets TRAN-OK to 'N', assigns TRAN-MSG to 'INVALID ACTION CODE' (lines 58 to 110), when TRAN-CODE is not 'CRUNCH' and not 'UPDATE', and TRAN-FIELD-NAME is 'BALANCE' or 'ORDERS', and TRAN-UPDATE-NUM is numeric, and TRAN-ACTION is neither 'REPLACE' nor 'ADD'.",
+      "source": "granite"
+    },
+    "RULE-100": {
+      "facts": "RULE-100 sets TRAN-OK to 'N', sets TRAN-MSG to 'REQUEST TYPE IS INVALID' (COBOL lines 58 to 105). It applies when TRAN-CODE is not 'CRUNCH' and TRAN-CODE is not 'UPDATE' and TRAN-FIELD-NAME is not 'BALANCE' and TRAN-FIELD-NAME is not 'ORDERS' and TRAN-ACTION is 'REPLACE' or TRAN-ACTION is 'ADD'.",
+      "ms": 20082,
+      "model": "granite-3.3-2b-instruct",
+      "text": "RULE-100 sets TRAN-OK to 'N', assigns TRAN-MSG to 'REQUEST TYPE IS INVALID' (lines 58 to 105), when TRAN-CODE is not 'CRUNCH' or 'UPDATE', TRAN-FIELD-NAME is neither 'BALANCE' nor 'ORDERS', and TRAN-ACTION is 'REPLACE' or 'ADD'.",
+      "source": "granite"
+    },
+    "RULE-109": {
+      "facts": "RULE-109 sets TRAN-OK to 'N', sets TRAN-MSG to 'INVALID ACTION CODE' (COBOL lines 58 to 110). It applies when TRAN-CODE is not 'CRUNCH' and TRAN-CODE is not 'UPDATE' and TRAN-FIELD-NAME is not 'BALANCE' and TRAN-FIELD-NAME is not 'ORDERS' and TRAN-ACTION is not 'REPLACE' and TRAN-ACTION is not 'ADD'.",
+      "ms": 21229,
+      "model": "granite-3.3-2b-instruct",
+      "text": "RULE-109 sets TRAN-OK to 'N', and TRAN-MSG to 'INVALID ACTION CODE' (lines 58 to 110), when the TRAN-CODE is not 'CRUNCH', not 'UPDATE', and TRAN-FIELD-NAME is neither 'BALANCE' nor 'ORDERS', and TRAN-ACTION is neither 'REPLACE' nor 'ADD'.",
+      "source": "granite"
+    }
+  }
+}

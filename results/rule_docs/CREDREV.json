@@ -1,0 +1,49 @@
+{
+  "program": "CREDREV",
+  "rules": {
+    "RULE-01": {
+      "facts": "RULE-01 decides BLOCK with reason code R01 (COBOL lines 53 to 55). It applies when 3 or more months past due.",
+      "ms": 25846,
+      "model": "granite-3.3-2b-instruct",
+      "text": "RULE-01 BLOCKS the account (reason R01, lines 53 to 55) if there are 3 or more months past due.",
+      "source": "granite"
+    },
+    "RULE-02": {
+      "facts": "RULE-02 decides REVIEW with reason code R02 (COBOL lines 53 to 59). It applies when not 3 or more months past due and months past due is at least 1 and utilisation is more than 90 percent.",
+      "ms": 27821,
+      "model": "granite-3.3-2b-instruct",
+      "text": "RULE-02 recommends a REVIEW (reason R02, lines 53 to 59) when there are not 3 or more months past due, the account is at least 1 month past due, and the utilization is more than 90 percent.",
+      "source": "granite"
+    },
+    "RULE-03": {
+      "facts": "RULE-03 decides DECREASE with reason code R03 (COBOL lines 53 to 64). It applies when not 3 or more months past due and months past due is less than 1 or utilisation is at most 90 percent and late months in the last six is at least 3.",
+      "ms": 38909,
+      "model": "granite-3.3-2b-instruct",
+      "text": "RULE-03 decides DECREASE with reason code R03 (COBOL lines 53 to 64). It applies when not 3 or more months past due and months past due is less than 1 or utilisation is at most 90 percent and late months in the last six is at least 3.",
+      "source": "template",
+      "rejected": "RULE-03 initiates a DECREASE (reason R03, lines 53 to 64) when there are not 3 or more months past due, utilization is no more than 90 percent, and the number of late months in the last six months is at least 3, provided these conditions are not met by RULE-01 to RULE-02.",
+      "note": "numbers not in the facts: 2"
+    },
+    "RULE-04": {
+      "facts": "RULE-04 decides REVIEW with reason code R04 (COBOL lines 53 to 67). It applies when not 3 or more months past due and months past due is less than 1 or utilisation is at most 90 percent and late months in the last six is less than 3 and latest payment is less than minimum payment (10 percent of the statement) and utilisation is more than 80 percent.",
+      "ms": 50444,
+      "model": "granite-3.3-2b-instruct",
+      "text": "RULE-04 initiates a REVIEW (reason R04, lines 53 to 67) when the account is not 3 or more months past due, the utilization is less than 90%, less than 3 late months in the last six months, the latest payment is less than 10% of the statement amount, and the utilization is more than 80%.",
+      "source": "granite"
+    },
+    "RULE-05": {
+      "facts": "RULE-05 decides INCREASE with reason code R05 (COBOL lines 53 to 71). It applies when not 3 or more months past due and late months in the last six is 0 and utilisation is less than 30 percent and credit limit is less than the 500,000 limit cap.",
+      "ms": 28916,
+      "model": "granite-3.3-2b-instruct",
+      "text": "RULE-05 suggests INCREASE (reason R05, lines 53 to 71) when the account is not 3 or more months past due, has had no late payments in the last six months, and the utilization is less than 30 percent with a credit limit below the 500,000 limit cap.",
+      "source": "granite"
+    },
+    "RULE-06": {
+      "facts": "RULE-06 decides KEEP with reason code R06 (COBOL lines 53 to 74). It applies when not 3 or more months past due and months past due is less than 1 or utilisation is at most 90 percent and late months in the last six is less than 3 and latest payment is at least minimum payment (10 percent of the statement) or utilisation is at most 80 percent and (late months in the last six is not 0 or utilisation is at least 30 percent) or credit limit is at least the 500,000 limit cap.",
+      "ms": 50554,
+      "model": "granite-3.3-2b-instruct",
+      "text": "RULE-06 decides to KEEP the account (reason code R06, lines 53 to 74) when the account is not 3 or more months past due, the utilization is less than 90%, there are less than 3 late months in the last six, the latest payment is at least 10% of the statement amount, or if the utilization is at most 80%, there are less than 3 late months in the last six, the utilization is at least",
+      "source": "granite"
+    }
+  }
+}

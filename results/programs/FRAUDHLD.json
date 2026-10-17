@@ -610,8 +610,8 @@
     "TX-AVG-30D": "1",
     "TX-COUNT-1H": "0",
     "TX-MCC": "6.01E+3",
-    "TX-COUNTRY": "X1X2X3X4X5",
-    "TX-HOME": "X1X2X3X4X5",
+    "TX-COUNTRY": "(any other text)",
+    "TX-HOME": "(any other text)",
     "TX-HOUR": "0",
     "TX-CHANNEL": "F02"
    }
@@ -694,9 +694,9 @@
     "TX-AMOUNT": "0",
     "TX-AVG-30D": "1",
     "TX-COUNT-1H": "0",
-    "TX-MCC": "6.01E+3",
-    "TX-COUNTRY": "X1X2X3X4X5",
-    "TX-HOME": "X1X2X3X4X5",
+    "TX-MCC": "7995",
+    "TX-COUNTRY": "(any other text)",
+    "TX-HOME": "(any other text)",
     "TX-HOUR": "0",
     "TX-CHANNEL": "F02"
    }
@@ -987,8 +987,8 @@
     "TX-AVG-30D": "1",
     "TX-COUNT-1H": "0",
     "TX-MCC": "0",
-    "TX-COUNTRY": "X2",
-    "TX-HOME": "X3",
+    "TX-COUNTRY": "X5",
+    "TX-HOME": "DECLINE  ",
     "TX-HOUR": "6",
     "TX-CHANNEL": "F02"
    }
@@ -1145,5 +1145,5 @@
   "kind": "rules"
  },
  "dmn": null,
- "seconds": 2.71
+ "seconds": 3.11
 }

@@ -1,0 +1,63 @@
+{
+  "program": "FRAUDHLD",
+  "rules": {
+    "RULE-01": {
+      "facts": "RULE-01 decides DECLINE with reason code F01 (COBOL lines 73 to 75). It applies when authorisations in the last hour is more than 20.",
+      "ms": 21583,
+      "model": "granite-3.3-2b-instruct",
+      "text": "RULE-01 declines the transaction (reason F01, lines 73 to 75) if the authorisations used in the last hour exceed 20.",
+      "source": "granite"
+    },
+    "RULE-02": {
+      "facts": "RULE-02 decides DECLINE with reason code F02 (COBOL lines 73 to 78). It applies when authorisations in the last hour is at most 20 and abroad in a high-risk country and an online purchase.",
+      "ms": 36739,
+      "model": "granite-3.3-2b-instruct",
+      "text": "RULE-02 declines the transaction (reason code F02, lines 73 to 78) if authorisations are limited to no more than 20 in the last hour, the transaction involves a high-risk country, and it's an online purchase.",
+      "source": "granite"
+    },
+    "RULE-03": {
+      "facts": "RULE-03 decides HOLD with reason code F03 (COBOL lines 73 to 82). It applies when authorisations in the last hour is at most 20 and not abroad in a high-risk country or not an online purchase and a gambling merchant or a cash-like merchant (ATM, quasi-cash) and amount as a multiple of average spend is more than 5 times.",
+      "ms": 63330,
+      "model": "granite-3.3-2b-instruct",
+      "text": "RULE-03 puts the account on HOLD (reason F03, lines 73 to 82) when its authorisations in the last hour are no more than 20, and the transaction isn't in a high-risk country, nor is it an online purchase by a gambling or cash-like merchant, and the transaction amount is a multiple of the average spend that's more than 5 times, unless an exception applies.",
+      "source": "granite"
+    },
+    "RULE-04": {
+      "facts": "RULE-04 decides CHALLENGE with reason code F04 (COBOL lines 73 to 85). It applies when authorisations in the last hour is at most 20 and not abroad in a high-risk country or not an online purchase and a gambling merchant or a cash-like merchant (ATM, quasi-cash) and amount as a multiple of average spend is at most 5 times.",
+      "ms": 62580,
+      "model": "granite-3.3-2b-instruct",
+      "text": "RULE-04 triggers a CHALLENGE (reason code F04, lines 73 to 85) when an account's authorisations within the last hour are no more than 20, and the transaction isn't in a high-risk country, nor is it an online purchase from a gambling or cash-like merchant (ATM, quasi-cash), with the transaction amount being no more than 5 times the average spend.",
+      "source": "granite"
+    },
+    "RULE-05": {
+      "facts": "RULE-05 decides HOLD with reason code F05 (COBOL lines 73 to 89). It applies when authorisations in the last hour is at most 20 and not abroad in a high-risk country or not an online purchase and not a gambling merchant and not a cash-like merchant (ATM, quasi-cash) and amount as a multiple of average spend is more than 10 times and between midnight and 5 am.",
+      "ms": 76335,
+      "model": "granite-3.3-2b-instruct",
+      "text": "RULE-05 puts the account on HOLD (reason F05, lines 73 to 89) when authorisations within the last hour are no more than 20, and the transaction isn't in a high-risk country, isn't an online gambling purchase, isn't with a cash-like merchant (ATM, quasi-cash), and the transaction amount is a multiple of the average spend that's more than 10 times, but only between midnight and 5 am.",
+      "source": "granite"
+    },
+    "RULE-06": {
+      "facts": "RULE-06 decides CHALLENGE with reason code F06 (COBOL lines 73 to 93). It applies when authorisations in the last hour is at most 20 and not abroad in a high-risk country or not an online purchase and not a gambling merchant and not a cash-like merchant (ATM, quasi-cash) and amount as a multiple of average spend is at most 10 times or not between midnight and 5 am and an online purchase and not authenticated with 3-D Secure and amount is more than 500.",
+      "ms": 79185,
+      "model": "granite-3.3-2b-instruct",
+      "text": "RULE-06 initiates a CHALLENGE (reason F06, lines 73 to 93) when authorisations within the last hour are no more than 20, and the transaction isn't in a high-risk country, isn't an online gambling or cash-like purchase, and the amount isn't a multiple of the average spend by more than 10 times, or isn't between midnight and 5 am, and it's an online purchase, but not authenticated with 3-D",
+      "source": "granite"
+    },
+    "RULE-07": {
+      "facts": "RULE-07 decides CHALLENGE with reason code F07 (COBOL lines 73 to 96). It applies when authorisations in the last hour is at most 20 and not abroad in a high-risk country or not an online purchase and not a gambling merchant and not a cash-like merchant (ATM, quasi-cash) and amount as a multiple of average spend is at most 10 times or not between midnight and 5 am and abroad in a high-risk country.",
+      "ms": 70805,
+      "model": "granite-3.3-2b-instruct",
+      "text": "RULE-07 triggers CHALLENGE (reason F07, lines 73 to 96) when an account's authorisations within the last hour are no more than 20, and the transaction isn't in a high-risk country, isn't an online gambling or cash-like purchase, and isn't a high-risk international transaction with an amount that's at most 10 times the average spend, or if the transaction occurs outside the standard business hours (midnight to 5 am) and in",
+      "source": "granite"
+    },
+    "RULE-08": {
+      "facts": "RULE-08 decides APPROVE with reason code F00 (COBOL lines 73 to 99). It applies when authorisations in the last hour is at most 20 and not a gambling merchant and not a cash-like merchant (ATM, quasi-cash) and amount as a multiple of average spend is at most 10 times or not between midnight and 5 am and (not an online purchase or authenticated with 3-D Secure) or amount is at most 500 and not abroad in a high-risk country.",
+      "ms": 79952,
+      "model": "granite-3.3-2b-instruct",
+      "text": "RULE-08 decides APPROVE with reason code F00 (COBOL lines 73 to 99). It applies when authorisations in the last hour is at most 20 and not a gambling merchant and not a cash-like merchant (ATM, quasi-cash) and amount as a multiple of average spend is at most 10 times or not between midnight and 5 am and (not an online purchase or authenticated with 3-D Secure) or amount is at most 500 and not abroad in a high-risk country.",
+      "source": "template",
+      "rejected": "RULE-08 approves the transaction with reason code F00 (lines 73 to 99) when authorizations within the last hour are no more than 20, the merchant is neither gambling nor cash-like (ATM, quasi-cash), the transaction amount is a multiple of the average spend at most 10 times, it's not between midnight and 5 am, it's not an online purchase or authenticated with 3-D Secure, or the amount is at most 50",
+      "note": "numbers not in the facts: 50"
+    }
+  }
+}
