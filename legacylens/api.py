@@ -284,7 +284,7 @@ def impact_report():
 def results():
     out = {}
     for name in ("verification", "model", "hybrid", "ibm_sam2", "ibm_sam1", "conformance", "benchmark",
-                 "dmn", "mutation"):
+                 "dmn", "mutation", "fraud_verification", "impact_credrev"):
         f = ROOT / "results" / f"{name}.json"
         out[name] = json.loads(f.read_text()) if f.exists() else None
     return out

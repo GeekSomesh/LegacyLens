@@ -62,6 +62,10 @@ Programs analysed:
 
 ## Architecture
 
+![LegacyLens architecture](docs/architecture.png)
+
+The same as a diagram source (renders on GitHub):
+
 ```mermaid
 flowchart LR
   subgraph LinuxONE["IBM LinuxONE Community Cloud · z17 · Ubuntu 24.04 s390x"]

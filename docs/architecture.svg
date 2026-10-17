@@ -1,0 +1,148 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1400 820" width="1400" height="820" font-family="IBM Plex Sans, Segoe UI, Helvetica, Arial, sans-serif">
+  <defs>
+    <marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#525252"/>
+    </marker>
+    <style>
+      .box { fill: #ffffff; stroke: #8d8d8d; stroke-width: 1.2; rx: 8; }
+      .blue { fill: #edf5ff; stroke: #0f62fe; }
+      .green { fill: #defbe6; stroke: #198038; }
+      .purple { fill: #f6f2ff; stroke: #8a3ffc; }
+      .amber { fill: #fcf4d6; stroke: #b28600; }
+      .t { font-size: 15px; fill: #161616; font-weight: 600; }
+      .s { font-size: 12.5px; fill: #393939; }
+      .h { font-size: 13px; fill: #0f62fe; font-weight: 700; letter-spacing: .06em; }
+      .ln { stroke: #525252; stroke-width: 1.6; fill: none; marker-end: url(#a); }
+      .dash { stroke-dasharray: 5 4; }
+    </style>
+  </defs>
+  <rect x="0" y="0" width="1400" height="820" fill="#f4f4f4"/>
+  <rect x="18" y="18" width="1364" height="784" rx="14" fill="#ffffff" stroke="#0f62fe" stroke-width="2"/>
+  <text x="40" y="54" font-size="24" font-weight="700" fill="#161616">LegacyLens on IBM LinuxONE</text>
+  <text x="40" y="78" class="s">IBM z17 (machine 9175, on-chip AI accelerator) · Ubuntu 24.04 s390x · LinuxONE Community Cloud · nothing leaves the server</text>
+
+  <!-- column 1: legacy code -->
+  <text x="40" y="118" class="h">LEGACY CODE</text>
+  <rect x="40" y="130" width="230" height="200" class="box amber"/>
+  <text x="56" y="156" class="t">COBOL programs</text>
+  <text x="56" y="180" class="s">CREDREV: credit line review</text>
+  <text x="56" y="200" class="s">FRAUDHLD: card fraud screen</text>
+  <text x="56" y="220" class="s">IBM SAM1 / SAM2 samples</text>
+  <text x="56" y="244" class="t">+ copybooks</text>
+  <text x="56" y="268" class="s">REDEFINES, OCCURS, COMP-3,</text>
+  <text x="56" y="288" class="s">files, CALL, GO TO</text>
+  <text x="56" y="312" class="s">one-line change → v2</text>
+
+  <rect x="40" y="360" width="230" height="110" class="box amber"/>
+  <text x="56" y="388" class="t">GnuCOBOL build</text>
+  <text x="56" y="412" class="s">the compiled program is</text>
+  <text x="56" y="432" class="s">the reference for every check</text>
+  <text x="56" y="452" class="s">(byte formats of this machine)</text>
+
+  <!-- column 2: understand and prove -->
+  <text x="320" y="118" class="h">UNDERSTAND AND PROVE</text>
+  <rect x="320" y="130" width="272" height="70" class="box blue"/>
+  <text x="336" y="156" class="t">Parser</text>
+  <text x="336" y="178" class="s">fields with byte offsets; copybooks</text>
+  <rect x="320" y="218" width="272" height="70" class="box blue"/>
+  <text x="336" y="244" class="t">Rule extractor</text>
+  <text x="336" y="266" class="s">one rule per path or per decision</text>
+  <rect x="320" y="306" width="272" height="96" class="box purple"/>
+  <text x="336" y="332" class="t">z3 symbolic analysis</text>
+  <text x="336" y="354" class="s">prune impossible paths, simplify and</text>
+  <text x="336" y="372" class="s">prove, example input per rule,</text>
+  <text x="336" y="390" class="s">overflow and sign-loss checks</text>
+  <rect x="320" y="420" width="272" height="70" class="box blue"/>
+  <text x="336" y="446" class="t">Rule engine / interpreter</text>
+  <text x="336" y="468" class="s">records kept as bytes</text>
+
+  <path d="M445,200 L445,216" class="ln"/>
+  <path d="M445,288 L445,304" class="ln"/>
+  <path d="M445,402 L445,418" class="ln"/>
+  <path d="M270,230 L318,165" class="ln"/>
+  <path d="M155,330 L155,358" class="ln"/>
+  <text x="162" y="349" class="s">compile</text>
+  <path d="M318,455 L272,430" class="ln"/>
+  <text x="250" y="500" class="s">byte-for-byte</text>
+  <text x="250" y="516" class="s">comparison</text>
+
+  <!-- outputs -->
+  <text x="460" y="546" class="h">WHAT A TEAM GETS</text>
+  <rect x="320" y="552" width="272" height="210" class="box green"/>
+  <text x="336" y="578" class="t">Rules you can trust</text>
+  <text x="336" y="602" class="s">• rules = compiled COBOL (100%)</text>
+  <text x="336" y="622" class="s">• findings with examples</text>
+  <text x="336" y="642" class="s">• change impact before go-live</text>
+  <text x="336" y="662" class="s">• DMN 1.3 export (schema-valid)</text>
+  <text x="336" y="682" class="s">• Granite documentation</text>
+  <text x="336" y="702" class="s">• review: approve / flag,</text>
+  <text x="336" y="722" class="s">  SHA-256 audit chain</text>
+  <path d="M445,490 L445,528" class="ln"/>
+
+  <!-- column 3: decide in real time -->
+  <text x="640" y="118" class="h">DECIDE IN REAL TIME</text>
+  <rect x="640" y="130" width="200" height="70" class="box"/>
+  <text x="656" y="158" class="t">Account / request</text>
+  <text x="656" y="180" class="s">from the decision desk</text>
+
+  <rect x="640" y="230" width="260" height="96" class="box blue"/>
+  <text x="656" y="256" class="t">Legacy policy</text>
+  <text x="656" y="278" class="s">extracted rule + COBOL lines,</text>
+  <text x="656" y="296" class="s">live check against the</text>
+  <text x="656" y="314" class="s">compiled program</text>
+
+  <rect x="930" y="230" width="270" height="96" class="box purple"/>
+  <text x="946" y="256" class="t">AI default risk</text>
+  <text x="946" y="278" class="s">scikit-learn GBM → ONNX,</text>
+  <text x="946" y="296" class="s">IBM Snap ML on the z17 AI</text>
+  <text x="946" y="314" class="s">accelerator (NNPA / zDNN), 15 µs</text>
+
+  <rect x="760" y="360" width="320" height="86" class="box green"/>
+  <text x="776" y="386" class="t">Hybrid decision</text>
+  <text x="776" y="408" class="s">the AI can hold, escalate or ask for a</text>
+  <text x="776" y="426" class="s">second look; it never approves on its own</text>
+
+  <rect x="760" y="476" width="320" height="96" class="box purple"/>
+  <text x="776" y="502" class="t">Explanation</text>
+  <text x="776" y="524" class="s">IBM Granite 3.3 2B in llama.cpp (s390x,</text>
+  <text x="776" y="542" class="s">big-endian) rewrites a factual note; a</text>
+  <text x="776" y="560" class="s">guard rejects invented numbers or words</text>
+
+  <rect x="760" y="602" width="320" height="70" class="box"/>
+  <text x="776" y="630" class="t">Review officer</text>
+  <text x="776" y="652" class="s">web UI through an SSH tunnel</text>
+
+  <path d="M740,200 L760,228" class="ln"/>
+  <path d="M800,200 L1000,228" class="ln"/>
+  <path d="M800,326 L860,358" class="ln"/>
+  <path d="M1065,326 L1000,358" class="ln"/>
+  <path d="M920,446 L920,474" class="ln"/>
+  <path d="M920,572 L920,600" class="ln"/>
+
+  <!-- platform -->
+  <text x="1230" y="118" class="h">PLATFORM</text>
+  <rect x="1230" y="130" width="130" height="300" class="box"/>
+  <text x="1244" y="158" class="t">podman</text>
+  <text x="1244" y="178" class="s">rootless</text>
+  <text x="1244" y="196" class="s">container,</text>
+  <text x="1244" y="214" class="s">systemd</text>
+  <text x="1244" y="232" class="s">(Quadlet)</text>
+  <text x="1244" y="268" class="t">Granite</text>
+  <text x="1244" y="288" class="s">systemd</text>
+  <text x="1244" y="306" class="s">service</text>
+  <text x="1244" y="342" class="t">Access</text>
+  <text x="1244" y="362" class="s">loopback only;</text>
+  <text x="1244" y="380" class="s">SSH tunnel</text>
+  <text x="1244" y="414" class="s">SBOM · CI</text>
+
+  <rect x="1230" y="460" width="130" height="212" class="box"/>
+  <text x="1244" y="488" class="t">Speed</text>
+  <text x="1244" y="510" class="s">COBOL batch</text>
+  <text x="1244" y="528" class="s">659,000 / s</text>
+  <text x="1244" y="552" class="s">portfolio</text>
+  <text x="1244" y="570" class="s">125,000 / s</text>
+  <text x="1244" y="594" class="s">one API</text>
+  <text x="1244" y="612" class="s">decision 4.8 ms</text>
+
+  <text x="640" y="760" class="s">Data: UCI Default of Credit Card Clients (30,000 accounts, CC BY 4.0) · IBM Z Open Editor samples (Apache-2.0)</text>
+</svg>
