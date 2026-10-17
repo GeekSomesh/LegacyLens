@@ -46,7 +46,8 @@ def main():
         earlier = "" if k == 0 else (f", if no earlier rule ({rules[0].id}) applied" if k == 1 else
                                      f", if no earlier rule ({rules[0].id} to {rules[k - 1].id}) applied")
         lines = sorted({line for _, holds, line in rule.conditions if holds} | set(rule.action_lines))
-        when = f"{' and '.join(held)}{earlier}" if held else "no earlier rule applies"
+        when = (f"{' and '.join(held)}{earlier}" if held else
+                f"no earlier rule ({rules[0].id} to {rules[k - 1].id}) applies")
         facts = (f"{rule.id} decides {decision} with reason code {reason} (COBOL lines {lines[0]} to "
                  f"{lines[-1]}). It applies when {when}.")
         t0 = time.perf_counter()

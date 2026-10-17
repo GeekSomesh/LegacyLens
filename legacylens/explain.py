@@ -68,8 +68,11 @@ def draft(result: dict) -> str:
             f"{round(r['risk']['probability'] * 100)} percent ({r['risk']['band']} risk)")
     f = r["risk"]["factors"][0] if r["risk"]["factors"] else None
     if f:
+        side = "higher" if f["value"] > f["median"] else "lower" if f["value"] < f["median"] else "the same as"
+        than = "" if side == "the same as" else " than"
+        effect = "raises" if f["effect"] > 0 else "lowers"
         text += (f"; the biggest factor is the {NAMES.get(f['feature'], f['feature'])} of "
-                 f"{fmt(f['value'])} against a typical {fmt(f['median'])}")
+                 f"{fmt(f['value'])}, {side}{than} the typical {fmt(f['median'])}, which {effect} the risk")
     return text + "."
 
 
@@ -86,13 +89,34 @@ def _numbers(text: str) -> set:
     return out
 
 
+DECISION_WORDS = re.compile(r"\b(increase|keep|review|decrease|block|hold|approv\w*|declin\w*|reject\w*|"
+                            r"deny|denied)\b", re.I)
+PERCENT = re.compile(r"(\d[\d,]*(?:\.\d+)?)\s*(?:%|percent)", re.I)
+
+
+def _stem(word: str) -> str:
+    w = word.lower()
+    for root in ("approv", "declin", "reject", "deni", "deny"):
+        if w.startswith(root):
+            return root
+    return w
+
+
 def guard(reply: str, fact_text: str, final: str, rule: str = ""):
-    """Reject replies that use numbers not in the facts or omit the decision or the rule."""
-    allowed = _numbers(fact_text)
-    unknown = sorted(n for n in _numbers(reply) if n not in allowed)
+    """Reject a reply that adds numbers, percentages or decision words that are
+    not in the facts, or that does not name the decision and the rule."""
     problems = []
+    unknown = sorted(n for n in _numbers(reply) if n not in _numbers(fact_text))
     if unknown:
         problems.append("numbers not in the facts: " + ", ".join(f"{n:g}" for n in unknown[:5]))
+    pct_facts = {float(n.replace(",", "")) for n in PERCENT.findall(fact_text)}
+    bad_pct = sorted({float(n.replace(",", "")) for n in PERCENT.findall(reply)} - pct_facts)
+    if bad_pct:
+        problems.append("percentages not in the facts: " + ", ".join(f"{n:g}" for n in bad_pct))
+    fact_words = {_stem(w) for w in DECISION_WORDS.findall(fact_text)}
+    extra = sorted({_stem(w) for w in DECISION_WORDS.findall(reply)} - fact_words)
+    if extra:
+        problems.append("decision words not in the facts: " + ", ".join(extra))
     if final.lower() not in reply.lower():
         problems.append(f"does not name the decision {final}")
     if rule and rule.lower() not in reply.lower():

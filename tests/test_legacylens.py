@@ -114,6 +114,9 @@ def test_guard_rejects_invented_numbers():
     assert explain.guard("HOLD under RULE-05 because risk is 45%.", facts, "HOLD", "RULE-05")
     assert explain.guard("The increase was approved under RULE-05.", facts, "HOLD", "RULE-05")
     assert explain.guard("HOLD: risk 21%.", facts, "HOLD", "RULE-05")
+    assert explain.guard("HOLD: the program would keep it under RULE-05, lines 68 to 71.", facts, "HOLD", "RULE-05")
+    assert explain.guard("HOLD under RULE-05: lines 68 to 71 cut by 21%.", "HOLD RULE-05 lines 68 to 71, 21 late",
+                         "HOLD", "RULE-05")
 
 
 def test_plain_english_conditions():
@@ -123,5 +126,5 @@ def test_plain_english_conditions():
     names = glossary.load(SOURCE)
     assert glossary.rule_english(rules[0], names) == ["3 or more months past due"]
     assert glossary.rule_english(rules[4], names)[-1] == (
-        "late months in the last six is 0 and utilisation in percent is less than 30 "
+        "late months in the last six is 0 and utilisation is less than 30 percent "
         "and credit limit is less than the 500,000 limit cap")

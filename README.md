@@ -31,7 +31,7 @@ Adding AI to these decisions makes this worse unless three things hold:
 | Prove the rules | The same records go to the compiled program (GnuCOBOL on s390x) and to a rule engine that runs only the extracted rules. The whole output line is compared byte for byte | `legacylens/verify.py`, `scripts/verify_rules.py` |
 | Score risk | A gradient-boosted model trained with scikit-learn on 30,000 real card accounts, exported to **ONNX**, and served by **IBM Snap ML on the z17 on-chip AI accelerator** (NNPA, through zDNN) | `legacylens/model.py`, `models/risk_gbm.onnx` |
 | Decide | Policy plus AI: hold a risky limit increase, escalate an account, set review priority, or send a restrictive decision for a second look. The AI never approves on its own | `legacylens/hybrid.py` |
-| Explain | **IBM Granite** writes the explanation on LinuxONE (llama.cpp, big-endian GGUF). A guard rejects any reply that uses a number not in the facts or does not name the decision | `legacylens/explain.py` |
+| Explain | The code writes a factual draft note from the computed values and a glossary of the COBOL names; **IBM Granite 3.3 2B**, running on LinuxONE (llama.cpp, big-endian GGUF), rewrites it in plain English. A guard rejects any rewrite that adds a number, a percentage or a decision word that is not in the draft, or that drops the decision or the rule id; the draft is shown instead. Granite also writes business documentation for every extracted rule | `legacylens/explain.py`, `glossary.py`, `scripts/document_rules.py` |
 | Serve | FastAPI service and web UI, packaged as a container for podman on s390x, with systemd units | `legacylens/api.py`, `Containerfile`, `deploy/` |
 
 The policy program, `cobol/CREDREV.cbl`, is a monthly credit line review written for this project in the style of a batch COBOL program. It reads one 29-byte account record per line and writes `ACCOUNT DECISION REASON UTILISATION`.
@@ -112,7 +112,16 @@ For this small model (200 trees of depth 3), Snap ML's CPU path is slightly fast
 The hybrid keeps **57% of the defaulters** among limit increases from getting one, and flags 250 accounts the policy would have left unchanged, half of which defaulted. The combination table was chosen on the validation accounts; these are test numbers.
 
 ### Explanations
-LLM_RESULTS_PLACEHOLDER
+IBM Granite 3.3 2B Instruct (Q4_0, big-endian) on the server's 3 vCPUs, no GPU. Eleven demo accounts, two from each scenario (`results/llm_bench.json`):
+
+| | |
+|---|---|
+| Rewrites accepted by the guard | 9 of 11 |
+| Rejected, draft note shown instead | 2 (both said the program would "keep" an account it sent to REVIEW) |
+| Median time per explanation | 21 s (about 5 tokens/s) |
+| Rule documentation accepted | 6 of 6 (`results/rule_docs.json`) |
+
+We also tried the faster Granite 3.0 1B-A400M (about 4 s per explanation): only 1 of 11 rewrites passed the guard, so LegacyLens uses the 2B model. The decision appears at once; the explanation follows, and the demo accounts are explained in the background when the service starts. The guard catches added numbers and decision words but not every awkward phrasing, so the UI always shows the facts the explanation was written from.
 
 ## Run it on LinuxONE (Ubuntu 24.04, s390x)
 
@@ -133,8 +142,9 @@ git clone --depth 1 https://github.com/ggml-org/llama.cpp && cd llama.cpp
 cmake -B build -DCMAKE_BUILD_TYPE=Release -DLLAMA_CURL=OFF -DGGML_NATIVE=OFF -DGGML_VXE=ON \
       -DCMAKE_C_FLAGS="-march=z16 -mtune=z16" -DCMAKE_CXX_FLAGS="-march=z16 -mtune=z16"
 cmake --build build -j3 --target llama-server
-curl -LO https://huggingface.co/taronaeo/Granite-3.0-1B-A400M-Instruct-BE-GGUF/resolve/main/granite-3.0-1b-a400m-instruct-be.Q4_0.gguf
-./build/bin/llama-server -m granite-3.0-1b-a400m-instruct-be.Q4_0.gguf --host 127.0.0.1 --port 8080 -t 3
+curl -LO https://huggingface.co/taronaeo/Granite-3.3-2B-Instruct-BE-GGUF/resolve/main/granite-3.3-2b-instruct-be.Q4_0.gguf
+./build/bin/llama-server -m granite-3.3-2b-instruct-be.Q4_0.gguf --host 127.0.0.1 --port 8080 -c 4096 -t 3
+python scripts/document_rules.py     # Granite documentation for every rule -> results/rule_docs.json
 ```
 (Ubuntu 24.04's GCC 13 does not know the z17 `-march=arch15`, so llama.cpp is built for z16, which runs on z17.)
 
@@ -151,7 +161,7 @@ ssh -L 8800:127.0.0.1:8000 linux1@<server>     # then open http://localhost:8800
 - **Behaviour only.** The model uses credit limit, repayment status, statements and payments. Sex, education, marital status and age are left out.
 - **The AI cannot approve.** It can hold, escalate or ask for a second look. Approvals come only from the legacy policy, and a person reviews every change the AI makes.
 - **Traceable.** Every decision names the COBOL rule and its line numbers, the risk band and the features that moved the score most.
-- **Checked wording.** The LLM only writes the explanation. Its reply is rejected if it contains a number that is not in the facts or does not name the decision; then a template explanation is shown instead.
+- **Checked wording.** The LLM never sees a question it could answer wrongly: it only rewrites a note whose facts were computed by the rules and the model. Its rewrite is rejected if it adds a number, a percentage or a decision word that is not in the note, or leaves out the decision or the rule; then the note itself is shown.
 - **Local.** Data, models and the LLM stay on the LinuxONE server.
 
 ## Limitations
@@ -172,7 +182,7 @@ ssh -L 8800:127.0.0.1:8000 linux1@<server>     # then open http://localhost:8800
 | [zDNN](https://github.com/IBM/zDNN) (libzdnn0) | NNPA access for Snap ML | Apache-2.0 |
 | [scikit-learn](https://scikit-learn.org/), [skl2onnx](https://github.com/onnx/sklearn-onnx), [ONNX](https://onnx.ai/) | training, export, exact reference evaluation | BSD-3 / Apache-2.0 |
 | [llama.cpp](https://github.com/ggml-org/llama.cpp) | LLM inference on s390x | MIT |
-| [IBM Granite](https://huggingface.co/ibm-granite) 3.0 1B-A400M / 3.3 2B Instruct, big-endian GGUF by [taronaeo](https://huggingface.co/collections/taronaeo/s390x-verified-models-672765393af438d0ccb72a08) | explanations | Apache-2.0 |
+| [IBM Granite 3.3 2B Instruct](https://huggingface.co/ibm-granite/granite-3.3-2b-instruct), big-endian GGUF from the [s390x verified models](https://huggingface.co/collections/taronaeo/s390x-verified-models-672765393af438d0ccb72a08) listed in llama.cpp's s390x guide | explanations and rule documentation | Apache-2.0 |
 | [FastAPI](https://fastapi.tiangolo.com/), [uvicorn](https://www.uvicorn.org/), [pandas](https://pandas.pydata.org/), [NumPy](https://numpy.org/) | service and data handling | MIT / BSD |
 | [podman](https://podman.io/), Ubuntu 24.04 | container and OS | Apache-2.0 / various |
 

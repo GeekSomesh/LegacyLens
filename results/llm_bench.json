@@ -1,0 +1,125 @@
+{
+  "accounts": [
+    117,
+    163,
+    87,
+    162,
+    200,
+    225,
+    363,
+    849,
+    5,
+    36,
+    17071
+  ],
+  "models": {
+    "granite-3.3-2b": {
+      "accepted": 9,
+      "total": 11,
+      "median_ms": 21134,
+      "rows": [
+        {
+          "id": 117,
+          "final": "HOLD",
+          "text": "HOLD: the legacy program would allow the limit increase under RULE-05 (lines 68 to 71), but the AI's risk of default next month is 20 percent (MEDIUM). The primary concern is the September statement of 326, which is below the typical 22,431, thereby increasing the risk.",
+          "source": "granite",
+          "model": "granite-3.3-2b-instruct",
+          "ms": 20875,
+          "draft": "Decision: HOLD. Limit increase held: AI risk is not low. The legacy COBOL program decided INCREASE under RULE-05 (lines 68 to 71) because late months in the last six is 0 and utilisation is less than 30 percent and credit limit is less than the 500,000 limit cap. The AI model puts the risk of default next month at 20 percent (MEDIUM risk); the biggest factor is the September statement of 326, lower than the typical 22,431, which raises the risk."
+        },
+        {
+          "id": 163,
+          "final": "HOLD",
+          "text": "HOLD: the legacy program would allow the limit increase under RULE-05 (lines 68 to 71), but the AI's risk of default next month is 18 percent (MEDIUM). The primary concern is the September statement of 1,234, which is below the typical 22,431, thereby increasing the risk.",
+          "source": "granite",
+          "model": "granite-3.3-2b-instruct",
+          "ms": 19713,
+          "draft": "Decision: HOLD. Limit increase held: AI risk is not low. The legacy COBOL program decided INCREASE under RULE-05 (lines 68 to 71) because late months in the last six is 0 and utilisation is less than 30 percent and credit limit is less than the 500,000 limit cap. The AI model puts the risk of default next month at 18 percent (MEDIUM risk); the biggest factor is the September statement of 1,234, lower than the typical 22,431, which raises the risk."
+        },
+        {
+          "id": 87,
+          "final": "REVIEW",
+          "text": "REVIEW: the legacy program would retain this account under RULE-06 (lines 73 to 74), but the AI identifies a high risk of default next month at 35 percent. The significant factor is the September statement of 390, which is considerably lower than the typical 22,431, thereby elevating the risk.",
+          "source": "granite",
+          "model": "granite-3.3-2b-instruct",
+          "ms": 21134,
+          "draft": "Decision: REVIEW. AI early warning: high risk of default next month. The legacy COBOL program decided KEEP under RULE-06 (lines 73 to 74) because none of the other rules applied. The AI model puts the risk of default next month at 35 percent (HIGH risk); the biggest factor is the September statement of 390, lower than the typical 22,431, which raises the risk."
+        },
+        {
+          "id": 162,
+          "final": "REVIEW",
+          "text": "REVIEW: the legacy program would retain this account under RULE-06 (lines 73 to 74), but the AI identifies a high risk of default next month at 57 percent (HIGH). The significant factor is the customer's 2-month delay in September, exceeding the typical 0, thereby escalating the risk.",
+          "source": "granite",
+          "model": "granite-3.3-2b-instruct",
+          "ms": 18614,
+          "draft": "Decision: REVIEW. AI early warning: high risk of default next month. The legacy COBOL program decided KEEP under RULE-06 (lines 73 to 74) because none of the other rules applied. The AI model puts the risk of default next month at 57 percent (HIGH risk); the biggest factor is the months late in September of 2, higher than the typical 0, which raises the risk."
+        },
+        {
+          "id": 200,
+          "final": "REVIEW",
+          "text": "Decision: REVIEW. AI agrees with the policy. The legacy COBOL program decided REVIEW under RULE-02 (lines 57 to 59) because months past due is at least 1 and utilisation is more than 90 percent. The AI model puts the risk of default next month at 44 percent (HIGH risk); the biggest factor is the late months out of the last six of 3, higher than the typical 0, which raises the risk.",
+          "source": "template",
+          "rejected": "REVIEW: the legacy program would keep this account as per policy under RULE-02 (lines 57 to 59), due to past-due amounts of at least 1 and a utilization rate exceeding 90 percent. The AI model predicts a 44 percent risk of default next month (HIGH risk); the primary concern is the 3 months of late payments within the last six, surpassing the",
+          "note": "LLM rewrite rejected: decision words not in the facts: keep",
+          "ms": 22963,
+          "model": "granite-3.3-2b-instruct"
+        },
+        {
+          "id": 225,
+          "final": "REVIEW",
+          "text": "Decision: REVIEW. AI agrees with the policy. The legacy COBOL program decided REVIEW under RULE-02 (lines 57 to 59) because months past due is at least 1 and utilisation is more than 90 percent. The AI model puts the risk of default next month at 40 percent (HIGH risk); the biggest factor is the late months out of the last six of 3, higher than the typical 0, which raises the risk.",
+          "source": "template",
+          "rejected": "REVIEW: the legacy program would keep this account as per policy under RULE-02 (lines 57 to 59), due to past-due amounts of at least 1 and a utilization rate exceeding 90 percent. The AI model assesses a 40 percent (HIGH) risk of default next month, primarily due to 3 months being late in the last six, exceeding the typical 0",
+          "note": "LLM rewrite rejected: decision words not in the facts: keep",
+          "ms": 22872,
+          "model": "granite-3.3-2b-instruct"
+        },
+        {
+          "id": 363,
+          "final": "BLOCK",
+          "text": "BLOCK: the legacy program would block this account under RULE-01 (lines 53 to 55) due to 3 or more months past due. The AI model predicts a 62 percent (HIGH) risk of default next month, primarily due to the customer's 4 months late in September, exceeding the typical 0, thereby escalating the risk.",
+          "source": "granite",
+          "model": "granite-3.3-2b-instruct",
+          "ms": 21127,
+          "draft": "Decision: BLOCK. AI agrees with the policy. The legacy COBOL program decided BLOCK under RULE-01 (lines 53 to 55) because 3 or more months past due. The AI model puts the risk of default next month at 62 percent (HIGH risk); the biggest factor is the months late in September of 4, higher than the typical 0, which raises the risk."
+        },
+        {
+          "id": 849,
+          "final": "BLOCK",
+          "text": "BLOCK: the legacy program would block this account under RULE-01 (lines 53 to 55) due to 3 or more months past due. The AI model predicts a 69 percent (HIGH) risk of default next month, primarily due to the customer's 4 months late in September, exceeding the typical 0, thus elevating the risk.",
+          "source": "granite",
+          "model": "granite-3.3-2b-instruct",
+          "ms": 20161,
+          "draft": "Decision: BLOCK. AI agrees with the policy. The legacy COBOL program decided BLOCK under RULE-01 (lines 53 to 55) because 3 or more months past due. The AI model puts the risk of default next month at 69 percent (HIGH risk); the biggest factor is the months late in September of 4, higher than the typical 0, which raises the risk."
+        },
+        {
+          "id": 5,
+          "final": "INCREASE",
+          "text": "Decision: INCREASE. The legacy system agreed to increase the account under RULE-05 (lines 68 to 71), given the low risk of default next month at 7 percent (LOW). The factors include no late payments in the last six months and a low utilization rate below 30 percent. The AI model highlights the August payment of 36,681, which is higher than the typical",
+          "source": "granite",
+          "model": "granite-3.3-2b-instruct",
+          "ms": 24214,
+          "draft": "Decision: INCREASE. AI agrees with the policy. The legacy COBOL program decided INCREASE under RULE-05 (lines 68 to 71) because late months in the last six is 0 and utilisation is less than 30 percent and credit limit is less than the 500,000 limit cap. The AI model puts the risk of default next month at 7 percent (LOW risk); the biggest factor is the August payment of 36,681, higher than the typical 2,012, which lowers the risk."
+        },
+        {
+          "id": 36,
+          "final": "INCREASE",
+          "text": "Decision: INCREASE. The legacy program agrees with the policy, and the account will be increased under RULE-05 (lines 68 to 71). The AI model assesses a 10 percent (LOW) risk of default next month, primarily due to the May statement of -1,488, which is lower than the typical 18,290, thereby reducing the risk.",
+          "source": "granite",
+          "model": "granite-3.3-2b-instruct",
+          "ms": 22487,
+          "draft": "Decision: INCREASE. AI agrees with the policy. The legacy COBOL program decided INCREASE under RULE-05 (lines 68 to 71) because late months in the last six is 0 and utilisation is less than 30 percent and credit limit is less than the 500,000 limit cap. The AI model puts the risk of default next month at 10 percent (LOW risk); the biggest factor is the May statement of -1,488, lower than the typical 18,290, which lowers the risk."
+        },
+        {
+          "id": 17071,
+          "final": "REVIEW",
+          "text": "REVIEW: the legacy program would decrease this account under RULE-03 (lines 62 to 64) due to late payments in the last six months, totaling at least 3. The AI model indicates a low risk of default next month at 12 percent (LOW). The significant factor is the August payment of 19,888, which is higher than the typical 2,012,",
+          "source": "granite",
+          "model": "granite-3.3-2b-instruct",
+          "ms": 23254,
+          "draft": "Decision: REVIEW. Policy decreases, but AI risk is low: second look. The legacy COBOL program decided DECREASE under RULE-03 (lines 62 to 64) because late months in the last six is at least 3. The AI model puts the risk of default next month at 12 percent (LOW risk); the biggest factor is the August payment of 19,888, higher than the typical 2,012, which lowers the risk."
+        }
+      ]
+    }
+  }
+}

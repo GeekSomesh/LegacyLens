@@ -136,7 +136,9 @@ async function decide(id) {
         const by = x.source === "granite"
           ? `IBM Granite (${esc(x.model)}) on LinuxONE · written in ${(x.ms / 1000).toFixed(1)} s${x.cached ? " (cached)" : ""} · numbers checked against the facts`
           : `template · ${esc(x.note || "")}`;
-        $("#explanation").innerHTML = `${esc(x.text)}<div class="hint">${by}</div>`;
+        const facts = x.draft ? `<details><summary class="hint">Facts given to Granite</summary><div class="hint">${esc(x.draft)}</div></details>` : "";
+        const rejected = x.rejected ? `<details><summary class="hint">Rejected Granite rewrite</summary><div class="hint">${esc(x.rejected)}</div></details>` : "";
+        $("#explanation").innerHTML = `${esc(x.text)}<div class="hint">${by}</div>${facts}${rejected}`;
       })
       .catch((err) => { if (seq === explainSeq) $("#explanation").textContent = "Explanation failed: " + err.message; });
   } catch (err) {

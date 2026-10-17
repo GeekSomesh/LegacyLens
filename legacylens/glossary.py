@@ -20,9 +20,20 @@ def load(source) -> dict:
     return json.loads(p.read_text(encoding="utf-8")) if p.exists() else {}
 
 
+def name_of(entry, default: str) -> str:
+    if isinstance(entry, dict):
+        return entry.get("name", default)
+    return entry or default
+
+
+def unit_of(e, names: dict) -> str:
+    entry = names.get(e.name) if isinstance(e, C.Ref) else None
+    return entry.get("unit", "") if isinstance(entry, dict) else ""
+
+
 def term(e, names: dict) -> str:
     if isinstance(e, C.Ref):
-        return names.get(e.name, e.name)
+        return name_of(names.get(e.name), e.name)
     if isinstance(e, C.Lit):
         v = e.value
         return f"{int(v):,}" if not isinstance(v, str) and v == int(v) else e.text
@@ -31,13 +42,14 @@ def term(e, names: dict) -> str:
 
 def english(c, names: dict, top: bool = True) -> str:
     if isinstance(c, C.Rel):
-        return f"{term(c.left, names)} {OPS[c.op]} {term(c.right, names)}"
+        unit = unit_of(c.left, names) if isinstance(c.right, C.Lit) else ""
+        return f"{term(c.left, names)} {OPS[c.op]} {term(c.right, names)}" + (f" {unit}" if unit else "")
     if isinstance(c, C.CondRef):
-        return names.get(c.name, c.name)
+        return name_of(names.get(c.name), c.name)
     if isinstance(c, C.Not):
         inner = c.cond
         if isinstance(inner, C.CondRef):
-            return f"not {names.get(inner.name, inner.name)}"
+            return f"not {name_of(names.get(inner.name), inner.name)}"
         return english(negate(inner), names, top)
     if isinstance(c, (C.And, C.Or)):
         word = "and" if isinstance(c, C.And) else "or"

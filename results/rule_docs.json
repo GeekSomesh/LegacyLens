@@ -1,0 +1,47 @@
+{
+  "program": "CREDREV",
+  "rules": {
+    "RULE-01": {
+      "facts": "RULE-01 decides BLOCK with reason code R01 (COBOL lines 53 to 55). It applies when 3 or more months past due.",
+      "ms": 9519,
+      "model": "granite-3.3-2b-instruct",
+      "text": "RULE-01 BLOCKS the account (reason R01, lines 53 to 55) if there are 3 or more months past due.",
+      "source": "granite"
+    },
+    "RULE-02": {
+      "facts": "RULE-02 decides REVIEW with reason code R02 (COBOL lines 57 to 59). It applies when months past due is at least 1 and utilisation is more than 90 percent, if no earlier rule (RULE-01) applied.",
+      "ms": 15975,
+      "model": "granite-3.3-2b-instruct",
+      "text": "RULE-02 suggests a REVIEW (reason R02, lines 57 to 59) when the account has been past due for at least 1 month and the utilization rate is more than 90%, unless RULE-01 has already been applied.",
+      "source": "granite"
+    },
+    "RULE-03": {
+      "facts": "RULE-03 decides DECREASE with reason code R03 (COBOL lines 62 to 64). It applies when late months in the last six is at least 3, if no earlier rule (RULE-01 to RULE-02) applied.",
+      "ms": 14994,
+      "model": "granite-3.3-2b-instruct",
+      "text": "RULE-03 dictates a DECREASE (reason R03, lines 62 to 64) when the account has been late for at least 3 months in the last six months, unless one of RULE-01 to RULE-02 already applied.",
+      "source": "granite"
+    },
+    "RULE-04": {
+      "facts": "RULE-04 decides REVIEW with reason code R04 (COBOL lines 65 to 67). It applies when latest payment is less than minimum payment (10 percent of the statement) and utilisation is more than 80 percent, if no earlier rule (RULE-01 to RULE-03) applied.",
+      "ms": 16541,
+      "model": "granite-3.3-2b-instruct",
+      "text": "RULE-04 suggests a REVIEW (reason R04, lines 65 to 67) when the latest payment is below the minimum (10% of the statement) and the utilisation is more than 80 percent, unless one of RULE-01 to RULE-03 already applied.",
+      "source": "granite"
+    },
+    "RULE-05": {
+      "facts": "RULE-05 decides INCREASE with reason code R05 (COBOL lines 68 to 71). It applies when late months in the last six is 0 and utilisation is less than 30 percent and credit limit is less than the 500,000 limit cap, if no earlier rule (RULE-01 to RULE-04) applied.",
+      "ms": 19385,
+      "model": "granite-3.3-2b-instruct",
+      "text": "RULE-05 suggests INCREASE (reason R05, lines 68 to 71) when the late months in the last six are 0, utilisation is less than 30 percent, and the credit limit is below the 500,000 limit cap, unless one of RULE-01 to RULE-04 already applied.",
+      "source": "granite"
+    },
+    "RULE-06": {
+      "facts": "RULE-06 decides KEEP with reason code R06 (COBOL lines 73 to 74). It applies when no earlier rule (RULE-01 to RULE-05) applies.",
+      "ms": 12262,
+      "model": "granite-3.3-2b-instruct",
+      "text": "RULE-06 decides to KEEP the account (reason R06, lines 73 to 74) if no earlier rule (RULE-01 to RULE-05) has already applied.",
+      "source": "granite"
+    }
+  }
+}
