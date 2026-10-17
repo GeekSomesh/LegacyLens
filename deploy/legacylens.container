@@ -11,7 +11,9 @@ Image=localhost/legacylens:latest
 ContainerName=legacylens
 Network=host
 Volume=%h/data/uci_credit.xls:/data/uci_credit.xls:ro
+Volume=%h/legacylens-state:/state:U
 Environment=LEGACYLENS_DATA=/data/uci_credit.xls
+Environment=LEGACYLENS_STATE=/state
 
 [Service]
 Restart=on-failure

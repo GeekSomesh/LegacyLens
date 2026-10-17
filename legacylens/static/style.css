@@ -120,3 +120,8 @@ details.example table { margin-top: 4px; }
 .diff .del { background: #3d1418; color: #ffb3b8; }
 .diff .hunk { color: #8fb4ff; }
 tr.alert td { color: var(--red); font-weight: 600; }
+
+.review-row { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-top: 8px; flex-wrap: wrap; }
+.review-actions button { padding: 3px 10px; border: 1px solid var(--line); background: var(--panel); color: var(--ink);
+  border-radius: 4px; cursor: pointer; font-size: 13px; margin-left: 4px; }
+.review-actions button:hover { border-color: var(--blue); }

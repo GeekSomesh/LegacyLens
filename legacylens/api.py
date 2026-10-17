@@ -19,7 +19,7 @@ from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 
 from . import cobol as C
-from . import data, explain, glossary, hybrid, model
+from . import data, explain, glossary, hybrid, model, review
 from . import rules as R
 from .runner import compile_program, run_batch
 
@@ -49,6 +49,13 @@ class Account(BaseModel):
     PAY_AMT4: float = 0
     PAY_AMT5: float = 0
     PAY_AMT6: float = 0
+
+
+class ReviewIn(BaseModel):
+    rule: str
+    action: str
+    reviewer: str
+    comment: str = ""
 
 
 class Service:
@@ -222,11 +229,11 @@ def program_detail(name: str):
     if not f.exists() or not name.replace("-", "").isalnum():
         raise HTTPException(404, f"no program {name}")
     data = json.loads(f.read_text())
-    if data["name"] == svc.prog.name:
-        docs = _rule_docs()
-        for r in data["rules"]:
-            if r["id"] in docs:
-                r["doc"] = docs[r["id"]]
+    docs_file = ROOT / "results" / "rule_docs" / f"{data['name']}.json"
+    docs = json.loads(docs_file.read_text())["rules"] if docs_file.exists() else         (_rule_docs() if data["name"] == svc.prog.name else {})
+    for r in data["rules"]:
+        if r["id"] in docs:
+            r["doc"] = docs[r["id"]]
     return data
 
 
@@ -236,6 +243,33 @@ def program_dmn(name: str):
     if not name.replace("-", "").isalnum() or not f.exists():
         raise HTTPException(404, f"no DMN model for {name}")
     return FileResponse(f, media_type="application/xml", filename=f"{name.upper()}.dmn")
+
+
+def _program_rules(name: str) -> list:
+    f = ROOT / "results" / "programs" / f"{name.upper()}.json"
+    if not name.replace("-", "").isalnum() or not f.exists():
+        raise HTTPException(404, f"no program {name}")
+    return json.loads(f.read_text())["rules"]
+
+
+@app.get("/api/programs/{name}/review")
+def review_status(name: str):
+    rules = _program_rules(name)
+    return {"status": review.status(name.upper(), rules), "history": review.history(name.upper())[-50:],
+            "chain": review.verify()}
+
+
+@app.post("/api/programs/{name}/review")
+def review_record(name: str, body: ReviewIn):
+    rules = {r["id"]: r for r in _program_rules(name)}
+    if body.rule not in rules:
+        raise HTTPException(404, f"no rule {body.rule}")
+    try:
+        entry = review.record(name.upper(), body.rule, body.action, body.reviewer, body.comment,
+                              review.rule_fingerprint(rules[body.rule]))
+    except ValueError as exc:
+        raise HTTPException(422, str(exc))
+    return entry
 
 
 @app.get("/api/impact")

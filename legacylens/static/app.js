@@ -80,6 +80,8 @@ function renderProgram() {
     </div>
     ${p.dmn ? `<p><a href="/api/programs/${encodeURIComponent(p.name)}/dmn" download>Download the rules as DMN 1.3</a>
        <span class="hint">· ${p.dmn.rows} table rows · valid against the OMG schema · the DMN model gives the same decisions as the compiled COBOL on ${money(p.dmn.agree_with_compiled_cobol)} of ${money(p.dmn.records)} records</span></p>` : ""}
+    ${p.chain ? `<p class="hint">Review: ${Object.values(p.review || {}).filter((x) => x.state === "approved").length} of ${p.rules.length} rules approved ·
+       audit trail ${p.chain.entries} entries, hash chain ${p.chain.ok ? "intact ✔" : "BROKEN at entry " + p.chain.broken_at}</p>` : ""}
     ${p.findings.length ? `<h3>Findings for review</h3>` + p.findings.map((f) => `<div class="finding"><b>${esc(f.kind)}</b> · ${esc(f.message)} <span class="muted">line ${f.lines.join(", ")}</span></div>`).join("") : ""}`;
   $("#rules-hint").textContent = `${p.rules.length} rules · click one to see its lines`;
   $("#prog-source-title").textContent = p.path.split("/").pop();
@@ -95,14 +97,32 @@ function renderProgram() {
       const conds = r.conditions
         .map((c) => `<li class="${c.implied ? "implied" : ""}" title="${c.implied ? "implied by the other conditions (z3 proof)" : ""}">${esc(c.english)} <span class="muted">· <code>${esc(c.text)}</code> · line ${c.line}</span></li>`)
         .join("");
+      const rv = (current.review || {})[r.id];
+      const badge = rv ? `<span class="pill ${rv.state === "approved" ? "ok" : ""}" title="${esc(rv.comment || "")}">${rv.state === "approved" ? "✔ approved" : "⚑ flagged"} by ${esc(rv.reviewer)}${rv.stale ? " · rule changed since" : ""}</span>` : `<span class="pill">not reviewed</span>`;
+      const actions = `<div class="review-actions"><button data-act="approve" data-rule="${esc(r.id)}">Approve</button>
+        <button data-act="flag" data-rule="${esc(r.id)}">Flag</button></div>`;
       return `<div class="rule" data-rule="${esc(r.id)}">
         <div class="head"><strong>${esc(r.id)}</strong>
           ${Object.entries(r.actions).map(([k, v]) => `<span class="pill">${esc(k)} = ${esc(v)}</span>`).join(" ")}
           ${r.z3 && r.z3.removed ? `<span class="pill ok">z3: ${r.z3.removed} implied ${r.z3.removed === 1 ? "condition" : "conditions"} struck, ${r.z3.equivalent ? "proved equivalent" : "not proved"}</span>` : ""}</div>
         ${doc}<ul class="conds">${conds || "<li class='muted'>always (no other rule applied)</li>"}</ul>${ex}
+        <div class="review-row">${badge}${actions}</div>
       </div>`;
     })
     .join("");
+  document.querySelectorAll("#rules [data-act]").forEach((b) =>
+    b.addEventListener("click", async (ev) => {
+      ev.stopPropagation();
+      const reviewer = localStorage.getItem("ll-reviewer") || prompt("Your name (recorded in the audit trail):");
+      if (!reviewer) return;
+      try { localStorage.setItem("ll-reviewer", reviewer); } catch (e) {}
+      const comment = b.dataset.act === "flag" ? (prompt("What is wrong with this rule?") || "") : "";
+      try {
+        await api(`/api/programs/${encodeURIComponent(current.name)}/review`, { rule: b.dataset.rule, action: b.dataset.act, reviewer, comment });
+        await loadProgram(current.name);
+      } catch (err) { alert("Not recorded: " + err.message); }
+    })
+  );
   document.querySelectorAll("#rules .rule").forEach((el) =>
     el.addEventListener("click", () => {
       document.querySelectorAll("#rules .rule").forEach((x) => x.classList.toggle("active", x === el));
@@ -115,6 +135,12 @@ function renderProgram() {
 
 async function loadProgram(name) {
   current = await api("/api/programs/" + encodeURIComponent(name));
+  try {
+    const rv = await api(`/api/programs/${encodeURIComponent(name)}/review`);
+    current.review = rv.status;
+    current.chain = rv.chain;
+    current.audit = rv.history;
+  } catch (e) { current.review = {}; }
   renderProgramTabs();
   renderProgram();
 }

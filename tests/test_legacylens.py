@@ -199,3 +199,18 @@ def test_defect_checks_on_ibm_sam1():
     assert ex.modular
     kinds = sorted(f["kind"] for f in lint.findings(sam1, rules))
     assert kinds == ["file never closed", "status mismatch", "status mismatch"]
+
+
+def test_review_audit_chain_detects_tampering(tmp_path, monkeypatch):
+    import sqlite3
+    from legacylens import review
+    monkeypatch.setattr(review, "DB", tmp_path / "review.db")
+    rule = {"conditions": [{"text": "A > 1"}], "actions": {"OUT": "X"}}
+    fp = review.rule_fingerprint(rule)
+    review.record("P", "RULE-01", "approve", "ana", "", fp)
+    review.record("P", "RULE-02", "flag", "ben", "threshold looks wrong", fp)
+    assert review.verify()["ok"] and review.verify()["entries"] == 2
+    assert review.status("P", [dict(rule, id="RULE-01")])["RULE-01"]["state"] == "approved"
+    with sqlite3.connect(review.DB) as c:
+        c.execute("UPDATE audit SET reviewer = 'eve' WHERE seq = 1")
+    assert review.verify() == {"ok": False, "entries": 2, "broken_at": 1}
