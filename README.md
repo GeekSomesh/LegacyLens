@@ -64,9 +64,16 @@ flowchart LR
 - **On-chip AI accelerator.** The risk model is an ONNX file loaded by IBM Snap ML with `tree_format="zdnn_tensors"`, which runs tree inference on the z17 Neural Network Processing Assist (NNPA) through the zDNN library (`libzdnn0`). The same ONNX file also runs on Snap ML's CPU path and on the exact ONNX reference evaluator, and all three agree.
 - **COBOL where COBOL lives.** The policy program is compiled with GnuCOBOL on s390x. Every rule is checked against that executable.
 - **Generative AI on the same box.** IBM Granite runs in llama.cpp built for s390x with vector extensions, using big-endian GGUF weights. No account data leaves the server; there are no external API calls.
-- **Platform.** The service runs as a podman container. The LLM and the container are systemd services. Access is over SSH.
+- **Platform.** The service runs as a rootless podman container (non-root user inside too), started by systemd through a Quadlet unit; Granite is a systemd user service. Only SSH is exposed; the UI is reached through an SSH tunnel.
 
-Screenshots of the virtual server, the builds and the running service are in [docs/screenshots](docs/screenshots).
+Evidence: [docs/linuxone_system.txt](docs/linuxone_system.txt) (machine type 9175 = IBM z17, the `nnpa` CPU facility, Snap ML reporting `zdnn_tensors`) and the screenshots below.
+
+| | |
+|---|---|
+| ![LinuxONE virtual server](docs/screenshots/01-linuxone-virtual-server.jpg) | ![A held limit increase](docs/screenshots/02-decision-hold.jpg) |
+| The `coboldecision` server in the LinuxONE Community Cloud (AI_LAB flavor) | A decision: COBOL says INCREASE (RULE-05), AI risk is MEDIUM, so the increase is held; Granite explains |
+| ![Rules](docs/screenshots/03-cobol-rules.jpg) | ![Evidence](docs/screenshots/04-evidence.jpg) |
+| Extracted rules with their lines and Granite's documentation | Rules vs compiled COBOL, model metrics, hybrid impact |
 
 ## Results (all measured on the LinuxONE server)
 
@@ -148,12 +155,15 @@ python scripts/document_rules.py     # Granite documentation for every rule -> r
 ```
 (Ubuntu 24.04's GCC 13 does not know the z17 `-march=arch15`, so llama.cpp is built for z16, which runs on z17.)
 
-The service, as a container:
+The service, as a container managed by systemd (rootless podman, Quadlet):
 ```bash
+cp ~/data/"default of credit card clients.xls" ~/data/uci_credit.xls
 podman build -t legacylens -f Containerfile .
-podman run -d --name legacylens --network host -v ~/data:/data:ro \
-  -e LEGACYLENS_DATA="/data/default of credit card clients.xls" legacylens
-ssh -L 8800:127.0.0.1:8000 linux1@<server>     # then open http://localhost:8800
+mkdir -p ~/.config/systemd/user ~/.config/containers/systemd
+cp deploy/granite.service ~/.config/systemd/user/ && cp deploy/legacylens.container ~/.config/containers/systemd/
+systemctl --user daemon-reload && systemctl --user enable --now granite && systemctl --user start legacylens
+sudo loginctl enable-linger $USER
+ssh -L 8800:127.0.0.1:8000 linux1@<server>     # from your laptop, then open http://localhost:8800
 ```
 
 ## Responsible AI

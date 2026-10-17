@@ -1,0 +1,20 @@
+# Podman Quadlet unit: runs the LegacyLens container as a rootless systemd user service.
+#   mkdir -p ~/.config/containers/systemd && cp deploy/legacylens.container ~/.config/containers/systemd/
+#   systemctl --user daemon-reload && systemctl --user start legacylens
+# The data set is mounted read-only; --network host lets the API reach Granite on 127.0.0.1:8080.
+[Unit]
+Description=LegacyLens API container
+After=granite.service
+
+[Container]
+Image=localhost/legacylens:latest
+ContainerName=legacylens
+Network=host
+Volume=%h/data/uci_credit.xls:/data/uci_credit.xls:ro
+Environment=LEGACYLENS_DATA=/data/uci_credit.xls
+
+[Service]
+Restart=on-failure
+
+[Install]
+WantedBy=default.target

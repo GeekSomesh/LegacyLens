@@ -1,7 +1,8 @@
 # LegacyLens API for IBM LinuxONE (s390x). Build and run with podman:
 #   podman build -t legacylens -f Containerfile .
 #   podman run -d --name legacylens --network host \
-#     -v ~/data:/data:ro -e LEGACYLENS_DATA="/data/default of credit card clients.xls" legacylens
+#     -v ~/data/uci_credit.xls:/data/uci_credit.xls:ro -e LEGACYLENS_DATA=/data/uci_credit.xls legacylens
+# or as a systemd user service: deploy/legacylens.container (Quadlet).
 # --network host lets the API reach the Granite llama-server on 127.0.0.1:8080.
 FROM docker.io/library/ubuntu:24.04
 
