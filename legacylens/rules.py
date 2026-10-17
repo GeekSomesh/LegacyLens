@@ -553,6 +553,7 @@ class State:
                 self._init(f)
         self.at_end = {}
         self.warnings = []
+        self.events = []        # (kind, line, field, value, stored) for stores that lose digits or a sign
         self.line = 0
         self.files = {}
         for name, recs in (files or {}).items():
@@ -588,7 +589,7 @@ class State:
         s.prog, s.callees = self.prog, self.callees
         s.mem = {k: bytearray(v) for k, v in self.mem.items()}
         s.at_end = dict(self.at_end)
-        s.warnings, s.line = [], self.line
+        s.warnings, s.line, s.events = [], self.line, []
         s.files = {k: {"in": v["in"], "pos": v["pos"], "out": list(v["out"])} for k, v in self.files.items()}
         return s
 
@@ -665,7 +666,13 @@ class State:
                 if not digits.isdigit():
                     raise NotNumeric(f"MOVE {value!r} to numeric {f.name}")
                 value = Decimal(int(digits))
-            data = encode(f.pic, store(f.pic, value, rounded))
+            kept = store(f.pic, value, rounded)
+            if isinstance(value, Decimal):
+                if abs(value) >= Decimal(10) ** f.pic.digits:
+                    self.events.append(("silent overflow", self.line, f.name, value, kept))
+                if value < 0 and not f.pic.signed and kept != 0:
+                    self.events.append(("sign lost", self.line, f.name, value, kept))
+            data = encode(f.pic, kept)
         elif f.pic is not None and not ref.refmod and f.pic.kind == "edited":
             if isinstance(value, str):
                 value = Decimal(int(value.strip() or "0"))

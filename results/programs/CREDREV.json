@@ -369,8 +369,8 @@
    },
    "example": {
     "IN-ACCT": "0",
-    "IN-LIMIT": "1E+3",
-    "IN-BILL": "1",
+    "IN-LIMIT": "1",
+    "IN-BILL": "0",
     "IN-PAID": "0",
     "IN-DELINQ": "3",
     "IN-LATE-6M": "0"
@@ -430,8 +430,8 @@
    },
    "example": {
     "IN-ACCT": "0",
-    "IN-LIMIT": "2",
-    "IN-BILL": "2",
+    "IN-LIMIT": "1",
+    "IN-BILL": "1",
     "IN-PAID": "0",
     "IN-DELINQ": "1",
     "IN-LATE-6M": "0"
@@ -779,7 +779,16 @@
   "all_proved": true,
   "overlaps": []
  },
- "findings": [],
+ "findings": [
+  {
+   "kind": "silent overflow",
+   "lines": [
+    46
+   ],
+   "message": "line 46: WS-UTIL (PIC 9(5)) can receive a value with more integer digits than it holds; COBOL drops the high-order digits without an error. Example found by z3: IN-LIMIT=2, IN-BILL=2000, IN-PAID=0, IN-DELINQ=3, IN-LATE-6M=0. Compiled program: prints \"000000 BLOCK    R01 00000\"",
+   "confirmed": "prints \"000000 BLOCK    R01 00000\""
+  }
+ ],
  "verification": {
   "cases": 35260,
   "agree": 35260,
@@ -789,28 +798,28 @@
     "agree": 30000,
     "no_rule": 0,
     "several_rules": 0,
-    "cobol_seconds": 0.05,
-    "engine_seconds": 3.941
+    "cobol_seconds": 0.045,
+    "engine_seconds": 8.291
    },
    "boundaries": {
     "records": 260,
     "agree": 260,
     "no_rule": 0,
     "several_rules": 0,
-    "cobol_seconds": 0.006,
-    "engine_seconds": 0.033
+    "cobol_seconds": 0.004,
+    "engine_seconds": 0.07
    },
    "random": {
     "records": 5000,
     "agree": 5000,
     "no_rule": 0,
     "several_rules": 0,
-    "cobol_seconds": 0.009,
-    "engine_seconds": 0.594
+    "cobol_seconds": 0.008,
+    "engine_seconds": 1.235
    }
   },
   "platform": "s390x",
   "kind": "rules"
  },
- "seconds": 4.32
+ "seconds": 5.26
 }

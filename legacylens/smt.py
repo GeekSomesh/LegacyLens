@@ -20,6 +20,8 @@ uses (each literal is a number); ordering tests on text become unknowns.
 from __future__ import annotations
 
 import itertools
+import os
+import pickle
 from decimal import Decimal
 
 import z3
@@ -90,11 +92,14 @@ class Sym:
         self.side = []                      # facts that must hold for the path to be defined
         self.inputs = {}                    # field key -> symbol of an input value
         self.at_end = {}
+        self.stores = []                    # (field, value term before truncation, line, guard)
+        self.line = 0
 
     def copy(self):
         s = Sym(self.enc, self.vals)
         s.numflags = dict(self.numflags)
         s.defs, s.side, s.inputs, s.at_end = list(self.defs), list(self.side), self.inputs, dict(self.at_end)
+        s.stores, s.line = list(self.stores), self.line
         return s
 
     # symbols
@@ -142,6 +147,7 @@ class Sym:
                 return
             v = self._new(f, "c")[1]
             self.defs.append(v == self._truncate(f, val[1]))
+            self.stores.append((f, val[1], self.line, z3.BoolVal(True)))
             self.vals[f.key] = ("num", v)
             self.numflags[f.key] = z3.BoolVal(True)
         else:
@@ -258,6 +264,7 @@ class Sym:
     # statements
     def execute(self, stmts):
         for s in stmts:
+            self.line = getattr(s, "line", self.line)
             if isinstance(s, C.Move):
                 for t in s.targets:
                     f = self.prog.fields[t.name]
@@ -397,6 +404,10 @@ class Sym:
             if cur is not None:
                 flags[k] = cur
         self.vals, self.numflags = merged, flags
+        for c, r in results:
+            self.stores += [(f, t, line, z3.And(c, g)) for f, t, line, g in r.stores[len(base.stores):]]
+        others = z3.Not(z3.Or(*[c for c, _ in results])) if results else z3.BoolVal(True)
+        self.stores += [(f, t, line, z3.And(others, g)) for f, t, line, g in rest.stores[len(base.stores):]]
         for r in [r for _, r in results] + [rest]:
             self.defs += r.defs[len(base.defs):]
             self.side += r.side[len(base.side):]
@@ -424,6 +435,34 @@ def _check(formulas, extra=(), timeout=TIMEOUT_MS):
     s.set("timeout", timeout)
     s.add(*formulas, *extra)
     return s.check(), s
+
+
+def safe_check(formulas: list, inputs: dict, codes: dict, timeout: int = TIMEOUT_MS):
+    """Run one check in a forked child, so a solver crash (z3 4.8 can die on
+    nonlinear division) cannot take the analysis down. Returns (status, values)."""
+    r, w = os.pipe()
+    pid = os.fork()
+    if pid == 0:                                   # child
+        try:
+            os.close(r)
+            s = z3.Solver()
+            s.set("timeout", timeout)
+            s.add(*formulas)
+            res = s.check()
+            out = ("sat", model_values(s.model(), inputs, codes)) if res == z3.sat else                 ("unsat" if res == z3.unsat else "unknown", None)
+            os.write(w, pickle.dumps(out))
+        finally:
+            os._exit(0)
+    os.close(w)
+    chunks = []
+    while True:
+        b = os.read(r, 65536)
+        if not b:
+            break
+        chunks.append(b)
+    os.close(r)
+    os.waitpid(pid, 0)
+    return pickle.loads(b"".join(chunks)) if chunks else ("crash", None)
 
 
 def sat_status(base: list, defs: list, goal: list):
@@ -510,6 +549,30 @@ class Analysis:
             if r != z3.sat:
                 return None
         return model_values(s.model(), sym.inputs, self.enc.codes)
+
+    def store_risks(self, rule_id) -> list:
+        """Numeric stores on this rule's path that can silently lose digits or the sign:
+        the value needs more integer digits than the receiving PICTURE has (COBOL
+        drops the high-order digits), or a negative value goes into an unsigned field."""
+        conds, defs, side, sym = self._parts(rule_id)
+        out = []
+        for f, term, line, guard in sym.stores:
+            limit = z3.RealVal(10 ** f.pic.digits)
+            checks = [("silent overflow", z3.Or(term >= limit, term <= -limit))]
+            if not f.pic.signed:
+                checks.append(("sign lost", term <= -z3.RealVal(f"1/{10 ** f.pic.scale}")))
+            for kind, bad in checks:
+                status, values = safe_check(side + conds + [guard, bad], sym.inputs, self.enc.codes)
+                if status == "unsat":
+                    continue
+                exact, ex_values = safe_check(side + defs + conds + [guard, bad], sym.inputs, self.enc.codes)
+                if exact == "sat":
+                    out.append({"kind": kind, "field": f.name, "line": line, "rule": rule_id,
+                                "example": ex_values, "proof": "z3 model of the exact path"})
+                elif exact != "unsat" and status == "sat":
+                    out.append({"kind": kind, "field": f.name, "line": line, "rule": rule_id,
+                                "example": values, "proof": f"z3 {exact} on the exact path; example to be confirmed by running"})
+        return out
 
     def overlaps(self) -> list:
         """Pairs of rules that some input satisfies together (should be empty)."""

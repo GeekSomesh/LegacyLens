@@ -2535,7 +2535,64 @@
   "all_proved": true,
   "overlaps": []
  },
- "findings": [],
+ "findings": [
+  {
+   "kind": "sign lost",
+   "lines": [
+    121
+   ],
+   "message": "line 121: a negative value can be stored in unsigned CUST-ACCT-BALANCE (PIC 9(7)V99); it is kept without its sign. Example found by z3: TRAN-CODE=UPDATE, TRAN-FIELD-NAME=BALANCE   , TRAN-UPDATE-NUMX1=-, TRAN-UPDATE-NUM IS NUMERIC=True, TRAN-ACTION=REPLACE . Compiled program: for update amount '-00012345' the computed value is -123.45, and the compiled program stores CUST-ACCT-BALANCE = 0000123.45",
+   "confirmed": "for update amount '-00012345' the computed value is -123.45, and the compiled program stores CUST-ACCT-BALANCE = 0000123.45"
+  },
+  {
+   "kind": "silent overflow",
+   "lines": [
+    124
+   ],
+   "message": "line 124: CUST-ACCT-BALANCE (PIC 9(7)V99) can receive a value with more integer digits than it holds; COBOL drops the high-order digits without an error. Example found by z3: TRAN-CODE=UPDATE, TRAN-FIELD-NAME=BALANCE   , TRAN-UPDATE-NUMX1=+, TRAN-UPDATE-NUM IS NUMERIC=True, TRAN-ACTION=ADD     , CUST-ACCT-BALANCE=9999999.99. Compiled program: for update amount '+99999999' the computed value is 10999999.98, and the compiled program stores CUST-ACCT-BALANCE = 0999999.98",
+   "confirmed": "for update amount '+99999999' the computed value is 10999999.98, and the compiled program stores CUST-ACCT-BALANCE = 0999999.98"
+  },
+  {
+   "kind": "sign lost",
+   "lines": [
+    124
+   ],
+   "message": "line 124: a negative value can be stored in unsigned CUST-ACCT-BALANCE (PIC 9(7)V99); it is kept without its sign. Example found by z3: TRAN-CODE=UPDATE, TRAN-FIELD-NAME=BALANCE   , TRAN-UPDATE-NUMX1=-, TRAN-UPDATE-NUM IS NUMERIC=True, TRAN-ACTION=ADD     , CUST-ACCT-BALANCE=0. Compiled program: for update amount '-00012345' the computed value is -123.45, and the compiled program stores CUST-ACCT-BALANCE = 0000123.45",
+   "confirmed": "for update amount '-00012345' the computed value is -123.45, and the compiled program stores CUST-ACCT-BALANCE = 0000123.45"
+  },
+  {
+   "kind": "silent overflow",
+   "lines": [
+    131
+   ],
+   "message": "line 131: CUST-ORDERS-YTD (PIC 9(5)) can receive a value with more integer digits than it holds; COBOL drops the high-order digits without an error. Example found by z3: TRAN-CODE=UPDATE, TRAN-FIELD-NAME=ORDERS    , TRAN-UPDATE-NUMX1=+, TRAN-UPDATE-NUM IS NUMERIC=True, TRAN-ACTION=REPLACE . Compiled program: for update amount '+99999999' the computed value is 999999.99, and the compiled program stores CUST-ORDERS-YTD = 99999",
+   "confirmed": "for update amount '+99999999' the computed value is 999999.99, and the compiled program stores CUST-ORDERS-YTD = 99999"
+  },
+  {
+   "kind": "sign lost",
+   "lines": [
+    131
+   ],
+   "message": "line 131: a negative value can be stored in unsigned CUST-ORDERS-YTD (PIC 9(5)); it is kept without its sign. Example found by z3: TRAN-CODE=UPDATE, TRAN-FIELD-NAME=ORDERS    , TRAN-UPDATE-NUMX1=-, TRAN-UPDATE-NUM IS NUMERIC=True, TRAN-ACTION=REPLACE . Compiled program: for update amount '-00012345' the computed value is -123.45, and the compiled program stores CUST-ORDERS-YTD = 00123",
+   "confirmed": "for update amount '-00012345' the computed value is -123.45, and the compiled program stores CUST-ORDERS-YTD = 00123"
+  },
+  {
+   "kind": "silent overflow",
+   "lines": [
+    134
+   ],
+   "message": "line 134: CUST-ORDERS-YTD (PIC 9(5)) can receive a value with more integer digits than it holds; COBOL drops the high-order digits without an error. Example found by z3: TRAN-CODE=UPDATE, TRAN-FIELD-NAME=ORDERS    , TRAN-UPDATE-NUMX1=+, TRAN-UPDATE-NUM IS NUMERIC=True, TRAN-ACTION=ADD     , CUST-ORDERS-YTD=99999. Compiled program: for update amount '+99999999' the computed value is 1099998.99, and the compiled program stores CUST-ORDERS-YTD = 99998",
+   "confirmed": "for update amount '+99999999' the computed value is 1099998.99, and the compiled program stores CUST-ORDERS-YTD = 99998"
+  },
+  {
+   "kind": "sign lost",
+   "lines": [
+    134
+   ],
+   "message": "line 134: a negative value can be stored in unsigned CUST-ORDERS-YTD (PIC 9(5)); it is kept without its sign. Example found by z3: TRAN-CODE=UPDATE, TRAN-FIELD-NAME=ORDERS    , TRAN-UPDATE-NUMX1=-, TRAN-UPDATE-NUM IS NUMERIC=True, TRAN-ACTION=ADD     , CUST-ORDERS-YTD=0. Compiled program: for update amount '-00012345' the computed value is -123.45, and the compiled program stores CUST-ORDERS-YTD = 00123",
+   "confirmed": "for update amount '-00012345' the computed value is -123.45, and the compiled program stores CUST-ORDERS-YTD = 00123"
+  }
+ ],
  "verification": {
   "cases": 7535,
   "agree": 7535,
@@ -2571,7 +2628,7 @@
     "defined": 4506,
     "agreement_on_defined": 1.0,
     "cobol_seconds": 0.04,
-    "engine_seconds": 1.25
+    "engine_seconds": 1.26
    },
    "random": {
     "cases": 3000,
@@ -2582,11 +2639,11 @@
     "defined": 3000,
     "agreement_on_defined": 1.0,
     "cobol_seconds": 0.04,
-    "engine_seconds": 1.27
+    "engine_seconds": 1.29
    }
   },
   "platform": "s390x",
   "kind": "rules"
  },
- "seconds": 6.34
+ "seconds": 8.72
 }
