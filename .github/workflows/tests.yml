@@ -1,0 +1,22 @@
+# The same checks on an ordinary x86 runner: the parser, interpreter, z3 analysis
+# and defect checks are platform independent; GnuCOBOL is the reference.
+name: tests
+on: [push, pull_request]
+jobs:
+  test:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install GnuCOBOL, z3 and the Python stack
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y gnucobol3 python3-numpy python3-pandas python3-sklearn python3-onnx \
+            python3-z3 python3-lxml python3-pytest
+      - name: Unit tests
+        run: python3 -m pytest -q tests
+      - name: Interpreter vs GnuCOBOL on the construct programs
+        run: python3 scripts/conformance.py 300
+      - name: FRAUDHLD rules vs its compiled program
+        run: python3 scripts/verify_fraud.py
+      - name: Defect checks on IBM's SAM1 sample
+        run: python3 -m legacylens findings samples/ibm-zopeneditor/COBOL/SAM1.cbl -I samples/ibm-zopeneditor/COPYBOOK || true
