@@ -38,9 +38,9 @@ class Unknown(Exception):
 class Encoder:
     """Shared tables for one program: literal codes and field overlaps."""
 
-    def __init__(self, prog: C.Program):
+    def __init__(self, prog: C.Program, codes: dict | None = None):
         self.prog = prog
-        self.codes = {}
+        self.codes = {} if codes is None else codes     # shared when comparing two programs
         self.fresh = itertools.count()
         self.by_record = {}
         for f in prog.fields.values():
@@ -436,10 +436,44 @@ def sat_status(base: list, defs: list, goal: list):
     return ("unsat" if r == z3.unsat else "sat" if r == z3.sat else "unknown"), s
 
 
+def model_values(m, inputs: dict, codes: dict) -> dict:
+    """Input field key -> value (Decimal, text, or bool for '#numeric') from a z3 model."""
+    inv = {v: k for k, v in codes.items()}
+    out = {}
+    for key, sym_v in inputs.items():
+        if key.endswith("#numeric"):
+            val = m.eval(sym_v, model_completion=False)
+            if z3.is_true(val) or z3.is_false(val):
+                out[key] = z3.is_true(val)
+            continue
+        kind, t = sym_v
+        val = m.eval(t, model_completion=False)
+        if not (z3.is_rational_value(val) or z3.is_int_value(val)):
+            continue
+        if kind == "num":
+            out[key] = Decimal(val.numerator_as_long()) / Decimal(val.denominator_as_long())
+        else:
+            out[key] = inv.get(val.as_long())       # None: any text other than the program's literals
+    return out
+
+
+def tie_inputs(ia: dict, ib: dict) -> list:
+    """Equalities that make two paths read the same input values."""
+    eqs = []
+    for k in set(ia) & set(ib):
+        x, y = ia[k], ib[k]
+        if isinstance(x, tuple):
+            if x[0] == y[0]:
+                eqs.append(x[1] == y[1])
+        else:
+            eqs.append(x == y)
+    return eqs
+
+
 class Analysis:
-    def __init__(self, prog: C.Program, rules: list):
+    def __init__(self, prog: C.Program, rules: list, codes: dict | None = None):
         self.prog = prog
-        self.enc = Encoder(prog)
+        self.enc = Encoder(prog, codes)
         self.rules = rules
         self.paths = {r.id: path_formula(self.enc, r) for r in rules}
 
@@ -475,25 +509,7 @@ class Analysis:
             r, s = _check(side + conds)
             if r != z3.sat:
                 return None
-        m = s.model()
-        inv = {v: k for k, v in self.enc.codes.items()}
-        out = {}
-        for key, sym_v in sym.inputs.items():
-            if key.endswith("#numeric"):
-                val = m.eval(sym_v, model_completion=False)
-                if z3.is_true(val) or z3.is_false(val):
-                    out[key] = z3.is_true(val)
-                continue
-            kind, t = sym_v
-            val = m.eval(t, model_completion=False)
-            if not (z3.is_rational_value(val) or z3.is_int_value(val)):
-                continue
-            if kind == "num":
-                out[key] = Decimal(val.numerator_as_long()) / Decimal(val.denominator_as_long())
-            else:
-                code = val.as_long()
-                out[key] = inv.get(code)          # None: any text other than the program's literals
-        return out
+        return model_values(s.model(), sym.inputs, self.enc.codes)
 
     def overlaps(self) -> list:
         """Pairs of rules that some input satisfies together (should be empty)."""
@@ -509,16 +525,7 @@ class Analysis:
         return out
 
     def _same_inputs(self, a, b) -> list:
-        ia, ib = self.paths[a][1].inputs, self.paths[b][1].inputs
-        eqs = []
-        for k in set(ia) & set(ib):
-            x, y = ia[k], ib[k]
-            if isinstance(x, tuple):
-                if x[0] == y[0]:
-                    eqs.append(x[1] == y[1])
-            else:
-                eqs.append(x == y)
-        return eqs
+        return tie_inputs(self.paths[a][1].inputs, self.paths[b][1].inputs)
 
 
 def analyse(prog: C.Program, rules: list, pairwise: bool = True) -> dict:

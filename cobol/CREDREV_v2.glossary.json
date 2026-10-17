@@ -1,0 +1,18 @@
+{
+  "IN-ACCT": "account number",
+  "IN-LIMIT": "credit limit",
+  "IN-BILL": "latest statement",
+  "IN-PAID": "latest payment",
+  "IN-DELINQ": "months past due",
+  "IN-LATE-6M": "late months in the last six",
+  "WS-UTIL": {
+    "name": "utilisation",
+    "unit": "percent"
+  },
+  "WS-MIN-DUE": "minimum payment (10 percent of the statement)",
+  "WS-HIGH-LIMIT": "the 500,000 limit cap",
+  "WS-SEVERITY": "months past due",
+  "SEVERELY-LATE": "3 or more months past due",
+  "OUT-DECISION": "decision",
+  "OUT-REASON": "reason code"
+}

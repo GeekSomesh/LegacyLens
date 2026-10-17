@@ -315,12 +315,53 @@ function renderEvidence(res) {
   }
 }
 
+// ---------------------------------------------------------------- change impact
+function renderImpact(d) {
+  const p = d.portfolio;
+  const confirmed = d.regions.filter((r) => r.confirmed).length;
+  $("#imp-head").innerHTML = `<h2>Change impact: ${esc(d.old)} → ${esc(d.new)}</h2>
+    <p>Before a change to a critical policy goes live, LegacyLens shows exactly what it does. Rules are compared, z3 finds every
+    combination of old and new rule whose decision differs (with an example account for each), both compiled programs confirm the
+    examples, and both are run on the whole portfolio.</p>
+    <div class="stats">
+      ${stat(d.unchanged.length, "rules unchanged")}
+      ${stat(d.changed.length, "rules with changed tests")}
+      ${stat(d.added.length, "rules added")}
+      ${stat(d.removed.length, "rules removed")}
+      ${stat(d.regions.length, "regions where the outcome changes (z3)")}
+      ${stat(`${confirmed}/${d.regions.length}`, "confirmed by both compiled programs")}
+      ${stat(`${money(p.changed)} of ${money(p.accounts)}`, "accounts change outcome")}
+      ${stat(p.every_change_inside_a_z3_region ? "yes" : "no", "every change inside a z3 region")}
+    </div>`;
+  $("#imp-moves").innerHTML = `<h2>What changes for real accounts</h2>
+    <table><tr><th>From</th><th>To</th><th class="num">Accounts</th><th class="num">Defaulted next month</th></tr>
+    ${p.moves.map((m) => {
+      const rate = m.defaulted_next_month / m.accounts;
+      const softer = /^(DECREASE|BLOCK)/.test(m.from) && /^(REVIEW|KEEP|INCREASE)/.test(m.to);
+      return `<tr class="${softer && rate > 0.4 ? "alert" : ""}"><td>${esc(m.from)}</td><td>${esc(m.to)}</td><td class="num">${money(m.accounts)}</td><td class="num">${money(m.defaulted_next_month)} (${pct(rate)})</td></tr>`;
+    }).join("")}</table>
+    <p class="hint">Highlighted: the change makes the decision softer for a group where most accounts defaulted the next month.</p>`;
+  $("#imp-diff").innerHTML = `<h2>Source change</h2><pre class="diff">${d.diff.map((l) => {
+      const c = l.startsWith("+") && !l.startsWith("+++") ? "add" : l.startsWith("-") && !l.startsWith("---") ? "del" : l.startsWith("@@") ? "hunk" : "";
+      return `<span class="${c}">${esc(l)}</span>`;
+    }).join("")}</pre>`;
+  $("#imp-regions").innerHTML = `<h2>Regions where the decision changes (found by z3)</h2>
+    <table><tr><th>Old rule → new rule</th><th>Old outcome</th><th>New outcome</th><th>Example account (z3)</th><th>Compiled old → new</th></tr>
+    ${d.regions.map((r) => `<tr>
+      <td>${esc(r.old_rule)} → ${esc(r.new_rule)}</td>
+      <td>${esc(Object.values(r.old).join(" "))}</td><td>${esc(Object.values(r.new).join(" "))}</td>
+      <td class="mono">${r.example ? Object.entries(r.example).filter(([k]) => k !== "IN-ACCT").map(([k, v]) => `${esc(k)}=${esc(String(v))}`).join(" ") : "–"}</td>
+      <td class="mono">${r.compiled_old ? esc(r.compiled_old.split(" ").slice(1).join(" ")) + " → " + esc(r.compiled_new.split(" ").slice(1).join(" ")) + (r.confirmed ? " ✔" : " ✖") : "–"}</td></tr>`).join("")}
+    </table>`;
+}
+
 // ---------------------------------------------------------------- start
 (async function init() {
   const [prog, health, res] = await Promise.all([api("/api/program"), api("/api/health"), api("/api/results")]);
   program = prog;
   renderSource([]);
   renderEvidence(res);
+  api("/api/impact").then(renderImpact).catch(() => {});
   programs = await api("/api/programs");
   if (programs.length) await loadProgram(programs[0].name);
   const v = res.verification;

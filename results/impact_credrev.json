@@ -1,0 +1,402 @@
+{
+  "old": "CREDREV CREDREV.cbl",
+  "new": "CREDREV CREDREV_v2.cbl",
+  "decision_fields": [
+    "OUT-DECISION",
+    "OUT-REASON"
+  ],
+  "diff": [
+    "--- CREDREV.cbl",
+    "+++ CREDREV_v2.cbl",
+    "@@ -1,3 +1,3 @@",
+    "       *================================================================*",
+    "-      * CREDREV  - MONTHLY CREDIT LINE REVIEW                          *",
+    "+      * CREDREV  - MONTHLY CREDIT LINE REVIEW (VERSION 2)              *",
+    "       * Batch policy program. Reads a count, then one account summary  *",
+    "@@ -22,3 +22,3 @@",
+    "        01  WS-MIN-DUE            PIC 9(7).",
+    "-       01  WS-HIGH-LIMIT         PIC 9(7)  VALUE 500000.",
+    "+       01  WS-HIGH-LIMIT         PIC 9(7)  VALUE 400000.",
+    "        01  OUT-DECISION          PIC X(8).",
+    "@@ -56,3 +56,3 @@",
+    "            ELSE",
+    "-               IF IN-DELINQ >= 1 AND WS-UTIL > 90",
+    "+               IF IN-DELINQ >= 1 AND WS-UTIL > 85",
+    "                    MOVE 'REVIEW' TO OUT-DECISION",
+    "@@ -67,2 +67,5 @@",
+    "                            MOVE 'R04' TO OUT-REASON",
+    "+                       WHEN IN-PAID = 0 AND IN-BILL > 100000",
+    "+                           MOVE 'REVIEW' TO OUT-DECISION",
+    "+                           MOVE 'R07' TO OUT-REASON",
+    "                        WHEN IN-LATE-6M = 0 AND WS-UTIL < 30"
+  ],
+  "rules_old": 6,
+  "rules_new": 7,
+  "unchanged": [
+    [
+      "RULE-01",
+      "RULE-01"
+    ]
+  ],
+  "changed": [
+    {
+      "old": "RULE-02",
+      "new": "RULE-02",
+      "decision": {
+        "OUT-DECISION": "REVIEW",
+        "OUT-REASON": "R02"
+      },
+      "tests_removed": [
+        "IN-DELINQ >= 1 AND WS-UTIL > 90"
+      ],
+      "tests_added": [
+        "IN-DELINQ >= 1 AND WS-UTIL > 85"
+      ]
+    },
+    {
+      "old": "RULE-03",
+      "new": "RULE-03",
+      "decision": {
+        "OUT-DECISION": "DECREASE",
+        "OUT-REASON": "R03"
+      },
+      "tests_removed": [
+        "IN-DELINQ < 1 OR WS-UTIL <= 90"
+      ],
+      "tests_added": [
+        "IN-DELINQ < 1 OR WS-UTIL <= 85"
+      ]
+    },
+    {
+      "old": "RULE-04",
+      "new": "RULE-04",
+      "decision": {
+        "OUT-DECISION": "REVIEW",
+        "OUT-REASON": "R04"
+      },
+      "tests_removed": [
+        "IN-DELINQ < 1 OR WS-UTIL <= 90"
+      ],
+      "tests_added": [
+        "IN-DELINQ < 1 OR WS-UTIL <= 85"
+      ]
+    },
+    {
+      "old": "RULE-05",
+      "new": "RULE-06",
+      "decision": {
+        "OUT-DECISION": "INCREASE",
+        "OUT-REASON": "R05"
+      },
+      "tests_removed": [
+        "IN-DELINQ < 1 OR WS-UTIL <= 90"
+      ],
+      "tests_added": [
+        "IN-DELINQ < 1 OR WS-UTIL <= 85",
+        "IN-PAID <> 0 OR IN-BILL <= 100000"
+      ]
+    },
+    {
+      "old": "RULE-06",
+      "new": "RULE-07",
+      "decision": {
+        "OUT-DECISION": "KEEP",
+        "OUT-REASON": "R06"
+      },
+      "tests_removed": [
+        "IN-DELINQ < 1 OR WS-UTIL <= 90"
+      ],
+      "tests_added": [
+        "IN-DELINQ < 1 OR WS-UTIL <= 85",
+        "IN-PAID <> 0 OR IN-BILL <= 100000"
+      ]
+    }
+  ],
+  "removed": [],
+  "added": [
+    {
+      "new": "RULE-05",
+      "decision": {
+        "OUT-DECISION": "REVIEW",
+        "OUT-REASON": "R07"
+      },
+      "tests": [
+        "NOT SEVERELY-LATE",
+        "IN-DELINQ < 1 OR WS-UTIL <= 85",
+        "IN-LATE-6M < 3",
+        "IN-PAID >= WS-MIN-DUE OR WS-UTIL <= 80",
+        "IN-PAID = 0 AND IN-BILL > 100000"
+      ]
+    }
+  ],
+  "regions": [
+    {
+      "old_rule": "RULE-03",
+      "new_rule": "RULE-02",
+      "status": "sat",
+      "old": {
+        "OUT-DECISION": "DECREASE",
+        "OUT-REASON": "R03"
+      },
+      "new": {
+        "OUT-DECISION": "REVIEW",
+        "OUT-REASON": "R02"
+      },
+      "old_conditions": [
+        "NOT SEVERELY-LATE",
+        "IN-DELINQ < 1 OR WS-UTIL <= 90",
+        "IN-LATE-6M >= 3"
+      ],
+      "new_conditions": [
+        "NOT SEVERELY-LATE",
+        "IN-DELINQ >= 1 AND WS-UTIL > 85"
+      ],
+      "example": {
+        "IN-ACCT": "0",
+        "IN-LIMIT": "10",
+        "IN-BILL": "9",
+        "IN-PAID": "0",
+        "IN-DELINQ": "2",
+        "IN-LATE-6M": "3"
+      },
+      "record": "00000100000100000009000000023",
+      "compiled_old": "000001 DECREASE R03 00090",
+      "compiled_new": "000001 REVIEW   R02 00090",
+      "confirmed": true
+    },
+    {
+      "old_rule": "RULE-04",
+      "new_rule": "RULE-02",
+      "status": "sat",
+      "old": {
+        "OUT-DECISION": "REVIEW",
+        "OUT-REASON": "R04"
+      },
+      "new": {
+        "OUT-DECISION": "REVIEW",
+        "OUT-REASON": "R02"
+      },
+      "old_conditions": [
+        "NOT SEVERELY-LATE",
+        "IN-DELINQ < 1 OR WS-UTIL <= 90",
+        "IN-LATE-6M < 3",
+        "IN-PAID < WS-MIN-DUE AND WS-UTIL > 80"
+      ],
+      "new_conditions": [
+        "NOT SEVERELY-LATE",
+        "IN-DELINQ >= 1 AND WS-UTIL > 85"
+      ],
+      "example": {
+        "IN-ACCT": "1",
+        "IN-LIMIT": "10488",
+        "IN-BILL": "9177",
+        "IN-PAID": "1",
+        "IN-DELINQ": "1",
+        "IN-LATE-6M": "1"
+      },
+      "record": "00000100104880009177000000111",
+      "compiled_old": "000001 REVIEW   R04 00087",
+      "compiled_new": "000001 REVIEW   R02 00087",
+      "confirmed": true
+    },
+    {
+      "old_rule": "RULE-05",
+      "new_rule": "RULE-05",
+      "status": "sat",
+      "old": {
+        "OUT-DECISION": "INCREASE",
+        "OUT-REASON": "R05"
+      },
+      "new": {
+        "OUT-DECISION": "REVIEW",
+        "OUT-REASON": "R07"
+      },
+      "old_conditions": [
+        "NOT SEVERELY-LATE",
+        "IN-DELINQ < 1 OR WS-UTIL <= 90",
+        "IN-LATE-6M < 3",
+        "IN-PAID >= WS-MIN-DUE OR WS-UTIL <= 80",
+        "IN-LATE-6M = 0 AND WS-UTIL < 30 AND IN-LIMIT < WS-HIGH-LIMIT"
+      ],
+      "new_conditions": [
+        "NOT SEVERELY-LATE",
+        "IN-DELINQ < 1 OR WS-UTIL <= 85",
+        "IN-LATE-6M < 3",
+        "IN-PAID >= WS-MIN-DUE OR WS-UTIL <= 80",
+        "IN-PAID = 0 AND IN-BILL > 100000"
+      ],
+      "example": {
+        "IN-ACCT": "1",
+        "IN-LIMIT": "497",
+        "IN-BILL": "497000",
+        "IN-PAID": "0",
+        "IN-DELINQ": "1",
+        "IN-LATE-6M": "0"
+      },
+      "record": "00000100004970497000000000010",
+      "compiled_old": "000001 INCREASE R05 00000",
+      "compiled_new": "000001 REVIEW   R07 00000",
+      "confirmed": true
+    },
+    {
+      "old_rule": "RULE-05",
+      "new_rule": "RULE-07",
+      "status": "sat",
+      "old": {
+        "OUT-DECISION": "INCREASE",
+        "OUT-REASON": "R05"
+      },
+      "new": {
+        "OUT-DECISION": "KEEP",
+        "OUT-REASON": "R06"
+      },
+      "old_conditions": [
+        "NOT SEVERELY-LATE",
+        "IN-DELINQ < 1 OR WS-UTIL <= 90",
+        "IN-LATE-6M < 3",
+        "IN-PAID >= WS-MIN-DUE OR WS-UTIL <= 80",
+        "IN-LATE-6M = 0 AND WS-UTIL < 30 AND IN-LIMIT < WS-HIGH-LIMIT"
+      ],
+      "new_conditions": [
+        "NOT SEVERELY-LATE",
+        "IN-DELINQ < 1 OR WS-UTIL <= 85",
+        "IN-LATE-6M < 3",
+        "IN-PAID >= WS-MIN-DUE OR WS-UTIL <= 80",
+        "IN-PAID <> 0 OR IN-BILL <= 100000",
+        "IN-LATE-6M <> 0 OR WS-UTIL >= 30 OR IN-LIMIT >= WS-HIGH-LIMIT"
+      ],
+      "example": {
+        "IN-ACCT": "0",
+        "IN-LIMIT": "400000",
+        "IN-BILL": "0",
+        "IN-PAID": "1",
+        "IN-DELINQ": "0",
+        "IN-LATE-6M": "0"
+      },
+      "record": "00000104000000000000000000100",
+      "compiled_old": "000001 INCREASE R05 00000",
+      "compiled_new": "000001 KEEP     R06 00000",
+      "confirmed": true
+    },
+    {
+      "old_rule": "RULE-06",
+      "new_rule": "RULE-02",
+      "status": "sat",
+      "old": {
+        "OUT-DECISION": "KEEP",
+        "OUT-REASON": "R06"
+      },
+      "new": {
+        "OUT-DECISION": "REVIEW",
+        "OUT-REASON": "R02"
+      },
+      "old_conditions": [
+        "NOT SEVERELY-LATE",
+        "IN-DELINQ < 1 OR WS-UTIL <= 90",
+        "IN-LATE-6M < 3",
+        "IN-PAID >= WS-MIN-DUE OR WS-UTIL <= 80",
+        "IN-LATE-6M <> 0 OR WS-UTIL >= 30 OR IN-LIMIT >= WS-HIGH-LIMIT"
+      ],
+      "new_conditions": [
+        "NOT SEVERELY-LATE",
+        "IN-DELINQ >= 1 AND WS-UTIL > 85"
+      ],
+      "example": {
+        "IN-ACCT": "0",
+        "IN-LIMIT": "1000",
+        "IN-BILL": "870",
+        "IN-PAID": "87",
+        "IN-DELINQ": "2",
+        "IN-LATE-6M": "1"
+      },
+      "record": "00000100010000000870000008721",
+      "compiled_old": "000001 KEEP     R06 00087",
+      "compiled_new": "000001 REVIEW   R02 00087",
+      "confirmed": true
+    },
+    {
+      "old_rule": "RULE-06",
+      "new_rule": "RULE-05",
+      "status": "sat",
+      "old": {
+        "OUT-DECISION": "KEEP",
+        "OUT-REASON": "R06"
+      },
+      "new": {
+        "OUT-DECISION": "REVIEW",
+        "OUT-REASON": "R07"
+      },
+      "old_conditions": [
+        "NOT SEVERELY-LATE",
+        "IN-DELINQ < 1 OR WS-UTIL <= 90",
+        "IN-LATE-6M < 3",
+        "IN-PAID >= WS-MIN-DUE OR WS-UTIL <= 80",
+        "IN-LATE-6M <> 0 OR WS-UTIL >= 30 OR IN-LIMIT >= WS-HIGH-LIMIT"
+      ],
+      "new_conditions": [
+        "NOT SEVERELY-LATE",
+        "IN-DELINQ < 1 OR WS-UTIL <= 85",
+        "IN-LATE-6M < 3",
+        "IN-PAID >= WS-MIN-DUE OR WS-UTIL <= 80",
+        "IN-PAID = 0 AND IN-BILL > 100000"
+      ],
+      "example": {
+        "IN-ACCT": "0",
+        "IN-LIMIT": "9966778",
+        "IN-BILL": "3000000",
+        "IN-PAID": "0",
+        "IN-DELINQ": "0",
+        "IN-LATE-6M": "1"
+      },
+      "record": "00000199667783000000000000001",
+      "compiled_old": "000001 KEEP     R06 00030",
+      "compiled_new": "000001 REVIEW   R07 00030",
+      "confirmed": true
+    }
+  ],
+  "portfolio": {
+    "accounts": 30000,
+    "changed": 1039,
+    "moves": [
+      {
+        "from": "INCREASE (R05)",
+        "to": "KEEP (R06)",
+        "accounts": 706,
+        "defaulted_next_month": 61
+      },
+      {
+        "from": "DECREASE (R03)",
+        "to": "REVIEW (R02)",
+        "accounts": 200,
+        "defaulted_next_month": 116
+      },
+      {
+        "from": "REVIEW (R04)",
+        "to": "REVIEW (R02)",
+        "accounts": 79,
+        "defaulted_next_month": 50
+      },
+      {
+        "from": "KEEP (R06)",
+        "to": "REVIEW (R07)",
+        "accounts": 44,
+        "defaulted_next_month": 14
+      },
+      {
+        "from": "KEEP (R06)",
+        "to": "REVIEW (R02)",
+        "accounts": 10,
+        "defaulted_next_month": 7
+      }
+    ],
+    "by_rule_pair": {
+      "RULE-05 -> RULE-07": 706,
+      "RULE-06 -> RULE-05": 44,
+      "RULE-03 -> RULE-02": 200,
+      "RULE-04 -> RULE-02": 79,
+      "RULE-06 -> RULE-02": 10
+    },
+    "every_change_inside_a_z3_region": true,
+    "decision_changed": 960
+  }
+}

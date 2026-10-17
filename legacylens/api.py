@@ -230,6 +230,14 @@ def program_detail(name: str):
     return data
 
 
+@app.get("/api/impact")
+def impact_report():
+    f = ROOT / "results" / "impact_credrev.json"
+    if not f.exists():
+        raise HTTPException(404, "no impact report")
+    return json.loads(f.read_text())
+
+
 @app.get("/api/results")
 def results():
     out = {}
