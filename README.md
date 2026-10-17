@@ -14,7 +14,7 @@ LegacyLens reads legacy COBOL, turns every decision path into a readable rule, *
 | Defects found, each with a reproducible example | IBM SAM1: **5** · IBM SAM2: a debit stored as a credit, balances silently losing high-order digits · our own programs: a utilisation and a spend ratio that wrap to small numbers |
 | Change impact (CREDREV v1 → v2) | 6 changed-decision regions found by z3, **6/6 confirmed** by both compiled programs; 1,039 of 30,000 accounts change outcome, all inside a predicted region |
 | DMN 1.3 export | schema-valid; the exported model matches the compiled COBOL on **35,262 / 35,262** (CREDREV) and **25,192 / 25,192** (FRAUDHLD) |
-| Fault injection | MUTATION_GLANCE |
+| Fault injection (bugs planted in the COBOL) | CREDREV: **72 of 72** behaviour-changing mutants caught (70 by the tests, 2 more by z3 with an example); IBM SAM2: **19 of 19** caught, 18 more proved harmless by z3 |
 | AI on the credit policy (4,501 held-out accounts) | keeps **57%** of defaulters from getting a limit increase |
 | Speed on the z17 | ONNX risk score **15 µs** on the AI accelerator; whole portfolio **125,000 decisions/s**; one API decision **4.8 ms** |
 
@@ -181,7 +181,16 @@ The models are in `results/dmn/` and downloadable from the program explorer. Der
 
 ### 6. Fault injection
 
-MUTATION_SECTION
+Small bugs were planted in the PROCEDURE DIVISION, one at a time: a comparison operator, AND/OR, a numeric or text literal, an arithmetic sign, or a removed MOVE (`scripts/mutation.py`, `results/mutation.json`). For each mutant that compiles, LegacyLens checks whether the rules extracted from the *original* program still match the compiled *mutant* (the drift a code change causes), and runs the z3 change-impact analysis between the two.
+
+| Program | Mutants | Compiled | Caught by the tests | Caught by z3 only (with an example) | Proved harmless by z3 | Missed |
+|---|---|---|---|---|---|---|
+| CREDREV | 80 | 74 | 70 | 2 | 2 | **0** |
+| IBM SAM2 | 50 | 37 | 19 | 0 | 18 | **0** |
+
+The two CREDREV bugs the tests missed are boundary changes (`500000` → `499999`, `<` → `<=`) that only one exact value reveals; z3 finds them and gives that value. The 18 harmless SAM2 mutants change values SAM2 computes but never returns (its CPU-burning CRUNCH loop). The mutants that do not compile are mostly edits to paragraph names and level numbers.
+
+Re-extracting the rules from each compiled mutant reproduces it exactly in 62 of 74 (CREDREV) and 35 of 37 (SAM2) cases. Every other case is one where the mutant's output no longer follows from the current record: a removed MOVE leaves a decision unset, so the result depends on the previous record (flagged by the history check); a division can be reached with a zero divisor; or the mutant sends inputs down a path that reads a numeric field holding text (undefined in COBOL). LegacyLens reports these instead of guessing.
 
 ### 7. Risk model (4,501 held-out test accounts)
 

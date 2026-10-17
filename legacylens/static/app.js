@@ -265,6 +265,31 @@ function renderEvidence(res) {
       ${Object.entries(dm).filter(([, x]) => x.exported).map(([k, x]) => `<tr><td><a href="/api/programs/${esc(k)}/dmn" download>${esc(k)}.dmn</a></td><td class="num">${x.rows}</td><td>${x.schema_valid ? "valid" : "invalid"}</td><td class="num">${money(x.agree_with_compiled_cobol)}/${money(x.records)}</td></tr>`).join("")}</table>`;
   }
   const mu = res.mutation;
+  if (mu && mu.report) {
+    const rows = Object.entries(mu.report).map(([k, x]) => `<tr><td>${esc(k.toUpperCase())}</td><td class="num">${money(x.mutants)}</td>
+        <td class="num">${money(x.compiled)}</td><td class="num">${money(x.detected_by_tests)}</td><td class="num">${money(x.found_by_z3_only)}</td>
+        <td class="num">${money(x.proved_equivalent)}</td><td class="num">${money(x.missed_by_both)}</td></tr>`).join("");
+    $("#ev-mutation").innerHTML = `<h2>Fault injection</h2>
+      <p>Small bugs planted in the COBOL, one at a time (a comparison, connector, literal, arithmetic sign or MOVE). A bug is caught when the rules
+      extracted from the original program disagree with the compiled mutant on the tests, or when z3's change-impact analysis finds an input whose
+      decision changes. <em>Proved harmless</em>: z3 shows no decision can change.</p>
+      <table><tr><th>Program</th><th class="num">Mutants</th><th class="num">Compiled</th><th class="num">Caught by tests</th><th class="num">Caught by z3 only</th><th class="num">Proved harmless</th><th class="num">Missed</th></tr>${rows}</table>`;
+  }
+  const fr = res.fraud_verification;
+  if (fr) {
+    $("#ev-fraud").innerHTML = `<h2>Second program: FRAUDHLD</h2>
+      <p>A real-time card authorisation fraud screen (written for LegacyLens) with a high-risk country table built through REDEFINES and OCCURS.
+      Its ${fr.rules} rules give the same output line as the compiled program on <strong>${money(fr.records)}</strong> requests (${pct(fr.agreement)}).</p>
+      <table>${Object.entries(fr.per_rule).map(([k, n]) => `<tr><td>${esc(k)}</td><td class="num">${money(n)}</td></tr>`).join("")}</table>`;
+  }
+  const dm = res.dmn;
+  if (dm) {
+    $("#ev-dmn").innerHTML = `<h2>DMN 1.3 export</h2>
+      <p>The rules exported as standard DMN decision models, validated against the OMG schema, and run against the compiled program.</p>
+      <table><tr><th>Program</th><th class="num">Rows</th><th>Schema</th><th class="num">DMN = COBOL</th></tr>
+      ${Object.entries(dm).filter(([, x]) => x.exported).map(([k, x]) => `<tr><td><a href="/api/programs/${esc(k)}/dmn" download>${esc(k)}.dmn</a></td><td class="num">${x.rows}</td><td>${x.schema_valid ? "valid" : "invalid"}</td><td class="num">${money(x.agree_with_compiled_cobol)}/${money(x.records)}</td></tr>`).join("")}</table>`;
+  }
+  const mu = res.mutation;
   if (mu && mu.summary) {
     const rows = Object.entries(mu.summary).map(([k, x]) => {
       const live = x.mutants - x["does not compile"];
