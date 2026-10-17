@@ -275,34 +275,6 @@ function renderEvidence(res) {
       decision changes. <em>Proved harmless</em>: z3 shows no decision can change.</p>
       <table><tr><th>Program</th><th class="num">Mutants</th><th class="num">Compiled</th><th class="num">Caught by tests</th><th class="num">Caught by z3 only</th><th class="num">Proved harmless</th><th class="num">Missed</th></tr>${rows}</table>`;
   }
-  const fr = res.fraud_verification;
-  if (fr) {
-    $("#ev-fraud").innerHTML = `<h2>Second program: FRAUDHLD</h2>
-      <p>A real-time card authorisation fraud screen (written for LegacyLens) with a high-risk country table built through REDEFINES and OCCURS.
-      Its ${fr.rules} rules give the same output line as the compiled program on <strong>${money(fr.records)}</strong> requests (${pct(fr.agreement)}).</p>
-      <table>${Object.entries(fr.per_rule).map(([k, n]) => `<tr><td>${esc(k)}</td><td class="num">${money(n)}</td></tr>`).join("")}</table>`;
-  }
-  const dm = res.dmn;
-  if (dm) {
-    $("#ev-dmn").innerHTML = `<h2>DMN 1.3 export</h2>
-      <p>The rules exported as standard DMN decision models, validated against the OMG schema, and run against the compiled program.</p>
-      <table><tr><th>Program</th><th class="num">Rows</th><th>Schema</th><th class="num">DMN = COBOL</th></tr>
-      ${Object.entries(dm).filter(([, x]) => x.exported).map(([k, x]) => `<tr><td><a href="/api/programs/${esc(k)}/dmn" download>${esc(k)}.dmn</a></td><td class="num">${x.rows}</td><td>${x.schema_valid ? "valid" : "invalid"}</td><td class="num">${money(x.agree_with_compiled_cobol)}/${money(x.records)}</td></tr>`).join("")}</table>`;
-  }
-  const mu = res.mutation;
-  if (mu && mu.summary) {
-    const rows = Object.entries(mu.summary).map(([k, x]) => {
-      const live = x.mutants - x["does not compile"];
-      return `<tr><td>${esc(k.toUpperCase())}</td><td class="num">${money(x.mutants)}</td><td class="num">${money(live)}</td>
-        <td class="num">${money(x.detected)}</td><td class="num">${money(x.equivalent)}</td><td class="num">${money(x.missed)}</td>
-        <td class="num">${money(x.re_extraction_exact)}/${money(x.re_extraction_programs)}</td></tr>`;
-    }).join("");
-    $("#ev-mutation").innerHTML = `<h2>Fault injection</h2>
-      <p>Small bugs planted in the COBOL (one comparison, connector, literal, arithmetic sign or statement at a time). <em>Detected</em>: the rules
-      extracted from the original program disagree with the compiled mutant. <em>Equivalent</em>: z3 proves no decision can change, so no test could see it.
-      <em>Missed</em>: neither. Then the rules are extracted again from each mutant and checked against it.</p>
-      <table><tr><th>Program</th><th class="num">Mutants</th><th class="num">Compiled</th><th class="num">Detected</th><th class="num">Equivalent (z3)</th><th class="num">Missed</th><th class="num">Re-extracted rules exact</th></tr>${rows}</table>`;
-  }
   const s1 = res.ibm_sam1;
   if (s1) {
     $("#ev-sam1").innerHTML = `<h2>IBM SAM1, whole file runs</h2>
