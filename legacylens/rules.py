@@ -552,6 +552,8 @@ class State:
             if f.parent is None and f.section != "linkage" and not f.redefines:
                 self._init(f)
         self.at_end = {}
+        self.warnings = []
+        self.line = 0
         self.files = {}
         for name, recs in (files or {}).items():
             self.files[name] = {"in": list(recs), "pos": 0, "out": []}
@@ -586,6 +588,7 @@ class State:
         s.prog, s.callees = self.prog, self.callees
         s.mem = {k: bytearray(v) for k, v in self.mem.items()}
         s.at_end = dict(self.at_end)
+        s.warnings, s.line = [], self.line
         s.files = {k: {"in": v["in"], "pos": v["pos"], "out": list(v["out"])} for k, v in self.files.items()}
         return s
 
@@ -601,11 +604,22 @@ class State:
         if ref.subs:
             if len(ref.subs) != len(f.dims):
                 raise SizeError(f"{ref.name}: {len(f.dims)} subscripts needed")
+            out_of_range = []
             for (stride, n), sub in zip(f.dims, ref.subs):
                 k = int(self.value(sub))
                 if not 1 <= k <= n:
-                    raise SizeError(f"{ref.name}: subscript {k} out of range 1-{n}")
+                    out_of_range.append((k, n))
                 off += (k - 1) * stride
+            if out_of_range:
+                # GnuCOBOL does not check subscripts by default: the access lands at the
+                # computed offset. Allowed while it stays inside the record; reported.
+                buf = self.mem.get(f.record)
+                if buf is None or off < 0 or off + f.length > len(buf):
+                    raise SizeError(f"{ref.name}: subscript {out_of_range[0][0]} outside the record")
+                msg = (f"line {self.line}: {ref.name}({out_of_range[0][0]}) is outside the table "
+                       f"(1-{out_of_range[0][1]}); bytes of the next field are used")
+                if msg not in self.warnings:
+                    self.warnings.append(msg)
         length = f.length
         if ref.refmod:
             start = int(self.value(ref.refmod[0]))
@@ -773,6 +787,7 @@ class State:
 
     def execute(self, stmts, inputs=None, out=None):
         for s in stmts:
+            self.line = getattr(s, "line", self.line)
             if isinstance(s, C.Move):
                 val = self.value(s.source)
                 txt = self.move_text(s.source)
@@ -823,10 +838,13 @@ class State:
                     cn = self.prog.conds[n]
                     self.set(C.Ref(cn.field), cn.values[0][0])
             elif isinstance(s, C.Open):
-                for _, f in s.files:
+                for mode, f in s.files:
                     st = self.prog.files.get(f, {}).get("status")
-                    if f in self.files:
-                        self.files[f]["pos"] = 0
+                    if mode in ("OUTPUT", "EXTEND") or f in self.files:
+                        entry = self.files.setdefault(f, {"in": [], "pos": 0, "out": []})
+                        entry["pos"] = 0
+                        if mode == "OUTPUT":
+                            entry["out"] = []
                         self.at_end[f] = False
                         if st:
                             self.set(C.Ref(st), "00")
@@ -889,7 +907,9 @@ class State:
         callee = self.callees.get(name)
         if callee is None:
             raise ValueError(f"line {s.line}: CALL {name}: program not available")
-        st = State(callee, self.callees)
+        # a called program keeps its WORKING-STORAGE between calls (until CANCEL)
+        loaded = self.__dict__.setdefault("_loaded", {})
+        st = loaded.get(name) or loaded.setdefault(name, State(callee, self.callees))
         for param, arg in zip(callee.using, s.args):
             buf, off, ln, _ = self.locate(arg)
             st.bind(callee.fields[param].record, memoryview(buf)[off:off + ln])

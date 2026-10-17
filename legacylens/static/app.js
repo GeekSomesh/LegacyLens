@@ -74,7 +74,9 @@ function renderProgram() {
       ${stat(z.conditions_removed, "redundant conditions removed")}
       ${stat(z.all_proved ? "proved" : "not proved", "simplified = original (z3)")}
       ${z.overlaps === null ? "" : stat(z.overlaps.length === 0 ? "none" : z.overlaps.length, "overlapping rules (z3)")}
-      ${v ? stat(v.agree === v.cases ? "100%" : ((100 * v.agree) / v.cases).toFixed(2) + "%", `rules = compiled COBOL on ${v.cases.toLocaleString()} inputs`) : stat("static", "not run against the compiled program")}
+      ${v ? stat(v.agree === v.cases ? "100%" : ((100 * v.agree) / v.cases).toFixed(2) + "%",
+          v.kind === "rules" ? `rules = compiled COBOL on ${v.cases.toLocaleString()} inputs`
+                             : `model = compiled COBOL on ${v.cases.toLocaleString()} file runs`) : stat("static", "not run against the compiled program")}
     </div>
     ${p.findings.length ? `<h3>Findings for review</h3>` + p.findings.map((f) => `<div class="finding"><b>${esc(f.kind)}</b> · ${esc(f.message)} <span class="muted">line ${f.lines.join(", ")}</span></div>`).join("") : ""}`;
   $("#rules-hint").textContent = `${p.rules.length} rules · click one to see its lines`;

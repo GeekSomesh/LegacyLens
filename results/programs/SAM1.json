@@ -3863,8 +3863,31 @@
     357
    ],
    "message": "CUSTOMER-FILE-OUT is opened (line 357) but never closed"
+  },
+  {
+   "kind": "found while running",
+   "lines": [
+    329
+   ],
+   "message": "line 329: WS-CUST-MONTH(13) is outside the table (1-12); bytes of the next field are used (142 of 301 runs)"
+  },
+  {
+   "kind": "found while running",
+   "lines": [],
+   "message": "arithmetic on a numeric field that holds text (undefined in COBOL): an UPDATE transaction for a contact record ('C') reaches SAM2, which treats it as a customer record (1 of 301 runs)"
   }
  ],
- "verification": null,
- "seconds": 3.9
+ "verification": {
+  "cases": 300,
+  "agree": 300,
+  "sets": {
+   "file runs (defined)": {
+    "cases": 300,
+    "agree": 300
+   }
+  },
+  "platform": "s390x",
+  "kind": "program model on whole file runs"
+ },
+ "seconds": 4.0
 }

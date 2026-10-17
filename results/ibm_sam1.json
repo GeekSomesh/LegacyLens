@@ -1,0 +1,30 @@
+{
+  "program": "SAM1 (calls SAM2)",
+  "platform": "s390x",
+  "runs": 301,
+  "agree": 300,
+  "parts": {
+    "custout": 300,
+    "report": 300,
+    "display": 300,
+    "rc": 300
+  },
+  "examples": [],
+  "transactions": 1607,
+  "customers": 1485,
+  "runtime_findings": {
+    "line 329: WS-CUST-MONTH(13) is outside the table (1-12); bytes of the next field are used": 142,
+    "arithmetic on a numeric field that holds text (undefined in COBOL): an UPDATE transaction for a contact record ('C') reaches SAM2, which treats it as a customer record": 1
+  },
+  "undefined": 1,
+  "defined_runs": 300,
+  "agreement": 1.0,
+  "compiled_seconds": 0.64,
+  "model_seconds": 0.56,
+  "sets": {
+    "file runs (defined)": {
+      "cases": 300,
+      "agree": 300
+    }
+  }
+}

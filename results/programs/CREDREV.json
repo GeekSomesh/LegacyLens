@@ -809,7 +809,8 @@
     "engine_seconds": 0.594
    }
   },
-  "platform": "s390x"
+  "platform": "s390x",
+  "kind": "rules"
  },
- "seconds": 4.29
+ "seconds": 4.32
 }

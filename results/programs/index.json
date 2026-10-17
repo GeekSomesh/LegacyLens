@@ -12,7 +12,7 @@
    "all_proved": true,
    "overlaps": []
   },
-  "seconds": 4.29,
+  "seconds": 4.32,
   "rules": 6,
   "findings": 0,
   "lines_of_code": 64,
@@ -34,7 +34,7 @@
    "all_proved": true,
    "overlaps": []
   },
-  "seconds": 6.2,
+  "seconds": 6.34,
   "rules": 17,
   "findings": 0,
   "lines_of_code": 119,
@@ -56,10 +56,13 @@
    "all_proved": true,
    "overlaps": null
   },
-  "seconds": 3.9,
+  "seconds": 4.0,
   "rules": 28,
-  "findings": 3,
+  "findings": 5,
   "lines_of_code": 417,
-  "verified": null
+  "verified": {
+   "cases": 300,
+   "agree": 300
+  }
  }
 ]

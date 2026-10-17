@@ -500,7 +500,7 @@ def _split_entries(code_lines: list) -> list:
     return entries
 
 
-ENTRY_TOKS = re.compile(r"'[^']*'|\"[^\"]*\"|[^\s,]+")
+ENTRY_TOKS = re.compile(r"'[^']*'|\"[^\"]*\"|[^\s]+")
 CLAUSE_WORDS = {"PIC", "PICTURE", "VALUE", "VALUES", "OCCURS", "REDEFINES", "USAGE", "COMP", "COMP-1",
                 "COMP-2", "COMP-3", "COMP-4", "COMP-5", "COMPUTATIONAL", "COMPUTATIONAL-3",
                 "COMPUTATIONAL-4", "COMPUTATIONAL-5", "BINARY", "PACKED-DECIMAL", "DISPLAY", "INDEX",
@@ -578,7 +578,8 @@ def parse_data(code_lines: list, diagnostics: list, files: dict):
             files.setdefault(current_file, {"assign": current_file, "status": None,
                                             "organization": "SEQUENTIAL", "records": []})
             continue
-        toks = ENTRY_TOKS.findall(entry)
+        toks = [t if t[:1] in "'\"" else t.rstrip(",;") for t in ENTRY_TOKS.findall(entry)]
+        toks = [t for t in toks if t]
         if not toks or not toks[0].isdigit():
             continue
         level = int(toks[0])

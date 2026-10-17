@@ -2571,7 +2571,7 @@
     "defined": 4506,
     "agreement_on_defined": 1.0,
     "cobol_seconds": 0.04,
-    "engine_seconds": 1.24
+    "engine_seconds": 1.25
    },
    "random": {
     "cases": 3000,
@@ -2582,10 +2582,11 @@
     "defined": 3000,
     "agreement_on_defined": 1.0,
     "cobol_seconds": 0.04,
-    "engine_seconds": 1.26
+    "engine_seconds": 1.27
    }
   },
-  "platform": "s390x"
+  "platform": "s390x",
+  "kind": "rules"
  },
- "seconds": 6.2
+ "seconds": 6.34
 }

@@ -3,6 +3,7 @@
     python scripts/analyse_programs.py      # results/programs/<NAME>.json and index.json
 """
 import json
+import re
 import sys
 import time
 from decimal import Decimal
@@ -20,7 +21,8 @@ PROGRAMS = [
     {"name": "SAM2", "source": IBM / "COBOL" / "SAM2.cbl", "copy": [IBM / "COPYBOOK"],
      "origin": "IBM zopeneditor-sample (Apache-2.0): customer update subroutine", "verification": "ibm_sam2.json"},
     {"name": "SAM1", "source": IBM / "COBOL" / "SAM1.cbl", "copy": [IBM / "COPYBOOK"],
-     "origin": "IBM zopeneditor-sample (Apache-2.0): batch customer file update", "verification": "ibm_sam1.json"},
+     "origin": "IBM zopeneditor-sample (Apache-2.0): batch customer file update", "verification": "ibm_sam1.json",
+     "kind": "program model on whole file runs"},
 ]
 
 
@@ -59,7 +61,12 @@ def main():
             sets = v.get("sets", {})
             total = sum(s.get("records", s.get("cases", 0)) for s in sets.values())
             agree = sum(s.get("agree", 0) for s in sets.values())
-            verification = {"cases": total, "agree": agree, "sets": sets, "platform": v.get("platform")}
+            verification = {"cases": total, "agree": agree, "sets": sets, "platform": v.get("platform"),
+                            "kind": spec.get("kind", "rules")}
+            for msg, n in v.get("runtime_findings", {}).items():
+                line = re.match(r"line (\d+):", msg)
+                found.append({"kind": "found while running", "lines": [int(line.group(1))] if line else [],
+                              "message": f"{msg} ({n} of {v.get('runs', n)} runs)"})
         data = {
             "name": prog.name, "origin": spec["origin"], "path": str(Path(spec["source"]).relative_to(ROOT)),
             "lines": [{"no": n, "text": t} for n, t in prog.lines],
