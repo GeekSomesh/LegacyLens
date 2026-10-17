@@ -34,33 +34,85 @@ function renderSource(lines) {
   $("#source-hint").textContent = lines && lines.length ? `highlighted: lines ${lines.join(", ")}` : "";
 }
 
-function renderRules() {
-  $("#rules-hint").textContent =
-    `Decision paragraph ${program.entry}; decision fields ${program.decision_fields.join(", ")}. ` +
-    `Each rule is one path through the code. Click a rule to see its lines.`;
-  $("#rules").innerHTML = program.rules
+// ---------------------------------------------------------------- programs
+let programs = [];
+let current = null;
+
+function renderProgramTabs() {
+  $("#prog-tabs").innerHTML = programs
+    .map((p) => `<button role="tab" data-prog="${esc(p.name)}" aria-selected="${current && current.name === p.name}">
+        <strong>${esc(p.name)}</strong><small>${esc(p.origin)}</small></button>`)
+    .join("");
+  document.querySelectorAll("[data-prog]").forEach((b) => b.addEventListener("click", () => loadProgram(b.dataset.prog)));
+}
+
+function renderProgSource(lines) {
+  const hit = new Set(lines || []);
+  $("#prog-source").innerHTML = current.lines
+    .map((l) => `<span class="ln${hit.has(l.no) ? " hit" : ""}"><span class="no">${l.no}</span>${esc(l.text)}</span>`)
+    .join("");
+  const first = $("#prog-source .hit");
+  if (first) $("#prog-source").scrollTop = first.offsetTop - 80;
+}
+
+function stat(value, label) {
+  return `<div class="stat"><b>${value}</b><span>${esc(label)}</span></div>`;
+}
+
+function renderProgram() {
+  const p = current;
+  const v = p.verification;
+  const z = p.z3;
+  $("#prog-head").innerHTML = `
+    <h2>${esc(p.name)} <span class="hint">${esc(p.path)}${p.copybooks.length ? " · copybooks " + p.copybooks.map(esc).join(", ") : ""}</span></h2>
+    <p class="hint">${esc(p.origin)}. Rules are ${p.mode === "whole program" ? "paths through the whole decision logic" : "per decision statement, with PERFORMed paragraphs shown as routing"}; decision fields: ${p.decision_fields.map(esc).join(", ")}.</p>
+    <div class="stats">
+      ${stat(p.lines.length, "source lines")}
+      ${stat(p.raw_paths, "paths in the code")}
+      ${stat(z.infeasible, "impossible paths (z3 proof)")}
+      ${stat(p.rules.length, "rules")}
+      ${stat(z.conditions_removed, "redundant conditions removed")}
+      ${stat(z.all_proved ? "proved" : "not proved", "simplified = original (z3)")}
+      ${z.overlaps === null ? "" : stat(z.overlaps.length === 0 ? "none" : z.overlaps.length, "overlapping rules (z3)")}
+      ${v ? stat(v.agree === v.cases ? "100%" : ((100 * v.agree) / v.cases).toFixed(2) + "%", `rules = compiled COBOL on ${v.cases.toLocaleString()} inputs`) : stat("static", "not run against the compiled program")}
+    </div>
+    ${p.findings.length ? `<h3>Findings for review</h3>` + p.findings.map((f) => `<div class="finding"><b>${esc(f.kind)}</b> · ${esc(f.message)} <span class="muted">line ${f.lines.join(", ")}</span></div>`).join("") : ""}`;
+  $("#rules-hint").textContent = `${p.rules.length} rules · click one to see its lines`;
+  $("#prog-source-title").textContent = p.path.split("/").pop();
+  $("#rules").innerHTML = p.rules
     .map((r) => {
-      const doc = (program.rule_docs || {})[r.id];
-      const docHtml = doc
-        ? `<p class="explain">${esc(doc.text)}<span class="hint"> · ${doc.source === "granite" ? "documented by IBM Granite on LinuxONE, checked against the rule" : "generated from the rule"}</span></p>`
+      const doc = r.doc
+        ? `<p class="explain">${esc(r.doc.text)}<span class="hint"> · ${r.doc.source === "granite" ? "documented by IBM Granite on LinuxONE, checked against the rule" : "generated from the rule"}</span></p>`
         : "";
-      return `
-      <div class="rule" data-rule="${r.id}">
-        <div class="head"><strong>${r.id}</strong>
+      const ex = r.example
+        ? `<details class="example"><summary class="hint">Example input found by z3</summary><table>${Object.entries(r.example)
+            .map(([k, v]) => `<tr><td><code>${esc(k.replace("#numeric", " IS NUMERIC"))}</code></td><td>${esc(String(v))}</td></tr>`).join("")}</table></details>`
+        : "";
+      const conds = r.conditions
+        .map((c) => `<li class="${c.implied ? "implied" : ""}" title="${c.implied ? "implied by the other conditions (z3 proof)" : ""}">${esc(c.english)} <span class="muted">· <code>${esc(c.text)}</code> · line ${c.line}</span></li>`)
+        .join("");
+      return `<div class="rule" data-rule="${esc(r.id)}">
+        <div class="head"><strong>${esc(r.id)}</strong>
           ${Object.entries(r.actions).map(([k, v]) => `<span class="pill">${esc(k)} = ${esc(v)}</span>`).join(" ")}
-          <span class="muted">lines ${r.lines.join(", ")}</span></div>
-        ${docHtml}
-        <ul class="conds">${r.conditions.map((c) => `<li>${esc(c.english)} <span class="muted">· <code>${esc(c.text)}</code> · line ${c.line}</span></li>`).join("")}</ul>
+          ${r.z3 && r.z3.removed ? `<span class="pill ok">z3: ${r.z3.removed} implied ${r.z3.removed === 1 ? "condition" : "conditions"} struck, ${r.z3.equivalent ? "proved equivalent" : "not proved"}</span>` : ""}</div>
+        ${doc}<ul class="conds">${conds || "<li class='muted'>always (no other rule applied)</li>"}</ul>${ex}
       </div>`;
     })
     .join("");
-  document.querySelectorAll(".rule").forEach((el) =>
+  document.querySelectorAll("#rules .rule").forEach((el) =>
     el.addEventListener("click", () => {
-      const r = program.rules.find((x) => x.id === el.dataset.rule);
-      document.querySelector('.tabs button[data-tab="decide"]').click();
-      renderSource(r.lines);
+      document.querySelectorAll("#rules .rule").forEach((x) => x.classList.toggle("active", x === el));
+      const r = current.rules.find((x) => x.id === el.dataset.rule);
+      renderProgSource(r.lines);
     })
   );
+  renderProgSource([]);
+}
+
+async function loadProgram(name) {
+  current = await api("/api/programs/" + encodeURIComponent(name));
+  renderProgramTabs();
+  renderProgram();
 }
 
 // ---------------------------------------------------------------- decision
@@ -168,6 +220,19 @@ function cellRow(label, c) {
 }
 
 function renderEvidence(res) {
+  const ib = res.ibm_sam2;
+  if (ib) {
+    const total = Object.values(ib.sets).reduce((a, x) => a + x.cases, 0);
+    const agree = Object.values(ib.sets).reduce((a, x) => a + x.agree, 0);
+    $("#ev-ibm").innerHTML = `<h2>IBM's own code: SAM2 (zopeneditor-sample)</h2>
+      <p>A COBOL subroutine IBM publishes as a sample, with two copybooks, REDEFINES overlays, packed decimals and OCCURS tables.
+      LegacyLens found <strong>${ib.raw_paths}</strong> paths; z3 proved <strong>${ib.z3.infeasible_paths}</strong> impossible, removed
+      <strong>${ib.z3.conditions_removed}</strong> redundant conditions (every simplification proved equivalent) and found no overlapping rules.
+      The <strong>${ib.rules}</strong> rules were then run against the compiled program, CALLed through a generated driver, comparing all four parameters byte for byte.</p>
+      <table><tr><th>Input set</th><th class="num">Calls</th><th class="num">Same parameters</th></tr>
+      ${Object.entries(ib.sets).map(([k, x]) => `<tr><td>${esc(k.replace(/_/g, " "))}</td><td class="num">${money(x.cases)}</td><td class="num">${money(x.agree)}</td></tr>`).join("")}
+      <tr><th>Total</th><th class="num">${money(total)}</th><th class="num">${pct(agree / total)}</th></tr></table>`;
+  }
   const v = res.verification;
   if (v) {
     $("#ev-verify").innerHTML = `<h2>Rules vs compiled COBOL</h2>
@@ -222,8 +287,9 @@ function renderEvidence(res) {
   const [prog, health, res] = await Promise.all([api("/api/program"), api("/api/health"), api("/api/results")]);
   program = prog;
   renderSource([]);
-  renderRules();
   renderEvidence(res);
+  programs = await api("/api/programs");
+  if (programs.length) await loadProgram(programs[0].name);
   const v = res.verification;
   $("#badges").innerHTML = [
     `<span class="badge">${esc(health.platform)} · ${esc(health.node)}</span>`,

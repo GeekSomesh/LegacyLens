@@ -17,7 +17,7 @@
 
 <nav class="tabs" role="tablist">
   <button role="tab" aria-selected="true" data-tab="decide">Decide</button>
-  <button role="tab" aria-selected="false" data-tab="rules">COBOL rules</button>
+  <button role="tab" aria-selected="false" data-tab="rules">Programs &amp; rules</button>
   <button role="tab" aria-selected="false" data-tab="evidence">Evidence</button>
 </nav>
 
@@ -56,15 +56,23 @@
   </section>
 
   <section id="tab-rules" class="tab">
-    <div class="card wide">
-      <h2>Rules extracted from CREDREV.cbl</h2>
-      <p class="hint" id="rules-hint"></p>
-      <div id="rules"></div>
+    <div class="prog-tabs" id="prog-tabs" role="tablist"></div>
+    <div class="card wide" id="prog-head"></div>
+    <div class="grid rules-grid">
+      <div class="card">
+        <h2>Rules <span class="hint" id="rules-hint"></span></h2>
+        <div id="rules"></div>
+      </div>
+      <div class="card sticky">
+        <h2 id="prog-source-title">Source</h2>
+        <pre id="prog-source" class="source tall"></pre>
+      </div>
     </div>
   </section>
 
   <section id="tab-evidence" class="tab">
     <div class="grid">
+      <div class="card wide" id="ev-ibm"></div>
       <div class="card" id="ev-verify"></div>
       <div class="card" id="ev-model"></div>
       <div class="card wide" id="ev-hybrid"></div>

@@ -210,10 +210,30 @@ def _rule_docs() -> dict:
     return json.loads(f.read_text())["rules"] if f.exists() else {}
 
 
+@app.get("/api/programs")
+def programs():
+    f = ROOT / "results" / "programs" / "index.json"
+    return json.loads(f.read_text()) if f.exists() else []
+
+
+@app.get("/api/programs/{name}")
+def program_detail(name: str):
+    f = ROOT / "results" / "programs" / f"{name.upper()}.json"
+    if not f.exists() or not name.replace("-", "").isalnum():
+        raise HTTPException(404, f"no program {name}")
+    data = json.loads(f.read_text())
+    if data["name"] == svc.prog.name:
+        docs = _rule_docs()
+        for r in data["rules"]:
+            if r["id"] in docs:
+                r["doc"] = docs[r["id"]]
+    return data
+
+
 @app.get("/api/results")
 def results():
     out = {}
-    for name in ("verification", "model", "hybrid"):
+    for name in ("verification", "model", "hybrid", "ibm_sam2", "benchmark"):
         f = ROOT / "results" / f"{name}.json"
         out[name] = json.loads(f.read_text()) if f.exists() else None
     return out

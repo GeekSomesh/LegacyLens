@@ -1,0 +1,815 @@
+{
+ "name": "CREDREV",
+ "origin": "Credit line review policy written for LegacyLens",
+ "path": "cobol/CREDREV.cbl",
+ "lines": [
+  {
+   "no": 1,
+   "text": "      *================================================================*"
+  },
+  {
+   "no": 2,
+   "text": "      * CREDREV  - MONTHLY CREDIT LINE REVIEW                          *"
+  },
+  {
+   "no": 3,
+   "text": "      * Batch policy program. Reads a count, then one account summary  *"
+  },
+  {
+   "no": 4,
+   "text": "      * per line, and writes one decision line per account:            *"
+  },
+  {
+   "no": 5,
+   "text": "      *   ACCOUNT DECISION REASON UTILISATION                          *"
+  },
+  {
+   "no": 6,
+   "text": "      * Record layout (29 bytes):                                      *"
+  },
+  {
+   "no": 7,
+   "text": "      *   ACCT 9(6) LIMIT 9(7) BILL 9(7) PAID 9(7) DELINQ 9 LATE-6M 9  *"
+  },
+  {
+   "no": 8,
+   "text": "      *================================================================*"
+  },
+  {
+   "no": 9,
+   "text": "       IDENTIFICATION DIVISION."
+  },
+  {
+   "no": 10,
+   "text": "       PROGRAM-ID. CREDREV."
+  },
+  {
+   "no": 11,
+   "text": "       DATA DIVISION."
+  },
+  {
+   "no": 12,
+   "text": "       WORKING-STORAGE SECTION."
+  },
+  {
+   "no": 13,
+   "text": "       01  WS-COUNT              PIC 9(6)."
+  },
+  {
+   "no": 14,
+   "text": "       01  IN-REC."
+  },
+  {
+   "no": 15,
+   "text": "           05  IN-ACCT           PIC 9(6)."
+  },
+  {
+   "no": 16,
+   "text": "           05  IN-LIMIT          PIC 9(7)."
+  },
+  {
+   "no": 17,
+   "text": "           05  IN-BILL           PIC 9(7)."
+  },
+  {
+   "no": 18,
+   "text": "           05  IN-PAID           PIC 9(7)."
+  },
+  {
+   "no": 19,
+   "text": "           05  IN-DELINQ         PIC 9."
+  },
+  {
+   "no": 20,
+   "text": "           05  IN-LATE-6M        PIC 9."
+  },
+  {
+   "no": 21,
+   "text": "       01  WS-UTIL               PIC 9(5)."
+  },
+  {
+   "no": 22,
+   "text": "       01  WS-MIN-DUE            PIC 9(7)."
+  },
+  {
+   "no": 23,
+   "text": "       01  WS-HIGH-LIMIT         PIC 9(7)  VALUE 500000."
+  },
+  {
+   "no": 24,
+   "text": "       01  OUT-DECISION          PIC X(8)."
+  },
+  {
+   "no": 25,
+   "text": "       01  OUT-REASON            PIC X(3)."
+  },
+  {
+   "no": 26,
+   "text": "       01  WS-SEVERITY           PIC 9."
+  },
+  {
+   "no": 27,
+   "text": "           88  SEVERELY-LATE     VALUE 3 THRU 9."
+  },
+  {
+   "no": 28,
+   "text": "       PROCEDURE DIVISION."
+  },
+  {
+   "no": 29,
+   "text": "       MAIN-PARA."
+  },
+  {
+   "no": 30,
+   "text": "           ACCEPT WS-COUNT"
+  },
+  {
+   "no": 31,
+   "text": "           PERFORM REVIEW-ACCOUNT WS-COUNT TIMES"
+  },
+  {
+   "no": 32,
+   "text": "           STOP RUN."
+  },
+  {
+   "no": 33,
+   "text": ""
+  },
+  {
+   "no": 34,
+   "text": "       REVIEW-ACCOUNT."
+  },
+  {
+   "no": 35,
+   "text": "           ACCEPT IN-REC"
+  },
+  {
+   "no": 36,
+   "text": "           PERFORM COMPUTE-RATIOS"
+  },
+  {
+   "no": 37,
+   "text": "           PERFORM APPLY-POLICY"
+  },
+  {
+   "no": 38,
+   "text": "           DISPLAY IN-ACCT ' ' OUT-DECISION ' ' OUT-REASON ' '"
+  },
+  {
+   "no": 39,
+   "text": "                   WS-UTIL."
+  },
+  {
+   "no": 40,
+   "text": ""
+  },
+  {
+   "no": 41,
+   "text": "       COMPUTE-RATIOS."
+  },
+  {
+   "no": 42,
+   "text": "      *    Utilisation in percent of the credit limit."
+  },
+  {
+   "no": 43,
+   "text": "           IF IN-LIMIT = 0"
+  },
+  {
+   "no": 44,
+   "text": "               MOVE 999 TO WS-UTIL"
+  },
+  {
+   "no": 45,
+   "text": "           ELSE"
+  },
+  {
+   "no": 46,
+   "text": "               COMPUTE WS-UTIL = IN-BILL * 100 / IN-LIMIT"
+  },
+  {
+   "no": 47,
+   "text": "           END-IF"
+  },
+  {
+   "no": 48,
+   "text": "      *    Minimum payment due is 10 percent of the statement."
+  },
+  {
+   "no": 49,
+   "text": "           COMPUTE WS-MIN-DUE = IN-BILL / 10"
+  },
+  {
+   "no": 50,
+   "text": "           MOVE IN-DELINQ TO WS-SEVERITY."
+  },
+  {
+   "no": 51,
+   "text": ""
+  },
+  {
+   "no": 52,
+   "text": "       APPLY-POLICY."
+  },
+  {
+   "no": 53,
+   "text": "           IF SEVERELY-LATE"
+  },
+  {
+   "no": 54,
+   "text": "               MOVE 'BLOCK' TO OUT-DECISION"
+  },
+  {
+   "no": 55,
+   "text": "               MOVE 'R01' TO OUT-REASON"
+  },
+  {
+   "no": 56,
+   "text": "           ELSE"
+  },
+  {
+   "no": 57,
+   "text": "               IF IN-DELINQ >= 1 AND WS-UTIL > 90"
+  },
+  {
+   "no": 58,
+   "text": "                   MOVE 'REVIEW' TO OUT-DECISION"
+  },
+  {
+   "no": 59,
+   "text": "                   MOVE 'R02' TO OUT-REASON"
+  },
+  {
+   "no": 60,
+   "text": "               ELSE"
+  },
+  {
+   "no": 61,
+   "text": "                   EVALUATE TRUE"
+  },
+  {
+   "no": 62,
+   "text": "                       WHEN IN-LATE-6M >= 3"
+  },
+  {
+   "no": 63,
+   "text": "                           MOVE 'DECREASE' TO OUT-DECISION"
+  },
+  {
+   "no": 64,
+   "text": "                           MOVE 'R03' TO OUT-REASON"
+  },
+  {
+   "no": 65,
+   "text": "                       WHEN IN-PAID < WS-MIN-DUE AND WS-UTIL > 80"
+  },
+  {
+   "no": 66,
+   "text": "                           MOVE 'REVIEW' TO OUT-DECISION"
+  },
+  {
+   "no": 67,
+   "text": "                           MOVE 'R04' TO OUT-REASON"
+  },
+  {
+   "no": 68,
+   "text": "                       WHEN IN-LATE-6M = 0 AND WS-UTIL < 30"
+  },
+  {
+   "no": 69,
+   "text": "                            AND IN-LIMIT < WS-HIGH-LIMIT"
+  },
+  {
+   "no": 70,
+   "text": "                           MOVE 'INCREASE' TO OUT-DECISION"
+  },
+  {
+   "no": 71,
+   "text": "                           MOVE 'R05' TO OUT-REASON"
+  },
+  {
+   "no": 72,
+   "text": "                       WHEN OTHER"
+  },
+  {
+   "no": 73,
+   "text": "                           MOVE 'KEEP' TO OUT-DECISION"
+  },
+  {
+   "no": 74,
+   "text": "                           MOVE 'R06' TO OUT-REASON"
+  },
+  {
+   "no": 75,
+   "text": "                   END-EVALUATE"
+  },
+  {
+   "no": 76,
+   "text": "               END-IF"
+  },
+  {
+   "no": 77,
+   "text": "           END-IF."
+  }
+ ],
+ "copybooks": [],
+ "paragraphs": 4,
+ "fields": 15,
+ "diagnostics": [],
+ "using": [],
+ "mode": "whole program",
+ "entry": "REVIEW-ACCOUNT",
+ "decision_fields": [
+  "OUT-DECISION",
+  "OUT-REASON"
+ ],
+ "raw_paths": 6,
+ "rules": [
+  {
+   "id": "RULE-01",
+   "actions": {
+    "OUT-DECISION": "BLOCK",
+    "OUT-REASON": "R01"
+   },
+   "conditions": [
+    {
+     "text": "SEVERELY-LATE",
+     "line": 53,
+     "where": "CREDREV.cbl:53",
+     "tested": "SEVERELY-LATE",
+     "outcome": true,
+     "english": "3 or more months past due",
+     "meaning": "SEVERELY-LATE means WS-SEVERITY is 3 THRU 9",
+     "implied": false
+    }
+   ],
+   "derived": [
+    {
+     "text": "if IN-LIMIT = 0: WS-UTIL = 999 else: WS-UTIL = IN-BILL * 100 / IN-LIMIT",
+     "line": 43
+    },
+    {
+     "text": "WS-MIN-DUE = IN-BILL / 10",
+     "line": 49
+    },
+    {
+     "text": "WS-SEVERITY = IN-DELINQ",
+     "line": 50
+    }
+   ],
+   "lines": [
+    53,
+    54,
+    55
+   ],
+   "notes": [],
+   "z3": {
+    "removed": 0,
+    "equivalent": true
+   },
+   "example": {
+    "IN-ACCT": "0",
+    "IN-LIMIT": "1E+3",
+    "IN-BILL": "1",
+    "IN-PAID": "0",
+    "IN-DELINQ": "3",
+    "IN-LATE-6M": "0"
+   }
+  },
+  {
+   "id": "RULE-02",
+   "actions": {
+    "OUT-DECISION": "REVIEW",
+    "OUT-REASON": "R02"
+   },
+   "conditions": [
+    {
+     "text": "NOT SEVERELY-LATE",
+     "line": 53,
+     "where": "CREDREV.cbl:53",
+     "tested": "SEVERELY-LATE",
+     "outcome": false,
+     "english": "not 3 or more months past due",
+     "meaning": "SEVERELY-LATE means WS-SEVERITY is 3 THRU 9",
+     "implied": false
+    },
+    {
+     "text": "IN-DELINQ >= 1 AND WS-UTIL > 90",
+     "line": 57,
+     "where": "CREDREV.cbl:57",
+     "tested": "IN-DELINQ >= 1 AND WS-UTIL > 90",
+     "outcome": true,
+     "english": "months past due is at least 1 and utilisation is more than 90 percent",
+     "implied": false
+    }
+   ],
+   "derived": [
+    {
+     "text": "if IN-LIMIT = 0: WS-UTIL = 999 else: WS-UTIL = IN-BILL * 100 / IN-LIMIT",
+     "line": 43
+    },
+    {
+     "text": "WS-MIN-DUE = IN-BILL / 10",
+     "line": 49
+    },
+    {
+     "text": "WS-SEVERITY = IN-DELINQ",
+     "line": 50
+    }
+   ],
+   "lines": [
+    53,
+    57,
+    58,
+    59
+   ],
+   "notes": [],
+   "z3": {
+    "removed": 0,
+    "equivalent": true
+   },
+   "example": {
+    "IN-ACCT": "0",
+    "IN-LIMIT": "2",
+    "IN-BILL": "2",
+    "IN-PAID": "0",
+    "IN-DELINQ": "1",
+    "IN-LATE-6M": "0"
+   }
+  },
+  {
+   "id": "RULE-03",
+   "actions": {
+    "OUT-DECISION": "DECREASE",
+    "OUT-REASON": "R03"
+   },
+   "conditions": [
+    {
+     "text": "NOT SEVERELY-LATE",
+     "line": 53,
+     "where": "CREDREV.cbl:53",
+     "tested": "SEVERELY-LATE",
+     "outcome": false,
+     "english": "not 3 or more months past due",
+     "meaning": "SEVERELY-LATE means WS-SEVERITY is 3 THRU 9",
+     "implied": false
+    },
+    {
+     "text": "IN-DELINQ < 1 OR WS-UTIL <= 90",
+     "line": 57,
+     "where": "CREDREV.cbl:57",
+     "tested": "IN-DELINQ >= 1 AND WS-UTIL > 90",
+     "outcome": false,
+     "english": "months past due is less than 1 or utilisation is at most 90 percent",
+     "implied": false
+    },
+    {
+     "text": "IN-LATE-6M >= 3",
+     "line": 62,
+     "where": "CREDREV.cbl:62",
+     "tested": "IN-LATE-6M >= 3",
+     "outcome": true,
+     "english": "late months in the last six is at least 3",
+     "implied": false
+    }
+   ],
+   "derived": [
+    {
+     "text": "if IN-LIMIT = 0: WS-UTIL = 999 else: WS-UTIL = IN-BILL * 100 / IN-LIMIT",
+     "line": 43
+    },
+    {
+     "text": "WS-MIN-DUE = IN-BILL / 10",
+     "line": 49
+    },
+    {
+     "text": "WS-SEVERITY = IN-DELINQ",
+     "line": 50
+    }
+   ],
+   "lines": [
+    53,
+    57,
+    62,
+    63,
+    64
+   ],
+   "notes": [],
+   "z3": {
+    "removed": 0,
+    "equivalent": true
+   },
+   "example": {
+    "IN-ACCT": "0",
+    "IN-LIMIT": "1",
+    "IN-BILL": "0",
+    "IN-PAID": "0",
+    "IN-DELINQ": "0",
+    "IN-LATE-6M": "3"
+   }
+  },
+  {
+   "id": "RULE-04",
+   "actions": {
+    "OUT-DECISION": "REVIEW",
+    "OUT-REASON": "R04"
+   },
+   "conditions": [
+    {
+     "text": "NOT SEVERELY-LATE",
+     "line": 53,
+     "where": "CREDREV.cbl:53",
+     "tested": "SEVERELY-LATE",
+     "outcome": false,
+     "english": "not 3 or more months past due",
+     "meaning": "SEVERELY-LATE means WS-SEVERITY is 3 THRU 9",
+     "implied": false
+    },
+    {
+     "text": "IN-DELINQ < 1 OR WS-UTIL <= 90",
+     "line": 57,
+     "where": "CREDREV.cbl:57",
+     "tested": "IN-DELINQ >= 1 AND WS-UTIL > 90",
+     "outcome": false,
+     "english": "months past due is less than 1 or utilisation is at most 90 percent",
+     "implied": false
+    },
+    {
+     "text": "IN-LATE-6M < 3",
+     "line": 62,
+     "where": "CREDREV.cbl:62",
+     "tested": "IN-LATE-6M >= 3",
+     "outcome": false,
+     "english": "late months in the last six is less than 3",
+     "implied": false
+    },
+    {
+     "text": "IN-PAID < WS-MIN-DUE AND WS-UTIL > 80",
+     "line": 65,
+     "where": "CREDREV.cbl:65",
+     "tested": "IN-PAID < WS-MIN-DUE AND WS-UTIL > 80",
+     "outcome": true,
+     "english": "latest payment is less than minimum payment (10 percent of the statement) and utilisation is more than 80 percent",
+     "implied": false
+    }
+   ],
+   "derived": [
+    {
+     "text": "if IN-LIMIT = 0: WS-UTIL = 999 else: WS-UTIL = IN-BILL * 100 / IN-LIMIT",
+     "line": 43
+    },
+    {
+     "text": "WS-MIN-DUE = IN-BILL / 10",
+     "line": 49
+    },
+    {
+     "text": "WS-SEVERITY = IN-DELINQ",
+     "line": 50
+    }
+   ],
+   "lines": [
+    53,
+    57,
+    62,
+    65,
+    66,
+    67
+   ],
+   "notes": [],
+   "z3": {
+    "removed": 0,
+    "equivalent": true
+   },
+   "example": {
+    "IN-ACCT": "0",
+    "IN-LIMIT": "1",
+    "IN-BILL": "1E+1",
+    "IN-PAID": "0",
+    "IN-DELINQ": "0",
+    "IN-LATE-6M": "0"
+   }
+  },
+  {
+   "id": "RULE-05",
+   "actions": {
+    "OUT-DECISION": "INCREASE",
+    "OUT-REASON": "R05"
+   },
+   "conditions": [
+    {
+     "text": "NOT SEVERELY-LATE",
+     "line": 53,
+     "where": "CREDREV.cbl:53",
+     "tested": "SEVERELY-LATE",
+     "outcome": false,
+     "english": "not 3 or more months past due",
+     "meaning": "SEVERELY-LATE means WS-SEVERITY is 3 THRU 9",
+     "implied": false
+    },
+    {
+     "text": "IN-DELINQ < 1 OR WS-UTIL <= 90",
+     "line": 57,
+     "where": "CREDREV.cbl:57",
+     "tested": "IN-DELINQ >= 1 AND WS-UTIL > 90",
+     "outcome": false,
+     "english": "months past due is less than 1 or utilisation is at most 90 percent",
+     "implied": true
+    },
+    {
+     "text": "IN-LATE-6M < 3",
+     "line": 62,
+     "where": "CREDREV.cbl:62",
+     "tested": "IN-LATE-6M >= 3",
+     "outcome": false,
+     "english": "late months in the last six is less than 3",
+     "implied": true
+    },
+    {
+     "text": "IN-PAID >= WS-MIN-DUE OR WS-UTIL <= 80",
+     "line": 65,
+     "where": "CREDREV.cbl:65",
+     "tested": "IN-PAID < WS-MIN-DUE AND WS-UTIL > 80",
+     "outcome": false,
+     "english": "latest payment is at least minimum payment (10 percent of the statement) or utilisation is at most 80 percent",
+     "implied": true
+    },
+    {
+     "text": "IN-LATE-6M = 0 AND WS-UTIL < 30 AND IN-LIMIT < WS-HIGH-LIMIT",
+     "line": 68,
+     "where": "CREDREV.cbl:68",
+     "tested": "IN-LATE-6M = 0 AND WS-UTIL < 30 AND IN-LIMIT < WS-HIGH-LIMIT",
+     "outcome": true,
+     "english": "late months in the last six is 0 and utilisation is less than 30 percent and credit limit is less than the 500,000 limit cap",
+     "implied": false
+    }
+   ],
+   "derived": [
+    {
+     "text": "if IN-LIMIT = 0: WS-UTIL = 999 else: WS-UTIL = IN-BILL * 100 / IN-LIMIT",
+     "line": 43
+    },
+    {
+     "text": "WS-MIN-DUE = IN-BILL / 10",
+     "line": 49
+    },
+    {
+     "text": "WS-SEVERITY = IN-DELINQ",
+     "line": 50
+    }
+   ],
+   "lines": [
+    53,
+    57,
+    62,
+    65,
+    68,
+    70,
+    71
+   ],
+   "notes": [],
+   "z3": {
+    "removed": 3,
+    "equivalent": true
+   },
+   "example": {
+    "IN-ACCT": "0",
+    "IN-LIMIT": "1",
+    "IN-BILL": "0",
+    "IN-PAID": "0",
+    "IN-DELINQ": "0",
+    "IN-LATE-6M": "0"
+   }
+  },
+  {
+   "id": "RULE-06",
+   "actions": {
+    "OUT-DECISION": "KEEP",
+    "OUT-REASON": "R06"
+   },
+   "conditions": [
+    {
+     "text": "NOT SEVERELY-LATE",
+     "line": 53,
+     "where": "CREDREV.cbl:53",
+     "tested": "SEVERELY-LATE",
+     "outcome": false,
+     "english": "not 3 or more months past due",
+     "meaning": "SEVERELY-LATE means WS-SEVERITY is 3 THRU 9",
+     "implied": false
+    },
+    {
+     "text": "IN-DELINQ < 1 OR WS-UTIL <= 90",
+     "line": 57,
+     "where": "CREDREV.cbl:57",
+     "tested": "IN-DELINQ >= 1 AND WS-UTIL > 90",
+     "outcome": false,
+     "english": "months past due is less than 1 or utilisation is at most 90 percent",
+     "implied": false
+    },
+    {
+     "text": "IN-LATE-6M < 3",
+     "line": 62,
+     "where": "CREDREV.cbl:62",
+     "tested": "IN-LATE-6M >= 3",
+     "outcome": false,
+     "english": "late months in the last six is less than 3",
+     "implied": false
+    },
+    {
+     "text": "IN-PAID >= WS-MIN-DUE OR WS-UTIL <= 80",
+     "line": 65,
+     "where": "CREDREV.cbl:65",
+     "tested": "IN-PAID < WS-MIN-DUE AND WS-UTIL > 80",
+     "outcome": false,
+     "english": "latest payment is at least minimum payment (10 percent of the statement) or utilisation is at most 80 percent",
+     "implied": false
+    },
+    {
+     "text": "IN-LATE-6M <> 0 OR WS-UTIL >= 30 OR IN-LIMIT >= WS-HIGH-LIMIT",
+     "line": 68,
+     "where": "CREDREV.cbl:68",
+     "tested": "IN-LATE-6M = 0 AND WS-UTIL < 30 AND IN-LIMIT < WS-HIGH-LIMIT",
+     "outcome": false,
+     "english": "(late months in the last six is not 0 or utilisation is at least 30 percent) or credit limit is at least the 500,000 limit cap",
+     "implied": false
+    }
+   ],
+   "derived": [
+    {
+     "text": "if IN-LIMIT = 0: WS-UTIL = 999 else: WS-UTIL = IN-BILL * 100 / IN-LIMIT",
+     "line": 43
+    },
+    {
+     "text": "WS-MIN-DUE = IN-BILL / 10",
+     "line": 49
+    },
+    {
+     "text": "WS-SEVERITY = IN-DELINQ",
+     "line": 50
+    }
+   ],
+   "lines": [
+    53,
+    57,
+    62,
+    65,
+    68,
+    73,
+    74
+   ],
+   "notes": [],
+   "z3": {
+    "removed": 0,
+    "equivalent": true
+   },
+   "example": {
+    "IN-ACCT": "0",
+    "IN-LIMIT": "1",
+    "IN-BILL": "0",
+    "IN-PAID": "0",
+    "IN-DELINQ": "0",
+    "IN-LATE-6M": "1"
+   }
+  }
+ ],
+ "z3": {
+  "infeasible": 0,
+  "unknown": 0,
+  "conditions_removed": 3,
+  "all_proved": true,
+  "overlaps": []
+ },
+ "findings": [],
+ "verification": {
+  "cases": 35260,
+  "agree": 35260,
+  "sets": {
+   "uci_accounts": {
+    "records": 30000,
+    "agree": 30000,
+    "no_rule": 0,
+    "several_rules": 0,
+    "cobol_seconds": 0.05,
+    "engine_seconds": 3.941
+   },
+   "boundaries": {
+    "records": 260,
+    "agree": 260,
+    "no_rule": 0,
+    "several_rules": 0,
+    "cobol_seconds": 0.006,
+    "engine_seconds": 0.033
+   },
+   "random": {
+    "records": 5000,
+    "agree": 5000,
+    "no_rule": 0,
+    "several_rules": 0,
+    "cobol_seconds": 0.009,
+    "engine_seconds": 0.594
+   }
+  },
+  "platform": "s390x"
+ },
+ "seconds": 4.29
+}

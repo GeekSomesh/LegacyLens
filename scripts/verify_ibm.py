@@ -18,7 +18,7 @@ sys.path.insert(0, str(ROOT))
 
 from legacylens import cobol as C, rules as R, smt, subprog  # noqa: E402
 
-SAMPLES = Path(sys.argv[1]) if len(sys.argv) > 1 else Path.home() / "samples" / "zopeneditor-sample"
+SAMPLES = Path(sys.argv[1]) if len(sys.argv) > 1 else ROOT / "samples" / "ibm-zopeneditor"
 
 
 def tran(code="UPDATE", key="00001A", action="REPLACE ", field="BALANCE   ", ss="01", data=""):

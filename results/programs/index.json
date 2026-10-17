@@ -1,0 +1,65 @@
+[
+ {
+  "name": "CREDREV",
+  "origin": "Credit line review policy written for LegacyLens",
+  "path": "cobol/CREDREV.cbl",
+  "raw_paths": 6,
+  "mode": "whole program",
+  "z3": {
+   "infeasible": 0,
+   "unknown": 0,
+   "conditions_removed": 3,
+   "all_proved": true,
+   "overlaps": []
+  },
+  "seconds": 4.29,
+  "rules": 6,
+  "findings": 0,
+  "lines_of_code": 64,
+  "verified": {
+   "cases": 35260,
+   "agree": 35260
+  }
+ },
+ {
+  "name": "SAM2",
+  "origin": "IBM zopeneditor-sample (Apache-2.0): customer update subroutine",
+  "path": "samples/ibm-zopeneditor/COBOL/SAM2.cbl",
+  "raw_paths": 109,
+  "mode": "whole program",
+  "z3": {
+   "infeasible": 92,
+   "unknown": 0,
+   "conditions_removed": 44,
+   "all_proved": true,
+   "overlaps": []
+  },
+  "seconds": 6.2,
+  "rules": 17,
+  "findings": 0,
+  "lines_of_code": 119,
+  "verified": {
+   "cases": 7535,
+   "agree": 7535
+  }
+ },
+ {
+  "name": "SAM1",
+  "origin": "IBM zopeneditor-sample (Apache-2.0): batch customer file update",
+  "path": "samples/ibm-zopeneditor/COBOL/SAM1.cbl",
+  "raw_paths": 28,
+  "mode": "per decision statement",
+  "z3": {
+   "infeasible": 0,
+   "unknown": 0,
+   "conditions_removed": 8,
+   "all_proved": true,
+   "overlaps": null
+  },
+  "seconds": 3.9,
+  "rules": 28,
+  "findings": 3,
+  "lines_of_code": 417,
+  "verified": null
+ }
+]

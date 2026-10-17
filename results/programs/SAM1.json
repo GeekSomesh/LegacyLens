@@ -1,0 +1,3870 @@
+{
+ "name": "SAM1",
+ "origin": "IBM zopeneditor-sample (Apache-2.0): batch customer file update",
+ "path": "samples/ibm-zopeneditor/COBOL/SAM1.cbl",
+ "lines": [
+  {
+   "no": 1,
+   "text": "      ****************************************************************"
+  },
+  {
+   "no": 2,
+   "text": "      * LICENSED MATERIALS - PROPERTY OF IBM"
+  },
+  {
+   "no": 3,
+   "text": "      * \"RESTRICTED MATERIALS OF IBM\""
+  },
+  {
+   "no": 4,
+   "text": "      * (C) COPYRIGHT IBM CORPORATION 2022. ALL RIGHTS RESERVED"
+  },
+  {
+   "no": 5,
+   "text": "      * US GOVERNMENT USERS RESTRICTED RIGHTS - USE, DUPLICATION,"
+  },
+  {
+   "no": 6,
+   "text": "      * OR DISCLOSURE RESTRICTED BY GSA ADP SCHEDULE"
+  },
+  {
+   "no": 7,
+   "text": "      * CONTRACT WITH IBM CORPORATION"
+  },
+  {
+   "no": 8,
+   "text": "      ****************************************************************"
+  },
+  {
+   "no": 9,
+   "text": "      * PROGRAM:  SAM1"
+  },
+  {
+   "no": 10,
+   "text": "      *"
+  },
+  {
+   "no": 11,
+   "text": "      * AUTHOR :  Doug Stout"
+  },
+  {
+   "no": 12,
+   "text": "      *"
+  },
+  {
+   "no": 13,
+   "text": "      * READS A SEQUENTIAL TRANSACTION FILE AND MAKES UPDATES"
+  },
+  {
+   "no": 14,
+   "text": "      * TO A SORTED SEQUENTIAL CUSTOMER FILE"
+  },
+  {
+   "no": 15,
+   "text": "      *"
+  },
+  {
+   "no": 16,
+   "text": "      * CAN BE MADE TO ABEND WITH BAD INPUT DATA FOR FAULT ANALYSIS LAB"
+  },
+  {
+   "no": 17,
+   "text": "      *****************************************************************"
+  },
+  {
+   "no": 18,
+   "text": "      *"
+  },
+  {
+   "no": 19,
+   "text": "      * Transaction file record descriptions:"
+  },
+  {
+   "no": 20,
+   "text": "      *    0    1    1    2    2    3    3    4    4    5    5    6    6"
+  },
+  {
+   "no": 21,
+   "text": "      *....5....0....5....0....5....0....5....0....5....0....5....0....5"
+  },
+  {
+   "no": 22,
+   "text": "      *"
+  },
+  {
+   "no": 23,
+   "text": "      * *  <== an asterisk in first column is a comment"
+  },
+  {
+   "no": 24,
+   "text": "      *UPDATE ---key---- -command-- field-name ss -----------value------"
+  },
+  {
+   "no": 25,
+   "text": "      *                  can be:                  valid formats:"
+  },
+  {
+   "no": 26,
+   "text": "      *                  REPLACE                  character_string______"
+  },
+  {
+   "no": 27,
+   "text": "      *                  ADD                      +99999999"
+  },
+  {
+   "no": 28,
+   "text": "      *                  SUBTRACT                 +99999999.99"
+  },
+  {
+   "no": 29,
+   "text": "      * (The \"ss\" field is a subscript, used for the MONTH field only)"
+  },
+  {
+   "no": 30,
+   "text": "      * DELETE ___key____  <== Delete Record"
+  },
+  {
+   "no": 31,
+   "text": "      * ADD    ___key____  <== Add a new blank record"
+  },
+  {
+   "no": 32,
+   "text": "      *"
+  },
+  {
+   "no": 33,
+   "text": "      *****************************************************************"
+  },
+  {
+   "no": 34,
+   "text": "       IDENTIFICATION DIVISION."
+  },
+  {
+   "no": 35,
+   "text": "       PROGRAM-ID. SAM1."
+  },
+  {
+   "no": 36,
+   "text": "       ENVIRONMENT DIVISION."
+  },
+  {
+   "no": 37,
+   "text": "       INPUT-OUTPUT SECTION."
+  },
+  {
+   "no": 38,
+   "text": "       FILE-CONTROL."
+  },
+  {
+   "no": 39,
+   "text": ""
+  },
+  {
+   "no": 40,
+   "text": "           SELECT CUSTOMER-FILE ASSIGN TO CUSTFILE"
+  },
+  {
+   "no": 41,
+   "text": "               ACCESS IS SEQUENTIAL"
+  },
+  {
+   "no": 42,
+   "text": "               FILE STATUS  IS  WS-CUSTFILE-STATUS."
+  },
+  {
+   "no": 43,
+   "text": ""
+  },
+  {
+   "no": 44,
+   "text": "           SELECT CUSTOMER-FILE-OUT ASSIGN TO CUSTOUT"
+  },
+  {
+   "no": 45,
+   "text": "               ACCESS IS SEQUENTIAL"
+  },
+  {
+   "no": 46,
+   "text": "               FILE STATUS  IS  WS-CUSTOUT-STATUS."
+  },
+  {
+   "no": 47,
+   "text": ""
+  },
+  {
+   "no": 48,
+   "text": "            SELECT TRANSACTION-FILE ASSIGN TO TRANFILE"
+  },
+  {
+   "no": 49,
+   "text": "                   FILE STATUS  IS  WS-TRANFILE-STATUS."
+  },
+  {
+   "no": 50,
+   "text": ""
+  },
+  {
+   "no": 51,
+   "text": "            SELECT REPORT-FILE      ASSIGN TO CUSTRPT"
+  },
+  {
+   "no": 52,
+   "text": "                   FILE STATUS  IS  WS-REPORT-STATUS."
+  },
+  {
+   "no": 53,
+   "text": ""
+  },
+  {
+   "no": 54,
+   "text": "      *****************************************************************"
+  },
+  {
+   "no": 55,
+   "text": "       DATA DIVISION."
+  },
+  {
+   "no": 56,
+   "text": "       FILE SECTION."
+  },
+  {
+   "no": 57,
+   "text": ""
+  },
+  {
+   "no": 58,
+   "text": "       FD  CUSTOMER-FILE"
+  },
+  {
+   "no": 59,
+   "text": "           RECORDING MODE IS V"
+  },
+  {
+   "no": 60,
+   "text": "           RECORD IS VARYING FROM 20 TO 596 CHARACTERS."
+  },
+  {
+   "no": 61,
+   "text": "       COPY CUSTCOPY REPLACING ==:TAG:== BY ==CUST==."
+  },
+  {
+   "no": 62,
+   "text": ""
+  },
+  {
+   "no": 63,
+   "text": "       FD  CUSTOMER-FILE-OUT"
+  },
+  {
+   "no": 64,
+   "text": "           RECORDING MODE IS V"
+  },
+  {
+   "no": 65,
+   "text": "           BLOCK CONTAINS 0 RECORDS"
+  },
+  {
+   "no": 66,
+   "text": "           RECORD IS VARYING FROM 20 TO 596 CHARACTERS."
+  },
+  {
+   "no": 67,
+   "text": "       COPY CUSTCOPY REPLACING ==:TAG:== BY ==CSTOUT==."
+  },
+  {
+   "no": 68,
+   "text": ""
+  },
+  {
+   "no": 69,
+   "text": "       FD  TRANSACTION-FILE"
+  },
+  {
+   "no": 70,
+   "text": "           RECORDING MODE IS F."
+  },
+  {
+   "no": 71,
+   "text": "       COPY TRANREC."
+  },
+  {
+   "no": 72,
+   "text": ""
+  },
+  {
+   "no": 73,
+   "text": "       FD  REPORT-FILE"
+  },
+  {
+   "no": 74,
+   "text": "           RECORDING MODE IS F."
+  },
+  {
+   "no": 75,
+   "text": "       01 REPORT-RECORD          PIC X(132)."
+  },
+  {
+   "no": 76,
+   "text": ""
+  },
+  {
+   "no": 77,
+   "text": "      *****************************************************************"
+  },
+  {
+   "no": 78,
+   "text": "       WORKING-STORAGE SECTION."
+  },
+  {
+   "no": 79,
+   "text": "      *****************************************************************"
+  },
+  {
+   "no": 80,
+   "text": "      *"
+  },
+  {
+   "no": 81,
+   "text": "       01 SYSTEM-DATE-AND-TIME."
+  },
+  {
+   "no": 82,
+   "text": "        05 CURRENT-DATE."
+  },
+  {
+   "no": 83,
+   "text": "         10 CURRENT-YEAR         PIC 9(2)."
+  },
+  {
+   "no": 84,
+   "text": "         10 CURRENT-MONTH        PIC 9(2)."
+  },
+  {
+   "no": 85,
+   "text": "         10 CURRENT-DAY          PIC 9(2)."
+  },
+  {
+   "no": 86,
+   "text": "        05 CURRENT-TIME."
+  },
+  {
+   "no": 87,
+   "text": "         10 CURRENT-HOUR         PIC 9(2)."
+  },
+  {
+   "no": 88,
+   "text": "         10 CURRENT-MINUTE       PIC 9(2)."
+  },
+  {
+   "no": 89,
+   "text": "         10 CURRENT-SECOND       PIC 9(2)."
+  },
+  {
+   "no": 90,
+   "text": "         10 CURRENT-HNDSEC       PIC 9(2)."
+  },
+  {
+   "no": 91,
+   "text": "      *"
+  },
+  {
+   "no": 92,
+   "text": "       01 REPORT-TOTALS."
+  },
+  {
+   "no": 93,
+   "text": "        05 NUM-TRAN-RECS         PIC S9(9) COMP-3 VALUE +0."
+  },
+  {
+   "no": 94,
+   "text": "        05 NUM-TRAN-ERRORS       PIC S9(9) COMP-3 VALUE +0."
+  },
+  {
+   "no": 95,
+   "text": "        05 NUM-ADD-REQUESTS      PIC S9(9) COMP-3 VALUE +0."
+  },
+  {
+   "no": 96,
+   "text": "        05 NUM-ADD-PROCESSED     PIC S9(9) COMP-3 VALUE +0."
+  },
+  {
+   "no": 97,
+   "text": "        05 NUM-UPDATE-REQUESTS   PIC S9(9) COMP-3 VALUE +0."
+  },
+  {
+   "no": 98,
+   "text": "        05 NUM-UPDATE-PROCESSED  PIC S9(9) COMP-3 VALUE +0."
+  },
+  {
+   "no": 99,
+   "text": "        05 NUM-DELETE-REQUESTS   PIC S9(9) COMP-3 VALUE +0."
+  },
+  {
+   "no": 100,
+   "text": "        05 NUM-DELETE-PROCESSED  PIC S9(9) COMP-3 VALUE +0."
+  },
+  {
+   "no": 101,
+   "text": "        05 NUM-CRUNCH-REQUESTS   PIC S9(9) COMP-3 VALUE +0."
+  },
+  {
+   "no": 102,
+   "text": "        05 NUM-CRUNCH-PROCESSED  PIC S9(9) COMP-3 VALUE +0."
+  },
+  {
+   "no": 103,
+   "text": "        05 NUM-RPTALL-REQUESTS   PIC S9(9) COMP-3 VALUE +0."
+  },
+  {
+   "no": 104,
+   "text": "        05 NUM-RPTALL-PROCESSED  PIC S9(9) COMP-3 VALUE +0."
+  },
+  {
+   "no": 105,
+   "text": "        05 NUM-GEN-REQUESTS      PIC S9(9) COMP-3 VALUE +0."
+  },
+  {
+   "no": 106,
+   "text": "        05 NUM-GEN-PROCESSED     PIC S9(9) COMP-3 VALUE +0."
+  },
+  {
+   "no": 107,
+   "text": "      *"
+  },
+  {
+   "no": 108,
+   "text": "       01 WS-FIELDS."
+  },
+  {
+   "no": 109,
+   "text": "        05 WS-CUSTFILE-STATUS    PIC X(2) VALUE SPACES."
+  },
+  {
+   "no": 110,
+   "text": "        05 WS-CUSTOUT-STATUS     PIC X(2) VALUE SPACES."
+  },
+  {
+   "no": 111,
+   "text": "        05 WS-TRANFILE-STATUS    PIC X(2) VALUE SPACES."
+  },
+  {
+   "no": 112,
+   "text": "        05 WS-REPORT-STATUS      PIC X(2) VALUE SPACES."
+  },
+  {
+   "no": 113,
+   "text": "        05 WS-TRAN-EOF           PIC X VALUE SPACES."
+  },
+  {
+   "no": 114,
+   "text": "        05 WS-TRAN-OK            PIC X VALUE 'N'."
+  },
+  {
+   "no": 115,
+   "text": "        05 WS-CUST-FILE-OK       PIC X VALUE 'N'."
+  },
+  {
+   "no": 116,
+   "text": "        05 WS-CUST-FILE-EOF      PIC X VALUE 'N'."
+  },
+  {
+   "no": 117,
+   "text": "        05 WS-TRAN-MSG           PIC X(50) VALUE SPACES."
+  },
+  {
+   "no": 118,
+   "text": "        05 WS-PREV-TRAN-KEY      PIC X(13) VALUE LOW-VALUES."
+  },
+  {
+   "no": 119,
+   "text": "        05 INCR-CUST-ID          PIC 9(5) VALUE 0."
+  },
+  {
+   "no": 120,
+   "text": "        05 START-CUST-ID         PIC 9(5) VALUE 0."
+  },
+  {
+   "no": 121,
+   "text": "        05 MAX-CUST-ID           PIC 9(5) VALUE 0."
+  },
+  {
+   "no": 122,
+   "text": "        05 SAM2                  PIC X(8) VALUE 'SAM2'."
+  },
+  {
+   "no": 123,
+   "text": "      *"
+  },
+  {
+   "no": 124,
+   "text": "      * some additional comments"
+  },
+  {
+   "no": 125,
+   "text": "      * some more additional comments"
+  },
+  {
+   "no": 126,
+   "text": "      *"
+  },
+  {
+   "no": 127,
+   "text": "       01 WORK-VARIABLES."
+  },
+  {
+   "no": 128,
+   "text": "        05 I                     PIC S9(9) COMP-3 VALUE +0."
+  },
+  {
+   "no": 129,
+   "text": "        05 WORK-NUM              PIC S9(8) COMP."
+  },
+  {
+   "no": 130,
+   "text": ""
+  },
+  {
+   "no": 131,
+   "text": "       COPY CUSTCOPY REPLACING ==:TAG:== BY ==WS-CUST==."
+  },
+  {
+   "no": 132,
+   "text": ""
+  },
+  {
+   "no": 133,
+   "text": "      ********************"
+  },
+  {
+   "no": 134,
+   "text": "      * report lines"
+  },
+  {
+   "no": 135,
+   "text": "      ********************"
+  },
+  {
+   "no": 136,
+   "text": "       01 ERR-MSG-BAD-TRAN."
+  },
+  {
+   "no": 137,
+   "text": "        05 FILLER                PIC X(31)"
+  },
+  {
+   "no": 138,
+   "text": "           VALUE 'Error Processing Transaction. '."
+  },
+  {
+   "no": 139,
+   "text": "        05 ERR-MSG-DATA1         PIC X(35) VALUE SPACES."
+  },
+  {
+   "no": 140,
+   "text": "        05 ERR-MSG-DATA2         PIC X(66) VALUE SPACES."
+  },
+  {
+   "no": 141,
+   "text": "       01 ERR-MSG-BAD-TRAN-2."
+  },
+  {
+   "no": 142,
+   "text": "        05 FILLER                PIC X(21) VALUE SPACES."
+  },
+  {
+   "no": 143,
+   "text": "        05 ERR-MSG-DATA3         PIC X(80)."
+  },
+  {
+   "no": 144,
+   "text": "        05 FILLER                PIC X(31) VALUE SPACES."
+  },
+  {
+   "no": 145,
+   "text": "       01 MSG-TRAN-SCALE-1."
+  },
+  {
+   "no": 146,
+   "text": "        05 FILLER                PIC X(21) VALUE SPACES."
+  },
+  {
+   "no": 147,
+   "text": "        05 FILLER                PIC X(35)"
+  },
+  {
+   "no": 148,
+   "text": "           VALUE '         1    1    2    2    3    3'."
+  },
+  {
+   "no": 149,
+   "text": "        05 FILLER                PIC X(35)"
+  },
+  {
+   "no": 150,
+   "text": "           VALUE '    4    4    5    5    6    6    7'."
+  },
+  {
+   "no": 151,
+   "text": "        05 FILLER                PIC X(41) VALUE SPACES."
+  },
+  {
+   "no": 152,
+   "text": "       01 MSG-TRAN-SCALE-2."
+  },
+  {
+   "no": 153,
+   "text": "        05 FILLER                PIC X(21) VALUE ' Transaction Record: '"
+  },
+  {
+   "no": 154,
+   "text": "           ."
+  },
+  {
+   "no": 155,
+   "text": "        05 FILLER                PIC X(35)"
+  },
+  {
+   "no": 156,
+   "text": "           VALUE '....5....0....5....0....5....0....5'."
+  },
+  {
+   "no": 157,
+   "text": "        05 FILLER                PIC X(35)"
+  },
+  {
+   "no": 158,
+   "text": "           VALUE '....0....5....0....5....0....5....0'."
+  },
+  {
+   "no": 159,
+   "text": "        05 FILLER                PIC X(41) VALUE SPACES."
+  },
+  {
+   "no": 160,
+   "text": "       01 RPT-HEADER1."
+  },
+  {
+   "no": 161,
+   "text": "        05 FILLER                PIC X(40)"
+  },
+  {
+   "no": 162,
+   "text": "           VALUE 'CUSTOMER FILE UPDATE REPORT       DATE: '."
+  },
+  {
+   "no": 163,
+   "text": "        05 RPT-MM                PIC 99."
+  },
+  {
+   "no": 164,
+   "text": "        05 FILLER                PIC X VALUE '/'."
+  },
+  {
+   "no": 165,
+   "text": "        05 RPT-DD                PIC 99."
+  },
+  {
+   "no": 166,
+   "text": "        05 FILLER                PIC X VALUE '/'."
+  },
+  {
+   "no": 167,
+   "text": "        05 RPT-YY                PIC 99."
+  },
+  {
+   "no": 168,
+   "text": "        05 FILLER                PIC X(20)"
+  },
+  {
+   "no": 169,
+   "text": "           VALUE ' (mm/dd/yy)   TIME: '."
+  },
+  {
+   "no": 170,
+   "text": "        05 RPT-HH                PIC 99."
+  },
+  {
+   "no": 171,
+   "text": "        05 FILLER                PIC X VALUE ':'."
+  },
+  {
+   "no": 172,
+   "text": "        05 RPT-MIN               PIC 99."
+  },
+  {
+   "no": 173,
+   "text": "        05 FILLER                PIC X VALUE ':'."
+  },
+  {
+   "no": 174,
+   "text": "        05 RPT-SS                PIC 99."
+  },
+  {
+   "no": 175,
+   "text": "        05 FILLER                PIC X(55) VALUE SPACES."
+  },
+  {
+   "no": 176,
+   "text": "       01 RPT-TRAN-DETAIL1."
+  },
+  {
+   "no": 177,
+   "text": "        05 RPT-TRAN-MSG1         PIC X(31)"
+  },
+  {
+   "no": 178,
+   "text": "           VALUE '       Transaction processed: '."
+  },
+  {
+   "no": 179,
+   "text": "        05 RPT-TRAN-RECORD       PIC X(80) VALUE SPACES."
+  },
+  {
+   "no": 180,
+   "text": "        05 FILLER                PIC X(21) VALUE SPACES."
+  },
+  {
+   "no": 181,
+   "text": "       01 RPT-STATS-HDR1."
+  },
+  {
+   "no": 182,
+   "text": "        05 FILLER                PIC X(26) VALUE"
+  },
+  {
+   "no": 183,
+   "text": "           'Transaction Totals:       '."
+  },
+  {
+   "no": 184,
+   "text": "        05 FILLER                PIC X(107) VALUE SPACES."
+  },
+  {
+   "no": 185,
+   "text": "       01 RPT-STATS-HDR2."
+  },
+  {
+   "no": 186,
+   "text": "        05 FILLER                PIC X(26) VALUE"
+  },
+  {
+   "no": 187,
+   "text": "           'Transaction      Number of'."
+  },
+  {
+   "no": 188,
+   "text": "        05 FILLER                PIC X(28) VALUE"
+  },
+  {
+   "no": 189,
+   "text": "           '        Number        Number'."
+  },
+  {
+   "no": 190,
+   "text": "        05 FILLER                PIC X(79) VALUE SPACES."
+  },
+  {
+   "no": 191,
+   "text": "       01 RPT-STATS-HDR3."
+  },
+  {
+   "no": 192,
+   "text": "        05 FILLER                PIC X(26) VALUE"
+  },
+  {
+   "no": 193,
+   "text": "           'Type          Transactions'."
+  },
+  {
+   "no": 194,
+   "text": "        05 FILLER                PIC X(28) VALUE"
+  },
+  {
+   "no": 195,
+   "text": "           '     Processed      In Error'."
+  },
+  {
+   "no": 196,
+   "text": "        05 FILLER                PIC X(79) VALUE SPACES."
+  },
+  {
+   "no": 197,
+   "text": "       01 RPT-STATS-HDR4."
+  },
+  {
+   "no": 198,
+   "text": "        05 FILLER                PIC X(26) VALUE"
+  },
+  {
+   "no": 199,
+   "text": "           '-----------   ------------'."
+  },
+  {
+   "no": 200,
+   "text": "        05 FILLER                PIC X(28) VALUE"
+  },
+  {
+   "no": 201,
+   "text": "           '   -----------   -----------'."
+  },
+  {
+   "no": 202,
+   "text": "        05 FILLER                PIC X(79) VALUE SPACES."
+  },
+  {
+   "no": 203,
+   "text": "       01 RPT-STATS-DETAIL."
+  },
+  {
+   "no": 204,
+   "text": "        05 RPT-TRAN              PIC X(10)."
+  },
+  {
+   "no": 205,
+   "text": "        05 FILLER                PIC X(4) VALUE SPACES."
+  },
+  {
+   "no": 206,
+   "text": "        05 RPT-NUM-TRANS         PIC ZZZ,ZZZ,ZZ9."
+  },
+  {
+   "no": 207,
+   "text": "        05 FILLER                PIC X(3) VALUE SPACES."
+  },
+  {
+   "no": 208,
+   "text": "        05 RPT-NUM-TRAN-PROC     PIC ZZZ,ZZZ,ZZ9."
+  },
+  {
+   "no": 209,
+   "text": "        05 FILLER                PIC X(3) VALUE SPACES."
+  },
+  {
+   "no": 210,
+   "text": "        05 RPT-NUM-TRAN-ERR      PIC ZZZ,ZZZ,ZZ9."
+  },
+  {
+   "no": 211,
+   "text": "        05 FILLER                PIC X(80) VALUE SPACES."
+  },
+  {
+   "no": 212,
+   "text": ""
+  },
+  {
+   "no": 213,
+   "text": ""
+  },
+  {
+   "no": 214,
+   "text": "      *****************************************************************"
+  },
+  {
+   "no": 215,
+   "text": "       PROCEDURE DIVISION."
+  },
+  {
+   "no": 216,
+   "text": "      *****************************************************************"
+  },
+  {
+   "no": 217,
+   "text": "       000-MAIN."
+  },
+  {
+   "no": 218,
+   "text": "           ACCEPT CURRENT-DATE FROM DATE."
+  },
+  {
+   "no": 219,
+   "text": "           ACCEPT CURRENT-TIME FROM TIME."
+  },
+  {
+   "no": 220,
+   "text": "           DISPLAY 'SAM1 STARTED DATE = '"
+  },
+  {
+   "no": 221,
+   "text": "                   CURRENT-MONTH"
+  },
+  {
+   "no": 222,
+   "text": "                   '/'"
+  },
+  {
+   "no": 223,
+   "text": "                   CURRENT-DAY"
+  },
+  {
+   "no": 224,
+   "text": "                   '/'"
+  },
+  {
+   "no": 225,
+   "text": "                   CURRENT-YEAR"
+  },
+  {
+   "no": 226,
+   "text": "                   '  (mm/dd/yy)'."
+  },
+  {
+   "no": 227,
+   "text": "           DISPLAY '             TIME = '"
+  },
+  {
+   "no": 228,
+   "text": "                   CURRENT-HOUR"
+  },
+  {
+   "no": 229,
+   "text": "                   ':'"
+  },
+  {
+   "no": 230,
+   "text": "                   CURRENT-MINUTE"
+  },
+  {
+   "no": 231,
+   "text": "                   ':'"
+  },
+  {
+   "no": 232,
+   "text": "                   CURRENT-SECOND."
+  },
+  {
+   "no": 233,
+   "text": "      * TODO this is a task tag"
+  },
+  {
+   "no": 234,
+   "text": "           PERFORM 700-OPEN-FILES."
+  },
+  {
+   "no": 235,
+   "text": "           PERFORM 800-INIT-REPORT."
+  },
+  {
+   "no": 236,
+   "text": ""
+  },
+  {
+   "no": 237,
+   "text": "           PERFORM 730-READ-CUSTOMER-FILE."
+  },
+  {
+   "no": 238,
+   "text": "           PERFORM 100-PROCESS-TRANSACTIONS"
+  },
+  {
+   "no": 239,
+   "text": "              UNTIL WS-TRAN-EOF = 'Y'."
+  },
+  {
+   "no": 240,
+   "text": ""
+  },
+  {
+   "no": 241,
+   "text": "           PERFORM 850-REPORT-TRAN-STATS."
+  },
+  {
+   "no": 242,
+   "text": "           PERFORM 790-CLOSE-FILES."
+  },
+  {
+   "no": 243,
+   "text": ""
+  },
+  {
+   "no": 244,
+   "text": "           ACCEPT CURRENT-DATE FROM DATE."
+  },
+  {
+   "no": 245,
+   "text": "           ACCEPT CURRENT-TIME FROM TIME."
+  },
+  {
+   "no": 246,
+   "text": "           DISPLAY 'SAM1 STOPPED DATE = '"
+  },
+  {
+   "no": 247,
+   "text": "                   CURRENT-MONTH"
+  },
+  {
+   "no": 248,
+   "text": "                   '/'"
+  },
+  {
+   "no": 249,
+   "text": "                   CURRENT-DAY"
+  },
+  {
+   "no": 250,
+   "text": "                   '/'"
+  },
+  {
+   "no": 251,
+   "text": "                   CURRENT-YEAR"
+  },
+  {
+   "no": 252,
+   "text": "                   '  (mm/dd/yy)'."
+  },
+  {
+   "no": 253,
+   "text": "           DISPLAY '             TIME = '"
+  },
+  {
+   "no": 254,
+   "text": "                   CURRENT-HOUR"
+  },
+  {
+   "no": 255,
+   "text": "                   ':'"
+  },
+  {
+   "no": 256,
+   "text": "                   CURRENT-MINUTE"
+  },
+  {
+   "no": 257,
+   "text": "                   ':'"
+  },
+  {
+   "no": 258,
+   "text": "                   CURRENT-SECOND."
+  },
+  {
+   "no": 259,
+   "text": "           GOBACK."
+  },
+  {
+   "no": 260,
+   "text": ""
+  },
+  {
+   "no": 261,
+   "text": "       100-PROCESS-TRANSACTIONS."
+  },
+  {
+   "no": 262,
+   "text": "           PERFORM 710-READ-TRAN-FILE."
+  },
+  {
+   "no": 263,
+   "text": ""
+  },
+  {
+   "no": 264,
+   "text": "           IF WS-TRAN-EOF NOT = 'Y'"
+  },
+  {
+   "no": 265,
+   "text": "            COMPUTE NUM-TRAN-RECS = NUM-TRAN-RECS + 1"
+  },
+  {
+   "no": 266,
+   "text": "            MOVE 'Y' TO WS-TRAN-OK"
+  },
+  {
+   "no": 267,
+   "text": "            IF TRAN-KEY < WS-PREV-TRAN-KEY AND TRAN-COMMENT NOT = '*'"
+  },
+  {
+   "no": 268,
+   "text": "             MOVE 'TRANSACTION OUT OF SEQUENCE' TO ERR-MSG-DATA1"
+  },
+  {
+   "no": 269,
+   "text": "             MOVE SPACES TO ERR-MSG-DATA2"
+  },
+  {
+   "no": 270,
+   "text": "             PERFORM 299-REPORT-BAD-TRAN"
+  },
+  {
+   "no": 271,
+   "text": "            ELSE"
+  },
+  {
+   "no": 272,
+   "text": "             EVALUATE TRAN-CODE"
+  },
+  {
+   "no": 273,
+   "text": "             WHEN 'UPDATE'"
+  },
+  {
+   "no": 274,
+   "text": "              PERFORM 200-PROCESS-UPDATE-TRAN"
+  },
+  {
+   "no": 275,
+   "text": "             WHEN 'ADD   '"
+  },
+  {
+   "no": 276,
+   "text": "              PERFORM 210-PROCESS-ADD-TRAN"
+  },
+  {
+   "no": 277,
+   "text": "             WHEN 'DELETE'"
+  },
+  {
+   "no": 278,
+   "text": "              PERFORM 220-PROCESS-DELETE-TRAN"
+  },
+  {
+   "no": 279,
+   "text": "             WHEN OTHER"
+  },
+  {
+   "no": 280,
+   "text": "              IF TRAN-COMMENT NOT = '*'"
+  },
+  {
+   "no": 281,
+   "text": "               MOVE 'INVALID TRAN CODE:' TO ERR-MSG-DATA1"
+  },
+  {
+   "no": 282,
+   "text": "               MOVE TRAN-CODE TO ERR-MSG-DATA2"
+  },
+  {
+   "no": 283,
+   "text": "               PERFORM 299-REPORT-BAD-TRAN"
+  },
+  {
+   "no": 284,
+   "text": "              END-IF"
+  },
+  {
+   "no": 285,
+   "text": "             END-EVALUATE"
+  },
+  {
+   "no": 286,
+   "text": "            END-IF"
+  },
+  {
+   "no": 287,
+   "text": "            MOVE TRAN-KEY TO WS-PREV-TRAN-KEY"
+  },
+  {
+   "no": 288,
+   "text": "            IF WS-TRAN-OK = 'Y'"
+  },
+  {
+   "no": 289,
+   "text": "             PERFORM 830-REPORT-TRAN-PROCESSED"
+  },
+  {
+   "no": 290,
+   "text": "            END-IF"
+  },
+  {
+   "no": 291,
+   "text": "           END-IF."
+  },
+  {
+   "no": 292,
+   "text": ""
+  },
+  {
+   "no": 293,
+   "text": "       200-PROCESS-UPDATE-TRAN."
+  },
+  {
+   "no": 294,
+   "text": "           ADD +1 TO NUM-UPDATE-REQUESTS."
+  },
+  {
+   "no": 295,
+   "text": "           PERFORM 720-POSITION-CUST-FILE."
+  },
+  {
+   "no": 296,
+   "text": "           IF CUST-KEY NOT = TRAN-KEY OR WS-CUST-FILE-EOF = 'Y'"
+  },
+  {
+   "no": 297,
+   "text": "            MOVE 'NO MATCHING KEY:     ' TO ERR-MSG-DATA1"
+  },
+  {
+   "no": 298,
+   "text": "            MOVE TRAN-KEY TO ERR-MSG-DATA2"
+  },
+  {
+   "no": 299,
+   "text": "            PERFORM 299-REPORT-BAD-TRAN"
+  },
+  {
+   "no": 300,
+   "text": "           ELSE"
+  },
+  {
+   "no": 301,
+   "text": "      *"
+  },
+  {
+   "no": 302,
+   "text": "      *        Subroutine SAM2 will apply an update to a customer record"
+  },
+  {
+   "no": 303,
+   "text": "      *"
+  },
+  {
+   "no": 304,
+   "text": "            CALL SAM2 USING CUST-REC, TRANSACTION-RECORD,"
+  },
+  {
+   "no": 305,
+   "text": "               WS-TRAN-OK, WS-TRAN-MSG"
+  },
+  {
+   "no": 306,
+   "text": "            IF WS-TRAN-OK NOT = 'Y'"
+  },
+  {
+   "no": 307,
+   "text": "             MOVE WS-TRAN-MSG TO ERR-MSG-DATA1"
+  },
+  {
+   "no": 308,
+   "text": "             MOVE SPACES TO ERR-MSG-DATA2"
+  },
+  {
+   "no": 309,
+   "text": "             PERFORM 299-REPORT-BAD-TRAN"
+  },
+  {
+   "no": 310,
+   "text": "            ELSE"
+  },
+  {
+   "no": 311,
+   "text": "             ADD +1 TO NUM-UPDATE-PROCESSED"
+  },
+  {
+   "no": 312,
+   "text": "            END-IF"
+  },
+  {
+   "no": 313,
+   "text": "           END-IF."
+  },
+  {
+   "no": 314,
+   "text": ""
+  },
+  {
+   "no": 315,
+   "text": "       210-PROCESS-ADD-TRAN."
+  },
+  {
+   "no": 316,
+   "text": "           ADD +1 TO NUM-ADD-REQUESTS."
+  },
+  {
+   "no": 317,
+   "text": "           PERFORM 720-POSITION-CUST-FILE."
+  },
+  {
+   "no": 318,
+   "text": "           IF CUST-KEY = TRAN-KEY"
+  },
+  {
+   "no": 319,
+   "text": "            MOVE 'DUPLICATE KEY:       ' TO ERR-MSG-DATA1"
+  },
+  {
+   "no": 320,
+   "text": "            MOVE TRAN-KEY TO ERR-MSG-DATA2"
+  },
+  {
+   "no": 321,
+   "text": "            PERFORM 299-REPORT-BAD-TRAN"
+  },
+  {
+   "no": 322,
+   "text": "           ELSE"
+  },
+  {
+   "no": 323,
+   "text": "            MOVE SPACES TO WS-CUST-REC"
+  },
+  {
+   "no": 324,
+   "text": "            MOVE TRAN-KEY TO WS-CUST-KEY"
+  },
+  {
+   "no": 325,
+   "text": "            MOVE +0 TO WS-CUST-ACCT-BALANCE"
+  },
+  {
+   "no": 326,
+   "text": "            MOVE +0 TO WS-CUST-ORDERS-YTD"
+  },
+  {
+   "no": 327,
+   "text": "            PERFORM TEST AFTER VARYING I FROM 1 BY 1"
+  },
+  {
+   "no": 328,
+   "text": "               UNTIL I > 12"
+  },
+  {
+   "no": 329,
+   "text": "             MOVE +0 TO WS-CUST-MONTH(I)"
+  },
+  {
+   "no": 330,
+   "text": "            END-PERFORM"
+  },
+  {
+   "no": 331,
+   "text": "            PERFORM 740-WRITE-CUSTOUT-FILE"
+  },
+  {
+   "no": 332,
+   "text": "            ADD +1 TO NUM-ADD-PROCESSED"
+  },
+  {
+   "no": 333,
+   "text": "           END-IF."
+  },
+  {
+   "no": 334,
+   "text": ""
+  },
+  {
+   "no": 335,
+   "text": "       220-PROCESS-DELETE-TRAN."
+  },
+  {
+   "no": 336,
+   "text": "           ADD +1 TO NUM-DELETE-REQUESTS."
+  },
+  {
+   "no": 337,
+   "text": "           PERFORM 720-POSITION-CUST-FILE."
+  },
+  {
+   "no": 338,
+   "text": "           IF CUST-KEY NOT = TRAN-KEY OR WS-CUST-FILE-EOF = 'Y'"
+  },
+  {
+   "no": 339,
+   "text": "            MOVE 'NO MATCHING KEY:     ' TO ERR-MSG-DATA1"
+  },
+  {
+   "no": 340,
+   "text": "            MOVE TRAN-KEY TO ERR-MSG-DATA2"
+  },
+  {
+   "no": 341,
+   "text": "            PERFORM 299-REPORT-BAD-TRAN"
+  },
+  {
+   "no": 342,
+   "text": "           ELSE"
+  },
+  {
+   "no": 343,
+   "text": "            ADD +1 TO NUM-DELETE-PROCESSED"
+  },
+  {
+   "no": 344,
+   "text": "            PERFORM 730-READ-CUSTOMER-FILE"
+  },
+  {
+   "no": 345,
+   "text": "           END-IF."
+  },
+  {
+   "no": 346,
+   "text": ""
+  },
+  {
+   "no": 347,
+   "text": "       299-REPORT-BAD-TRAN."
+  },
+  {
+   "no": 348,
+   "text": "           ADD +1 TO NUM-TRAN-ERRORS."
+  },
+  {
+   "no": 349,
+   "text": "           MOVE 'N' TO WS-TRAN-OK."
+  },
+  {
+   "no": 350,
+   "text": "           WRITE REPORT-RECORD FROM ERR-MSG-BAD-TRAN AFTER 2."
+  },
+  {
+   "no": 351,
+   "text": "           WRITE REPORT-RECORD FROM MSG-TRAN-SCALE-1."
+  },
+  {
+   "no": 352,
+   "text": "           WRITE REPORT-RECORD FROM MSG-TRAN-SCALE-2."
+  },
+  {
+   "no": 353,
+   "text": "           MOVE TRANSACTION-RECORD TO ERR-MSG-DATA3."
+  },
+  {
+   "no": 354,
+   "text": "           WRITE REPORT-RECORD FROM ERR-MSG-BAD-TRAN-2."
+  },
+  {
+   "no": 355,
+   "text": ""
+  },
+  {
+   "no": 356,
+   "text": "       700-OPEN-FILES."
+  },
+  {
+   "no": 357,
+   "text": "           OPEN INPUT TRANSACTION-FILE"
+  },
+  {
+   "no": 358,
+   "text": "              CUSTOMER-FILE"
+  },
+  {
+   "no": 359,
+   "text": "                OUTPUT CUSTOMER-FILE-OUT"
+  },
+  {
+   "no": 360,
+   "text": "              REPORT-FILE."
+  },
+  {
+   "no": 361,
+   "text": "           IF WS-CUSTFILE-STATUS NOT = '00'"
+  },
+  {
+   "no": 362,
+   "text": "            DISPLAY 'ERROR OPENING CUSTOMER INPUT FILE. RC:'"
+  },
+  {
+   "no": 363,
+   "text": "                    WS-CUSTFILE-STATUS"
+  },
+  {
+   "no": 364,
+   "text": "            DISPLAY 'Terminating Program due to File Error'"
+  },
+  {
+   "no": 365,
+   "text": "            MOVE 16 TO RETURN-CODE"
+  },
+  {
+   "no": 366,
+   "text": "            MOVE 'Y' TO WS-TRAN-EOF"
+  },
+  {
+   "no": 367,
+   "text": "           END-IF."
+  },
+  {
+   "no": 368,
+   "text": "           IF WS-CUSTOUT-STATUS NOT = '00'"
+  },
+  {
+   "no": 369,
+   "text": "            DISPLAY 'ERROR OPENING CUSTOMER OUTPUT FILE. RC:'"
+  },
+  {
+   "no": 370,
+   "text": "                    WS-CUSTOUT-STATUS"
+  },
+  {
+   "no": 371,
+   "text": "            DISPLAY 'Terminating Program due to File Error'"
+  },
+  {
+   "no": 372,
+   "text": "            MOVE 16 TO RETURN-CODE"
+  },
+  {
+   "no": 373,
+   "text": "            MOVE 'Y' TO WS-TRAN-EOF"
+  },
+  {
+   "no": 374,
+   "text": "           END-IF."
+  },
+  {
+   "no": 375,
+   "text": "           IF WS-TRANFILE-STATUS NOT = '00'"
+  },
+  {
+   "no": 376,
+   "text": "            DISPLAY 'ERROR OPENING TRAN FILE. RC:' WS-TRANFILE-STATUS"
+  },
+  {
+   "no": 377,
+   "text": "            DISPLAY 'Terminating Program due to File Error'"
+  },
+  {
+   "no": 378,
+   "text": "            MOVE 16 TO RETURN-CODE"
+  },
+  {
+   "no": 379,
+   "text": "            MOVE 'Y' TO WS-TRAN-EOF"
+  },
+  {
+   "no": 380,
+   "text": "           END-IF."
+  },
+  {
+   "no": 381,
+   "text": "           IF WS-REPORT-STATUS NOT = '00'"
+  },
+  {
+   "no": 382,
+   "text": "            DISPLAY 'ERROR OPENING REPT FILE. RC:' WS-REPORT-STATUS"
+  },
+  {
+   "no": 383,
+   "text": "            DISPLAY 'Terminating Program due to File Error'"
+  },
+  {
+   "no": 384,
+   "text": "            MOVE 16 TO RETURN-CODE"
+  },
+  {
+   "no": 385,
+   "text": "            MOVE 'Y' TO WS-TRAN-EOF"
+  },
+  {
+   "no": 386,
+   "text": "           END-IF."
+  },
+  {
+   "no": 387,
+   "text": ""
+  },
+  {
+   "no": 388,
+   "text": "       710-READ-TRAN-FILE."
+  },
+  {
+   "no": 389,
+   "text": "           READ TRANSACTION-FILE"
+  },
+  {
+   "no": 390,
+   "text": "           AT END"
+  },
+  {
+   "no": 391,
+   "text": "            MOVE 'Y' TO WS-TRAN-EOF."
+  },
+  {
+   "no": 392,
+   "text": "           EVALUATE WS-TRANFILE-STATUS"
+  },
+  {
+   "no": 393,
+   "text": "           WHEN '00'"
+  },
+  {
+   "no": 394,
+   "text": "            CONTINUE"
+  },
+  {
+   "no": 395,
+   "text": "           WHEN '10'"
+  },
+  {
+   "no": 396,
+   "text": "            MOVE 'Y' TO WS-TRAN-EOF"
+  },
+  {
+   "no": 397,
+   "text": "           WHEN OTHER"
+  },
+  {
+   "no": 398,
+   "text": "            MOVE 'Error on tran file read.  Code:'"
+  },
+  {
+   "no": 399,
+   "text": "               TO ERR-MSG-DATA1"
+  },
+  {
+   "no": 400,
+   "text": "            MOVE WS-CUSTFILE-STATUS TO ERR-MSG-DATA2"
+  },
+  {
+   "no": 401,
+   "text": "            PERFORM 299-REPORT-BAD-TRAN"
+  },
+  {
+   "no": 402,
+   "text": "            MOVE 'Y' TO WS-TRAN-EOF"
+  },
+  {
+   "no": 403,
+   "text": "           END-EVALUATE."
+  },
+  {
+   "no": 404,
+   "text": "           IF WS-TRAN-EOF = 'Y'"
+  },
+  {
+   "no": 405,
+   "text": "            PERFORM 721-COPY-RECORDS"
+  },
+  {
+   "no": 406,
+   "text": "               UNTIL WS-CUST-FILE-EOF = 'Y'"
+  },
+  {
+   "no": 407,
+   "text": "           END-IF."
+  },
+  {
+   "no": 408,
+   "text": ""
+  },
+  {
+   "no": 409,
+   "text": "       720-POSITION-CUST-FILE."
+  },
+  {
+   "no": 410,
+   "text": "           IF CUST-KEY < TRAN-KEY"
+  },
+  {
+   "no": 411,
+   "text": "            IF WS-CUST-FILE-EOF NOT = 'Y'"
+  },
+  {
+   "no": 412,
+   "text": "             PERFORM 721-COPY-RECORDS"
+  },
+  {
+   "no": 413,
+   "text": "                UNTIL CUST-KEY >= TRAN-KEY"
+  },
+  {
+   "no": 414,
+   "text": "                OR WS-CUST-FILE-EOF = 'Y'"
+  },
+  {
+   "no": 415,
+   "text": "            END-IF"
+  },
+  {
+   "no": 416,
+   "text": "           END-IF."
+  },
+  {
+   "no": 417,
+   "text": ""
+  },
+  {
+   "no": 418,
+   "text": "       721-COPY-RECORDS."
+  },
+  {
+   "no": 419,
+   "text": "           MOVE CUST-REC TO WS-CUST-REC."
+  },
+  {
+   "no": 420,
+   "text": "           PERFORM 740-WRITE-CUSTOUT-FILE."
+  },
+  {
+   "no": 421,
+   "text": "           PERFORM 730-READ-CUSTOMER-FILE."
+  },
+  {
+   "no": 422,
+   "text": ""
+  },
+  {
+   "no": 423,
+   "text": "       730-READ-CUSTOMER-FILE."
+  },
+  {
+   "no": 424,
+   "text": "           READ CUSTOMER-FILE"
+  },
+  {
+   "no": 425,
+   "text": "           AT END"
+  },
+  {
+   "no": 426,
+   "text": "            MOVE 'Y' TO WS-CUST-FILE-EOF."
+  },
+  {
+   "no": 427,
+   "text": "           EVALUATE WS-CUSTFILE-STATUS"
+  },
+  {
+   "no": 428,
+   "text": "           WHEN '00'"
+  },
+  {
+   "no": 429,
+   "text": "           WHEN '04'"
+  },
+  {
+   "no": 430,
+   "text": "            CONTINUE"
+  },
+  {
+   "no": 431,
+   "text": "           WHEN '10'"
+  },
+  {
+   "no": 432,
+   "text": "            MOVE 'Y' TO WS-CUST-FILE-EOF"
+  },
+  {
+   "no": 433,
+   "text": "           WHEN OTHER"
+  },
+  {
+   "no": 434,
+   "text": "            MOVE 'Customer input File I/O Error on Read.  RC: '"
+  },
+  {
+   "no": 435,
+   "text": "               TO ERR-MSG-DATA1"
+  },
+  {
+   "no": 436,
+   "text": "            MOVE WS-CUSTFILE-STATUS TO ERR-MSG-DATA2"
+  },
+  {
+   "no": 437,
+   "text": "            PERFORM 299-REPORT-BAD-TRAN"
+  },
+  {
+   "no": 438,
+   "text": "           END-EVALUATE."
+  },
+  {
+   "no": 439,
+   "text": ""
+  },
+  {
+   "no": 440,
+   "text": "       740-WRITE-CUSTOUT-FILE."
+  },
+  {
+   "no": 441,
+   "text": "           IF WS-CUST-REC-TYPE = 'A'"
+  },
+  {
+   "no": 442,
+   "text": "            WRITE CSTOUT-REC FROM WS-CUST-REC"
+  },
+  {
+   "no": 443,
+   "text": "           ELSE"
+  },
+  {
+   "no": 444,
+   "text": "            MOVE WS-CUST-REC TO WS-CUST-CONTACT-REC"
+  },
+  {
+   "no": 445,
+   "text": "            WRITE CSTOUT-CONTACT-REC FROM WS-CUST-CONTACT-REC"
+  },
+  {
+   "no": 446,
+   "text": "           END-IF."
+  },
+  {
+   "no": 447,
+   "text": "           EVALUATE WS-CUSTOUT-STATUS"
+  },
+  {
+   "no": 448,
+   "text": "           WHEN '00'"
+  },
+  {
+   "no": 449,
+   "text": "            CONTINUE"
+  },
+  {
+   "no": 450,
+   "text": "           WHEN OTHER"
+  },
+  {
+   "no": 451,
+   "text": "            MOVE 'CUSTOMER OUTPUT FILE I/O ERROR ON WRITE. RC: '"
+  },
+  {
+   "no": 452,
+   "text": "               TO ERR-MSG-DATA1"
+  },
+  {
+   "no": 453,
+   "text": "            MOVE WS-CUSTFILE-STATUS TO ERR-MSG-DATA2"
+  },
+  {
+   "no": 454,
+   "text": "            PERFORM 299-REPORT-BAD-TRAN"
+  },
+  {
+   "no": 455,
+   "text": "           END-EVALUATE."
+  },
+  {
+   "no": 456,
+   "text": ""
+  },
+  {
+   "no": 457,
+   "text": "       790-CLOSE-FILES."
+  },
+  {
+   "no": 458,
+   "text": "           CLOSE TRANSACTION-FILE."
+  },
+  {
+   "no": 459,
+   "text": "           CLOSE REPORT-FILE."
+  },
+  {
+   "no": 460,
+   "text": "           CLOSE CUSTOMER-FILE."
+  },
+  {
+   "no": 461,
+   "text": ""
+  },
+  {
+   "no": 462,
+   "text": "       800-INIT-REPORT."
+  },
+  {
+   "no": 463,
+   "text": "           MOVE CURRENT-YEAR TO RPT-YY."
+  },
+  {
+   "no": 464,
+   "text": "           MOVE CURRENT-MONTH TO RPT-MM."
+  },
+  {
+   "no": 465,
+   "text": "           MOVE CURRENT-DAY TO RPT-DD."
+  },
+  {
+   "no": 466,
+   "text": "           MOVE CURRENT-HOUR TO RPT-HH."
+  },
+  {
+   "no": 467,
+   "text": "           MOVE CURRENT-MINUTE TO RPT-MIN."
+  },
+  {
+   "no": 468,
+   "text": "           MOVE CURRENT-SECOND TO RPT-SS."
+  },
+  {
+   "no": 469,
+   "text": "           WRITE REPORT-RECORD FROM RPT-HEADER1 AFTER PAGE."
+  },
+  {
+   "no": 470,
+   "text": ""
+  },
+  {
+   "no": 471,
+   "text": "       830-REPORT-TRAN-PROCESSED."
+  },
+  {
+   "no": 472,
+   "text": "           MOVE TRANSACTION-RECORD TO RPT-TRAN-RECORD."
+  },
+  {
+   "no": 473,
+   "text": "           IF TRAN-COMMENT = '*'"
+  },
+  {
+   "no": 474,
+   "text": "            MOVE SPACES TO RPT-TRAN-MSG1"
+  },
+  {
+   "no": 475,
+   "text": "           ELSE"
+  },
+  {
+   "no": 476,
+   "text": "            MOVE '       Transaction processed: ' TO RPT-TRAN-MSG1"
+  },
+  {
+   "no": 477,
+   "text": "           END-IF."
+  },
+  {
+   "no": 478,
+   "text": "           WRITE REPORT-RECORD FROM RPT-TRAN-DETAIL1."
+  },
+  {
+   "no": 479,
+   "text": ""
+  },
+  {
+   "no": 480,
+   "text": "       850-REPORT-TRAN-STATS."
+  },
+  {
+   "no": 481,
+   "text": "           WRITE REPORT-RECORD FROM RPT-STATS-HDR1 AFTER 2."
+  },
+  {
+   "no": 482,
+   "text": "           WRITE REPORT-RECORD FROM RPT-STATS-HDR2 AFTER 2."
+  },
+  {
+   "no": 483,
+   "text": "           WRITE REPORT-RECORD FROM RPT-STATS-HDR3 AFTER 1."
+  },
+  {
+   "no": 484,
+   "text": "           WRITE REPORT-RECORD FROM RPT-STATS-HDR4 AFTER 1."
+  },
+  {
+   "no": 485,
+   "text": ""
+  },
+  {
+   "no": 486,
+   "text": "           MOVE 'ADD    ' TO RPT-TRAN."
+  },
+  {
+   "no": 487,
+   "text": "           MOVE NUM-ADD-REQUESTS TO RPT-NUM-TRANS."
+  },
+  {
+   "no": 488,
+   "text": "           MOVE NUM-ADD-PROCESSED TO RPT-NUM-TRAN-PROC."
+  },
+  {
+   "no": 489,
+   "text": "           COMPUTE RPT-NUM-TRAN-ERR ="
+  },
+  {
+   "no": 490,
+   "text": "              NUM-ADD-REQUESTS - NUM-ADD-PROCESSED."
+  },
+  {
+   "no": 491,
+   "text": "           WRITE REPORT-RECORD FROM RPT-STATS-DETAIL."
+  },
+  {
+   "no": 492,
+   "text": ""
+  },
+  {
+   "no": 493,
+   "text": "           MOVE 'DELETE ' TO RPT-TRAN."
+  },
+  {
+   "no": 494,
+   "text": "           MOVE NUM-DELETE-REQUESTS TO RPT-NUM-TRANS."
+  },
+  {
+   "no": 495,
+   "text": "           MOVE NUM-DELETE-PROCESSED TO RPT-NUM-TRAN-PROC."
+  },
+  {
+   "no": 496,
+   "text": "           COMPUTE RPT-NUM-TRAN-ERR ="
+  },
+  {
+   "no": 497,
+   "text": "              NUM-DELETE-REQUESTS - NUM-DELETE-PROCESSED."
+  },
+  {
+   "no": 498,
+   "text": "           WRITE REPORT-RECORD FROM RPT-STATS-DETAIL."
+  },
+  {
+   "no": 499,
+   "text": ""
+  },
+  {
+   "no": 500,
+   "text": "           MOVE 'UPDATE ' TO RPT-TRAN."
+  },
+  {
+   "no": 501,
+   "text": "           MOVE NUM-UPDATE-REQUESTS TO RPT-NUM-TRANS."
+  },
+  {
+   "no": 502,
+   "text": "           MOVE NUM-UPDATE-PROCESSED TO RPT-NUM-TRAN-PROC."
+  },
+  {
+   "no": 503,
+   "text": "           COMPUTE RPT-NUM-TRAN-ERR ="
+  },
+  {
+   "no": 504,
+   "text": "              NUM-UPDATE-REQUESTS - NUM-UPDATE-PROCESSED."
+  },
+  {
+   "no": 505,
+   "text": "           WRITE REPORT-RECORD FROM RPT-STATS-DETAIL."
+  }
+ ],
+ "copybooks": [
+  "CUSTCOPY.cpy",
+  "TRANREC.cpy"
+ ],
+ "paragraphs": 16,
+ "fields": 216,
+ "diagnostics": [],
+ "using": [],
+ "mode": "per decision statement",
+ "entry": "100-PROCESS-TRANSACTIONS",
+ "decision_fields": [
+  "ERR-MSG-DATA1",
+  "ERR-MSG-DATA2",
+  "RETURN-CODE",
+  "RPT-TRAN-MSG1",
+  "WS-CUST-ACCT-BALANCE",
+  "WS-CUST-MONTH",
+  "WS-CUST-ORDERS-YTD"
+ ],
+ "raw_paths": 28,
+ "rules": [
+  {
+   "id": "100-PROCESS-TRANSACTIONS/1.1",
+   "actions": {
+    "ERR-MSG-DATA1": "TRANSACTION OUT OF SEQUENCE",
+    "ERR-MSG-DATA2": "SPACES",
+    "PERFORMS": "299-REPORT-BAD-TRAN, 830-REPORT-TRAN-PROCESSED"
+   },
+   "conditions": [
+    {
+     "text": "WS-TRAN-EOF <> 'Y'",
+     "line": 264,
+     "where": "SAM1.cbl:264",
+     "tested": "WS-TRAN-EOF <> 'Y'",
+     "outcome": true,
+     "english": "WS-TRAN-EOF is not 'Y'",
+     "implied": false
+    },
+    {
+     "text": "TRAN-KEY < WS-PREV-TRAN-KEY AND TRAN-COMMENT <> '*'",
+     "line": 267,
+     "where": "SAM1.cbl:267",
+     "tested": "TRAN-KEY < WS-PREV-TRAN-KEY AND TRAN-COMMENT <> '*'",
+     "outcome": true,
+     "english": "TRAN-KEY is less than WS-PREV-TRAN-KEY and TRAN-COMMENT is not '*'",
+     "implied": false
+    },
+    {
+     "text": "WS-TRAN-OK = 'Y'",
+     "line": 288,
+     "where": "SAM1.cbl:288",
+     "tested": "WS-TRAN-OK = 'Y'",
+     "outcome": true,
+     "english": "WS-TRAN-OK is 'Y'",
+     "implied": false
+    }
+   ],
+   "derived": [
+    {
+     "text": "repeat 710-READ-TRAN-FILE",
+     "line": 262
+    },
+    {
+     "text": "NUM-TRAN-RECS = NUM-TRAN-RECS + 1",
+     "line": 265
+    },
+    {
+     "text": "WS-TRAN-OK = 'Y'",
+     "line": 266
+    },
+    {
+     "text": "repeat 299-REPORT-BAD-TRAN",
+     "line": 270
+    },
+    {
+     "text": "WS-PREV-TRAN-KEY = TRAN-KEY",
+     "line": 287
+    },
+    {
+     "text": "repeat 830-REPORT-TRAN-PROCESSED",
+     "line": 289
+    }
+   ],
+   "lines": [
+    264,
+    267,
+    268,
+    269,
+    270,
+    288,
+    289
+   ],
+   "notes": [],
+   "z3": {
+    "removed": 0,
+    "equivalent": true
+   }
+  },
+  {
+   "id": "100-PROCESS-TRANSACTIONS/1.2",
+   "actions": {
+    "ERR-MSG-DATA1": "TRANSACTION OUT OF SEQUENCE",
+    "ERR-MSG-DATA2": "SPACES",
+    "PERFORMS": "299-REPORT-BAD-TRAN"
+   },
+   "conditions": [
+    {
+     "text": "WS-TRAN-EOF <> 'Y'",
+     "line": 264,
+     "where": "SAM1.cbl:264",
+     "tested": "WS-TRAN-EOF <> 'Y'",
+     "outcome": true,
+     "english": "WS-TRAN-EOF is not 'Y'",
+     "implied": false
+    },
+    {
+     "text": "TRAN-KEY < WS-PREV-TRAN-KEY AND TRAN-COMMENT <> '*'",
+     "line": 267,
+     "where": "SAM1.cbl:267",
+     "tested": "TRAN-KEY < WS-PREV-TRAN-KEY AND TRAN-COMMENT <> '*'",
+     "outcome": true,
+     "english": "TRAN-KEY is less than WS-PREV-TRAN-KEY and TRAN-COMMENT is not '*'",
+     "implied": false
+    },
+    {
+     "text": "WS-TRAN-OK <> 'Y'",
+     "line": 288,
+     "where": "SAM1.cbl:288",
+     "tested": "WS-TRAN-OK = 'Y'",
+     "outcome": false,
+     "english": "WS-TRAN-OK is not 'Y'",
+     "implied": false
+    }
+   ],
+   "derived": [
+    {
+     "text": "repeat 710-READ-TRAN-FILE",
+     "line": 262
+    },
+    {
+     "text": "NUM-TRAN-RECS = NUM-TRAN-RECS + 1",
+     "line": 265
+    },
+    {
+     "text": "WS-TRAN-OK = 'Y'",
+     "line": 266
+    },
+    {
+     "text": "repeat 299-REPORT-BAD-TRAN",
+     "line": 270
+    },
+    {
+     "text": "WS-PREV-TRAN-KEY = TRAN-KEY",
+     "line": 287
+    }
+   ],
+   "lines": [
+    264,
+    267,
+    268,
+    269,
+    270,
+    288
+   ],
+   "notes": [],
+   "z3": {
+    "removed": 0,
+    "equivalent": true
+   }
+  },
+  {
+   "id": "100-PROCESS-TRANSACTIONS/1.3",
+   "actions": {
+    "PERFORMS": "200-PROCESS-UPDATE-TRAN, 830-REPORT-TRAN-PROCESSED"
+   },
+   "conditions": [
+    {
+     "text": "WS-TRAN-EOF <> 'Y'",
+     "line": 264,
+     "where": "SAM1.cbl:264",
+     "tested": "WS-TRAN-EOF <> 'Y'",
+     "outcome": true,
+     "english": "WS-TRAN-EOF is not 'Y'",
+     "implied": false
+    },
+    {
+     "text": "TRAN-KEY >= WS-PREV-TRAN-KEY OR TRAN-COMMENT = '*'",
+     "line": 267,
+     "where": "SAM1.cbl:267",
+     "tested": "TRAN-KEY < WS-PREV-TRAN-KEY AND TRAN-COMMENT <> '*'",
+     "outcome": false,
+     "english": "TRAN-KEY is at least WS-PREV-TRAN-KEY or TRAN-COMMENT is '*'",
+     "implied": false
+    },
+    {
+     "text": "TRAN-CODE = 'UPDATE'",
+     "line": 273,
+     "where": "SAM1.cbl:273",
+     "tested": "TRAN-CODE = 'UPDATE'",
+     "outcome": true,
+     "english": "TRAN-CODE is 'UPDATE'",
+     "implied": false
+    },
+    {
+     "text": "WS-TRAN-OK = 'Y'",
+     "line": 288,
+     "where": "SAM1.cbl:288",
+     "tested": "WS-TRAN-OK = 'Y'",
+     "outcome": true,
+     "english": "WS-TRAN-OK is 'Y'",
+     "implied": false
+    }
+   ],
+   "derived": [
+    {
+     "text": "repeat 710-READ-TRAN-FILE",
+     "line": 262
+    },
+    {
+     "text": "NUM-TRAN-RECS = NUM-TRAN-RECS + 1",
+     "line": 265
+    },
+    {
+     "text": "WS-TRAN-OK = 'Y'",
+     "line": 266
+    },
+    {
+     "text": "repeat 200-PROCESS-UPDATE-TRAN",
+     "line": 274
+    },
+    {
+     "text": "WS-PREV-TRAN-KEY = TRAN-KEY",
+     "line": 287
+    },
+    {
+     "text": "repeat 830-REPORT-TRAN-PROCESSED",
+     "line": 289
+    }
+   ],
+   "lines": [
+    264,
+    267,
+    273,
+    274,
+    288,
+    289
+   ],
+   "notes": [],
+   "z3": {
+    "removed": 0,
+    "equivalent": true
+   }
+  },
+  {
+   "id": "100-PROCESS-TRANSACTIONS/1.4",
+   "actions": {
+    "PERFORMS": "200-PROCESS-UPDATE-TRAN"
+   },
+   "conditions": [
+    {
+     "text": "WS-TRAN-EOF <> 'Y'",
+     "line": 264,
+     "where": "SAM1.cbl:264",
+     "tested": "WS-TRAN-EOF <> 'Y'",
+     "outcome": true,
+     "english": "WS-TRAN-EOF is not 'Y'",
+     "implied": false
+    },
+    {
+     "text": "TRAN-KEY >= WS-PREV-TRAN-KEY OR TRAN-COMMENT = '*'",
+     "line": 267,
+     "where": "SAM1.cbl:267",
+     "tested": "TRAN-KEY < WS-PREV-TRAN-KEY AND TRAN-COMMENT <> '*'",
+     "outcome": false,
+     "english": "TRAN-KEY is at least WS-PREV-TRAN-KEY or TRAN-COMMENT is '*'",
+     "implied": false
+    },
+    {
+     "text": "TRAN-CODE = 'UPDATE'",
+     "line": 273,
+     "where": "SAM1.cbl:273",
+     "tested": "TRAN-CODE = 'UPDATE'",
+     "outcome": true,
+     "english": "TRAN-CODE is 'UPDATE'",
+     "implied": false
+    },
+    {
+     "text": "WS-TRAN-OK <> 'Y'",
+     "line": 288,
+     "where": "SAM1.cbl:288",
+     "tested": "WS-TRAN-OK = 'Y'",
+     "outcome": false,
+     "english": "WS-TRAN-OK is not 'Y'",
+     "implied": false
+    }
+   ],
+   "derived": [
+    {
+     "text": "repeat 710-READ-TRAN-FILE",
+     "line": 262
+    },
+    {
+     "text": "NUM-TRAN-RECS = NUM-TRAN-RECS + 1",
+     "line": 265
+    },
+    {
+     "text": "WS-TRAN-OK = 'Y'",
+     "line": 266
+    },
+    {
+     "text": "repeat 200-PROCESS-UPDATE-TRAN",
+     "line": 274
+    },
+    {
+     "text": "WS-PREV-TRAN-KEY = TRAN-KEY",
+     "line": 287
+    }
+   ],
+   "lines": [
+    264,
+    267,
+    273,
+    274,
+    288
+   ],
+   "notes": [],
+   "z3": {
+    "removed": 0,
+    "equivalent": true
+   }
+  },
+  {
+   "id": "100-PROCESS-TRANSACTIONS/1.5",
+   "actions": {
+    "PERFORMS": "210-PROCESS-ADD-TRAN, 830-REPORT-TRAN-PROCESSED"
+   },
+   "conditions": [
+    {
+     "text": "WS-TRAN-EOF <> 'Y'",
+     "line": 264,
+     "where": "SAM1.cbl:264",
+     "tested": "WS-TRAN-EOF <> 'Y'",
+     "outcome": true,
+     "english": "WS-TRAN-EOF is not 'Y'",
+     "implied": false
+    },
+    {
+     "text": "TRAN-KEY >= WS-PREV-TRAN-KEY OR TRAN-COMMENT = '*'",
+     "line": 267,
+     "where": "SAM1.cbl:267",
+     "tested": "TRAN-KEY < WS-PREV-TRAN-KEY AND TRAN-COMMENT <> '*'",
+     "outcome": false,
+     "english": "TRAN-KEY is at least WS-PREV-TRAN-KEY or TRAN-COMMENT is '*'",
+     "implied": false
+    },
+    {
+     "text": "TRAN-CODE <> 'UPDATE'",
+     "line": 273,
+     "where": "SAM1.cbl:273",
+     "tested": "TRAN-CODE = 'UPDATE'",
+     "outcome": false,
+     "english": "TRAN-CODE is not 'UPDATE'",
+     "implied": true
+    },
+    {
+     "text": "TRAN-CODE = 'ADD   '",
+     "line": 275,
+     "where": "SAM1.cbl:275",
+     "tested": "TRAN-CODE = 'ADD   '",
+     "outcome": true,
+     "english": "TRAN-CODE is 'ADD'",
+     "implied": false
+    },
+    {
+     "text": "WS-TRAN-OK = 'Y'",
+     "line": 288,
+     "where": "SAM1.cbl:288",
+     "tested": "WS-TRAN-OK = 'Y'",
+     "outcome": true,
+     "english": "WS-TRAN-OK is 'Y'",
+     "implied": false
+    }
+   ],
+   "derived": [
+    {
+     "text": "repeat 710-READ-TRAN-FILE",
+     "line": 262
+    },
+    {
+     "text": "NUM-TRAN-RECS = NUM-TRAN-RECS + 1",
+     "line": 265
+    },
+    {
+     "text": "WS-TRAN-OK = 'Y'",
+     "line": 266
+    },
+    {
+     "text": "repeat 210-PROCESS-ADD-TRAN",
+     "line": 276
+    },
+    {
+     "text": "WS-PREV-TRAN-KEY = TRAN-KEY",
+     "line": 287
+    },
+    {
+     "text": "repeat 830-REPORT-TRAN-PROCESSED",
+     "line": 289
+    }
+   ],
+   "lines": [
+    264,
+    267,
+    273,
+    275,
+    276,
+    288,
+    289
+   ],
+   "notes": [],
+   "z3": {
+    "removed": 1,
+    "equivalent": true
+   }
+  },
+  {
+   "id": "100-PROCESS-TRANSACTIONS/1.6",
+   "actions": {
+    "PERFORMS": "210-PROCESS-ADD-TRAN"
+   },
+   "conditions": [
+    {
+     "text": "WS-TRAN-EOF <> 'Y'",
+     "line": 264,
+     "where": "SAM1.cbl:264",
+     "tested": "WS-TRAN-EOF <> 'Y'",
+     "outcome": true,
+     "english": "WS-TRAN-EOF is not 'Y'",
+     "implied": false
+    },
+    {
+     "text": "TRAN-KEY >= WS-PREV-TRAN-KEY OR TRAN-COMMENT = '*'",
+     "line": 267,
+     "where": "SAM1.cbl:267",
+     "tested": "TRAN-KEY < WS-PREV-TRAN-KEY AND TRAN-COMMENT <> '*'",
+     "outcome": false,
+     "english": "TRAN-KEY is at least WS-PREV-TRAN-KEY or TRAN-COMMENT is '*'",
+     "implied": false
+    },
+    {
+     "text": "TRAN-CODE <> 'UPDATE'",
+     "line": 273,
+     "where": "SAM1.cbl:273",
+     "tested": "TRAN-CODE = 'UPDATE'",
+     "outcome": false,
+     "english": "TRAN-CODE is not 'UPDATE'",
+     "implied": true
+    },
+    {
+     "text": "TRAN-CODE = 'ADD   '",
+     "line": 275,
+     "where": "SAM1.cbl:275",
+     "tested": "TRAN-CODE = 'ADD   '",
+     "outcome": true,
+     "english": "TRAN-CODE is 'ADD'",
+     "implied": false
+    },
+    {
+     "text": "WS-TRAN-OK <> 'Y'",
+     "line": 288,
+     "where": "SAM1.cbl:288",
+     "tested": "WS-TRAN-OK = 'Y'",
+     "outcome": false,
+     "english": "WS-TRAN-OK is not 'Y'",
+     "implied": false
+    }
+   ],
+   "derived": [
+    {
+     "text": "repeat 710-READ-TRAN-FILE",
+     "line": 262
+    },
+    {
+     "text": "NUM-TRAN-RECS = NUM-TRAN-RECS + 1",
+     "line": 265
+    },
+    {
+     "text": "WS-TRAN-OK = 'Y'",
+     "line": 266
+    },
+    {
+     "text": "repeat 210-PROCESS-ADD-TRAN",
+     "line": 276
+    },
+    {
+     "text": "WS-PREV-TRAN-KEY = TRAN-KEY",
+     "line": 287
+    }
+   ],
+   "lines": [
+    264,
+    267,
+    273,
+    275,
+    276,
+    288
+   ],
+   "notes": [],
+   "z3": {
+    "removed": 1,
+    "equivalent": true
+   }
+  },
+  {
+   "id": "100-PROCESS-TRANSACTIONS/1.7",
+   "actions": {
+    "PERFORMS": "220-PROCESS-DELETE-TRAN, 830-REPORT-TRAN-PROCESSED"
+   },
+   "conditions": [
+    {
+     "text": "WS-TRAN-EOF <> 'Y'",
+     "line": 264,
+     "where": "SAM1.cbl:264",
+     "tested": "WS-TRAN-EOF <> 'Y'",
+     "outcome": true,
+     "english": "WS-TRAN-EOF is not 'Y'",
+     "implied": false
+    },
+    {
+     "text": "TRAN-KEY >= WS-PREV-TRAN-KEY OR TRAN-COMMENT = '*'",
+     "line": 267,
+     "where": "SAM1.cbl:267",
+     "tested": "TRAN-KEY < WS-PREV-TRAN-KEY AND TRAN-COMMENT <> '*'",
+     "outcome": false,
+     "english": "TRAN-KEY is at least WS-PREV-TRAN-KEY or TRAN-COMMENT is '*'",
+     "implied": false
+    },
+    {
+     "text": "TRAN-CODE <> 'UPDATE'",
+     "line": 273,
+     "where": "SAM1.cbl:273",
+     "tested": "TRAN-CODE = 'UPDATE'",
+     "outcome": false,
+     "english": "TRAN-CODE is not 'UPDATE'",
+     "implied": true
+    },
+    {
+     "text": "TRAN-CODE <> 'ADD   '",
+     "line": 275,
+     "where": "SAM1.cbl:275",
+     "tested": "TRAN-CODE = 'ADD   '",
+     "outcome": false,
+     "english": "TRAN-CODE is not 'ADD'",
+     "implied": true
+    },
+    {
+     "text": "TRAN-CODE = 'DELETE'",
+     "line": 277,
+     "where": "SAM1.cbl:277",
+     "tested": "TRAN-CODE = 'DELETE'",
+     "outcome": true,
+     "english": "TRAN-CODE is 'DELETE'",
+     "implied": false
+    },
+    {
+     "text": "WS-TRAN-OK = 'Y'",
+     "line": 288,
+     "where": "SAM1.cbl:288",
+     "tested": "WS-TRAN-OK = 'Y'",
+     "outcome": true,
+     "english": "WS-TRAN-OK is 'Y'",
+     "implied": false
+    }
+   ],
+   "derived": [
+    {
+     "text": "repeat 710-READ-TRAN-FILE",
+     "line": 262
+    },
+    {
+     "text": "NUM-TRAN-RECS = NUM-TRAN-RECS + 1",
+     "line": 265
+    },
+    {
+     "text": "WS-TRAN-OK = 'Y'",
+     "line": 266
+    },
+    {
+     "text": "repeat 220-PROCESS-DELETE-TRAN",
+     "line": 278
+    },
+    {
+     "text": "WS-PREV-TRAN-KEY = TRAN-KEY",
+     "line": 287
+    },
+    {
+     "text": "repeat 830-REPORT-TRAN-PROCESSED",
+     "line": 289
+    }
+   ],
+   "lines": [
+    264,
+    267,
+    273,
+    275,
+    277,
+    278,
+    288,
+    289
+   ],
+   "notes": [],
+   "z3": {
+    "removed": 2,
+    "equivalent": true
+   }
+  },
+  {
+   "id": "100-PROCESS-TRANSACTIONS/1.8",
+   "actions": {
+    "PERFORMS": "220-PROCESS-DELETE-TRAN"
+   },
+   "conditions": [
+    {
+     "text": "WS-TRAN-EOF <> 'Y'",
+     "line": 264,
+     "where": "SAM1.cbl:264",
+     "tested": "WS-TRAN-EOF <> 'Y'",
+     "outcome": true,
+     "english": "WS-TRAN-EOF is not 'Y'",
+     "implied": false
+    },
+    {
+     "text": "TRAN-KEY >= WS-PREV-TRAN-KEY OR TRAN-COMMENT = '*'",
+     "line": 267,
+     "where": "SAM1.cbl:267",
+     "tested": "TRAN-KEY < WS-PREV-TRAN-KEY AND TRAN-COMMENT <> '*'",
+     "outcome": false,
+     "english": "TRAN-KEY is at least WS-PREV-TRAN-KEY or TRAN-COMMENT is '*'",
+     "implied": false
+    },
+    {
+     "text": "TRAN-CODE <> 'UPDATE'",
+     "line": 273,
+     "where": "SAM1.cbl:273",
+     "tested": "TRAN-CODE = 'UPDATE'",
+     "outcome": false,
+     "english": "TRAN-CODE is not 'UPDATE'",
+     "implied": true
+    },
+    {
+     "text": "TRAN-CODE <> 'ADD   '",
+     "line": 275,
+     "where": "SAM1.cbl:275",
+     "tested": "TRAN-CODE = 'ADD   '",
+     "outcome": false,
+     "english": "TRAN-CODE is not 'ADD'",
+     "implied": true
+    },
+    {
+     "text": "TRAN-CODE = 'DELETE'",
+     "line": 277,
+     "where": "SAM1.cbl:277",
+     "tested": "TRAN-CODE = 'DELETE'",
+     "outcome": true,
+     "english": "TRAN-CODE is 'DELETE'",
+     "implied": false
+    },
+    {
+     "text": "WS-TRAN-OK <> 'Y'",
+     "line": 288,
+     "where": "SAM1.cbl:288",
+     "tested": "WS-TRAN-OK = 'Y'",
+     "outcome": false,
+     "english": "WS-TRAN-OK is not 'Y'",
+     "implied": false
+    }
+   ],
+   "derived": [
+    {
+     "text": "repeat 710-READ-TRAN-FILE",
+     "line": 262
+    },
+    {
+     "text": "NUM-TRAN-RECS = NUM-TRAN-RECS + 1",
+     "line": 265
+    },
+    {
+     "text": "WS-TRAN-OK = 'Y'",
+     "line": 266
+    },
+    {
+     "text": "repeat 220-PROCESS-DELETE-TRAN",
+     "line": 278
+    },
+    {
+     "text": "WS-PREV-TRAN-KEY = TRAN-KEY",
+     "line": 287
+    }
+   ],
+   "lines": [
+    264,
+    267,
+    273,
+    275,
+    277,
+    278,
+    288
+   ],
+   "notes": [],
+   "z3": {
+    "removed": 2,
+    "equivalent": true
+   }
+  },
+  {
+   "id": "100-PROCESS-TRANSACTIONS/1.9",
+   "actions": {
+    "ERR-MSG-DATA1": "INVALID TRAN CODE:",
+    "ERR-MSG-DATA2": "<ERR-MSG-DATA2 = TRAN-CODE>",
+    "PERFORMS": "299-REPORT-BAD-TRAN, 830-REPORT-TRAN-PROCESSED"
+   },
+   "conditions": [
+    {
+     "text": "WS-TRAN-EOF <> 'Y'",
+     "line": 264,
+     "where": "SAM1.cbl:264",
+     "tested": "WS-TRAN-EOF <> 'Y'",
+     "outcome": true,
+     "english": "WS-TRAN-EOF is not 'Y'",
+     "implied": false
+    },
+    {
+     "text": "TRAN-KEY >= WS-PREV-TRAN-KEY OR TRAN-COMMENT = '*'",
+     "line": 267,
+     "where": "SAM1.cbl:267",
+     "tested": "TRAN-KEY < WS-PREV-TRAN-KEY AND TRAN-COMMENT <> '*'",
+     "outcome": false,
+     "english": "TRAN-KEY is at least WS-PREV-TRAN-KEY or TRAN-COMMENT is '*'",
+     "implied": false
+    },
+    {
+     "text": "TRAN-CODE <> 'UPDATE'",
+     "line": 273,
+     "where": "SAM1.cbl:273",
+     "tested": "TRAN-CODE = 'UPDATE'",
+     "outcome": false,
+     "english": "TRAN-CODE is not 'UPDATE'",
+     "implied": false
+    },
+    {
+     "text": "TRAN-CODE <> 'ADD   '",
+     "line": 275,
+     "where": "SAM1.cbl:275",
+     "tested": "TRAN-CODE = 'ADD   '",
+     "outcome": false,
+     "english": "TRAN-CODE is not 'ADD'",
+     "implied": false
+    },
+    {
+     "text": "TRAN-CODE <> 'DELETE'",
+     "line": 277,
+     "where": "SAM1.cbl:277",
+     "tested": "TRAN-CODE = 'DELETE'",
+     "outcome": false,
+     "english": "TRAN-CODE is not 'DELETE'",
+     "implied": false
+    },
+    {
+     "text": "TRAN-COMMENT <> '*'",
+     "line": 280,
+     "where": "SAM1.cbl:280",
+     "tested": "TRAN-COMMENT <> '*'",
+     "outcome": true,
+     "english": "TRAN-COMMENT is not '*'",
+     "implied": false
+    },
+    {
+     "text": "WS-TRAN-OK = 'Y'",
+     "line": 288,
+     "where": "SAM1.cbl:288",
+     "tested": "WS-TRAN-OK = 'Y'",
+     "outcome": true,
+     "english": "WS-TRAN-OK is 'Y'",
+     "implied": false
+    }
+   ],
+   "derived": [
+    {
+     "text": "repeat 710-READ-TRAN-FILE",
+     "line": 262
+    },
+    {
+     "text": "NUM-TRAN-RECS = NUM-TRAN-RECS + 1",
+     "line": 265
+    },
+    {
+     "text": "WS-TRAN-OK = 'Y'",
+     "line": 266
+    },
+    {
+     "text": "repeat 299-REPORT-BAD-TRAN",
+     "line": 283
+    },
+    {
+     "text": "WS-PREV-TRAN-KEY = TRAN-KEY",
+     "line": 287
+    },
+    {
+     "text": "repeat 830-REPORT-TRAN-PROCESSED",
+     "line": 289
+    }
+   ],
+   "lines": [
+    264,
+    267,
+    273,
+    275,
+    277,
+    280,
+    281,
+    282,
+    283,
+    288,
+    289
+   ],
+   "notes": [],
+   "z3": {
+    "removed": 0,
+    "equivalent": true
+   }
+  },
+  {
+   "id": "100-PROCESS-TRANSACTIONS/1.10",
+   "actions": {
+    "ERR-MSG-DATA1": "INVALID TRAN CODE:",
+    "ERR-MSG-DATA2": "<ERR-MSG-DATA2 = TRAN-CODE>",
+    "PERFORMS": "299-REPORT-BAD-TRAN"
+   },
+   "conditions": [
+    {
+     "text": "WS-TRAN-EOF <> 'Y'",
+     "line": 264,
+     "where": "SAM1.cbl:264",
+     "tested": "WS-TRAN-EOF <> 'Y'",
+     "outcome": true,
+     "english": "WS-TRAN-EOF is not 'Y'",
+     "implied": false
+    },
+    {
+     "text": "TRAN-KEY >= WS-PREV-TRAN-KEY OR TRAN-COMMENT = '*'",
+     "line": 267,
+     "where": "SAM1.cbl:267",
+     "tested": "TRAN-KEY < WS-PREV-TRAN-KEY AND TRAN-COMMENT <> '*'",
+     "outcome": false,
+     "english": "TRAN-KEY is at least WS-PREV-TRAN-KEY or TRAN-COMMENT is '*'",
+     "implied": false
+    },
+    {
+     "text": "TRAN-CODE <> 'UPDATE'",
+     "line": 273,
+     "where": "SAM1.cbl:273",
+     "tested": "TRAN-CODE = 'UPDATE'",
+     "outcome": false,
+     "english": "TRAN-CODE is not 'UPDATE'",
+     "implied": false
+    },
+    {
+     "text": "TRAN-CODE <> 'ADD   '",
+     "line": 275,
+     "where": "SAM1.cbl:275",
+     "tested": "TRAN-CODE = 'ADD   '",
+     "outcome": false,
+     "english": "TRAN-CODE is not 'ADD'",
+     "implied": false
+    },
+    {
+     "text": "TRAN-CODE <> 'DELETE'",
+     "line": 277,
+     "where": "SAM1.cbl:277",
+     "tested": "TRAN-CODE = 'DELETE'",
+     "outcome": false,
+     "english": "TRAN-CODE is not 'DELETE'",
+     "implied": false
+    },
+    {
+     "text": "TRAN-COMMENT <> '*'",
+     "line": 280,
+     "where": "SAM1.cbl:280",
+     "tested": "TRAN-COMMENT <> '*'",
+     "outcome": true,
+     "english": "TRAN-COMMENT is not '*'",
+     "implied": false
+    },
+    {
+     "text": "WS-TRAN-OK <> 'Y'",
+     "line": 288,
+     "where": "SAM1.cbl:288",
+     "tested": "WS-TRAN-OK = 'Y'",
+     "outcome": false,
+     "english": "WS-TRAN-OK is not 'Y'",
+     "implied": false
+    }
+   ],
+   "derived": [
+    {
+     "text": "repeat 710-READ-TRAN-FILE",
+     "line": 262
+    },
+    {
+     "text": "NUM-TRAN-RECS = NUM-TRAN-RECS + 1",
+     "line": 265
+    },
+    {
+     "text": "WS-TRAN-OK = 'Y'",
+     "line": 266
+    },
+    {
+     "text": "repeat 299-REPORT-BAD-TRAN",
+     "line": 283
+    },
+    {
+     "text": "WS-PREV-TRAN-KEY = TRAN-KEY",
+     "line": 287
+    }
+   ],
+   "lines": [
+    264,
+    267,
+    273,
+    275,
+    277,
+    280,
+    281,
+    282,
+    283,
+    288
+   ],
+   "notes": [],
+   "z3": {
+    "removed": 0,
+    "equivalent": true
+   }
+  },
+  {
+   "id": "100-PROCESS-TRANSACTIONS/1.11",
+   "actions": {
+    "PERFORMS": "830-REPORT-TRAN-PROCESSED"
+   },
+   "conditions": [
+    {
+     "text": "WS-TRAN-EOF <> 'Y'",
+     "line": 264,
+     "where": "SAM1.cbl:264",
+     "tested": "WS-TRAN-EOF <> 'Y'",
+     "outcome": true,
+     "english": "WS-TRAN-EOF is not 'Y'",
+     "implied": false
+    },
+    {
+     "text": "TRAN-KEY >= WS-PREV-TRAN-KEY OR TRAN-COMMENT = '*'",
+     "line": 267,
+     "where": "SAM1.cbl:267",
+     "tested": "TRAN-KEY < WS-PREV-TRAN-KEY AND TRAN-COMMENT <> '*'",
+     "outcome": false,
+     "english": "TRAN-KEY is at least WS-PREV-TRAN-KEY or TRAN-COMMENT is '*'",
+     "implied": false
+    },
+    {
+     "text": "TRAN-CODE <> 'UPDATE'",
+     "line": 273,
+     "where": "SAM1.cbl:273",
+     "tested": "TRAN-CODE = 'UPDATE'",
+     "outcome": false,
+     "english": "TRAN-CODE is not 'UPDATE'",
+     "implied": false
+    },
+    {
+     "text": "TRAN-CODE <> 'ADD   '",
+     "line": 275,
+     "where": "SAM1.cbl:275",
+     "tested": "TRAN-CODE = 'ADD   '",
+     "outcome": false,
+     "english": "TRAN-CODE is not 'ADD'",
+     "implied": false
+    },
+    {
+     "text": "TRAN-CODE <> 'DELETE'",
+     "line": 277,
+     "where": "SAM1.cbl:277",
+     "tested": "TRAN-CODE = 'DELETE'",
+     "outcome": false,
+     "english": "TRAN-CODE is not 'DELETE'",
+     "implied": false
+    },
+    {
+     "text": "TRAN-COMMENT = '*'",
+     "line": 280,
+     "where": "SAM1.cbl:280",
+     "tested": "TRAN-COMMENT <> '*'",
+     "outcome": false,
+     "english": "TRAN-COMMENT is '*'",
+     "implied": false
+    },
+    {
+     "text": "WS-TRAN-OK = 'Y'",
+     "line": 288,
+     "where": "SAM1.cbl:288",
+     "tested": "WS-TRAN-OK = 'Y'",
+     "outcome": true,
+     "english": "WS-TRAN-OK is 'Y'",
+     "implied": true
+    }
+   ],
+   "derived": [
+    {
+     "text": "repeat 710-READ-TRAN-FILE",
+     "line": 262
+    },
+    {
+     "text": "NUM-TRAN-RECS = NUM-TRAN-RECS + 1",
+     "line": 265
+    },
+    {
+     "text": "WS-TRAN-OK = 'Y'",
+     "line": 266
+    },
+    {
+     "text": "WS-PREV-TRAN-KEY = TRAN-KEY",
+     "line": 287
+    },
+    {
+     "text": "repeat 830-REPORT-TRAN-PROCESSED",
+     "line": 289
+    }
+   ],
+   "lines": [
+    264,
+    267,
+    273,
+    275,
+    277,
+    280,
+    288,
+    289
+   ],
+   "notes": [],
+   "z3": {
+    "removed": 1,
+    "equivalent": true
+   }
+  },
+  {
+   "id": "200-PROCESS-UPDATE-TRAN/1.1",
+   "actions": {
+    "ERR-MSG-DATA1": "NO MATCHING KEY:",
+    "ERR-MSG-DATA2": "<ERR-MSG-DATA2 = TRAN-KEY>",
+    "PERFORMS": "299-REPORT-BAD-TRAN"
+   },
+   "conditions": [
+    {
+     "text": "CUST-KEY <> TRAN-KEY OR WS-CUST-FILE-EOF = 'Y'",
+     "line": 296,
+     "where": "SAM1.cbl:296",
+     "tested": "CUST-KEY <> TRAN-KEY OR WS-CUST-FILE-EOF = 'Y'",
+     "outcome": true,
+     "english": "CUST-KEY is not TRAN-KEY or WS-CUST-FILE-EOF is 'Y'",
+     "implied": false
+    }
+   ],
+   "derived": [
+    {
+     "text": "NUM-UPDATE-REQUESTS = NUM-UPDATE-REQUESTS + +1",
+     "line": 294
+    },
+    {
+     "text": "repeat 720-POSITION-CUST-FILE",
+     "line": 295
+    },
+    {
+     "text": "repeat 299-REPORT-BAD-TRAN",
+     "line": 299
+    }
+   ],
+   "lines": [
+    296,
+    297,
+    298,
+    299
+   ],
+   "notes": [],
+   "z3": {
+    "removed": 0,
+    "equivalent": true
+   }
+  },
+  {
+   "id": "200-PROCESS-UPDATE-TRAN/1.2",
+   "actions": {
+    "ERR-MSG-DATA1": "<ERR-MSG-DATA1 = WS-TRAN-MSG>",
+    "ERR-MSG-DATA2": "SPACES",
+    "PERFORMS": "299-REPORT-BAD-TRAN"
+   },
+   "conditions": [
+    {
+     "text": "CUST-KEY = TRAN-KEY AND WS-CUST-FILE-EOF <> 'Y'",
+     "line": 296,
+     "where": "SAM1.cbl:296",
+     "tested": "CUST-KEY <> TRAN-KEY OR WS-CUST-FILE-EOF = 'Y'",
+     "outcome": false,
+     "english": "CUST-KEY is TRAN-KEY and WS-CUST-FILE-EOF is not 'Y'",
+     "implied": false
+    },
+    {
+     "text": "WS-TRAN-OK <> 'Y'",
+     "line": 306,
+     "where": "SAM1.cbl:306",
+     "tested": "WS-TRAN-OK <> 'Y'",
+     "outcome": true,
+     "english": "WS-TRAN-OK is not 'Y'",
+     "implied": false
+    }
+   ],
+   "derived": [
+    {
+     "text": "NUM-UPDATE-REQUESTS = NUM-UPDATE-REQUESTS + +1",
+     "line": 294
+    },
+    {
+     "text": "repeat 720-POSITION-CUST-FILE",
+     "line": 295
+    },
+    {
+     "text": "CALL SAM2 USING CUST-REC, TRANSACTION-RECORD, WS-TRAN-OK, WS-TRAN-MSG",
+     "line": 304
+    },
+    {
+     "text": "repeat 299-REPORT-BAD-TRAN",
+     "line": 309
+    }
+   ],
+   "lines": [
+    296,
+    306,
+    307,
+    308,
+    309
+   ],
+   "notes": [],
+   "z3": {
+    "removed": 0,
+    "equivalent": true
+   }
+  },
+  {
+   "id": "210-PROCESS-ADD-TRAN/1.1",
+   "actions": {
+    "ERR-MSG-DATA1": "DUPLICATE KEY:",
+    "ERR-MSG-DATA2": "<ERR-MSG-DATA2 = TRAN-KEY>",
+    "PERFORMS": "299-REPORT-BAD-TRAN"
+   },
+   "conditions": [
+    {
+     "text": "CUST-KEY = TRAN-KEY",
+     "line": 318,
+     "where": "SAM1.cbl:318",
+     "tested": "CUST-KEY = TRAN-KEY",
+     "outcome": true,
+     "english": "CUST-KEY is TRAN-KEY",
+     "implied": false
+    }
+   ],
+   "derived": [
+    {
+     "text": "NUM-ADD-REQUESTS = NUM-ADD-REQUESTS + +1",
+     "line": 316
+    },
+    {
+     "text": "repeat 720-POSITION-CUST-FILE",
+     "line": 317
+    },
+    {
+     "text": "repeat 299-REPORT-BAD-TRAN",
+     "line": 321
+    }
+   ],
+   "lines": [
+    318,
+    319,
+    320,
+    321
+   ],
+   "notes": [],
+   "z3": {
+    "removed": 0,
+    "equivalent": true
+   }
+  },
+  {
+   "id": "210-PROCESS-ADD-TRAN/1.2",
+   "actions": {
+    "WS-CUST-ACCT-BALANCE": "0.00",
+    "WS-CUST-ORDERS-YTD": "0",
+    "PERFORMS": "740-WRITE-CUSTOUT-FILE"
+   },
+   "conditions": [
+    {
+     "text": "CUST-KEY <> TRAN-KEY",
+     "line": 318,
+     "where": "SAM1.cbl:318",
+     "tested": "CUST-KEY = TRAN-KEY",
+     "outcome": false,
+     "english": "CUST-KEY is not TRAN-KEY",
+     "implied": false
+    }
+   ],
+   "derived": [
+    {
+     "text": "NUM-ADD-REQUESTS = NUM-ADD-REQUESTS + +1",
+     "line": 316
+    },
+    {
+     "text": "repeat 720-POSITION-CUST-FILE",
+     "line": 317
+    },
+    {
+     "text": "WS-CUST-REC = SPACES",
+     "line": 323
+    },
+    {
+     "text": "WS-CUST-KEY = TRAN-KEY",
+     "line": 324
+    },
+    {
+     "text": "repeat WS-CUST-MONTH(I) = +0 until I > 12",
+     "line": 327
+    },
+    {
+     "text": "repeat 740-WRITE-CUSTOUT-FILE",
+     "line": 331
+    },
+    {
+     "text": "NUM-ADD-PROCESSED = NUM-ADD-PROCESSED + +1",
+     "line": 332
+    }
+   ],
+   "lines": [
+    318,
+    325,
+    326,
+    331
+   ],
+   "notes": [],
+   "z3": {
+    "removed": 0,
+    "equivalent": true
+   }
+  },
+  {
+   "id": "220-PROCESS-DELETE-TRAN/1.1",
+   "actions": {
+    "ERR-MSG-DATA1": "NO MATCHING KEY:",
+    "ERR-MSG-DATA2": "<ERR-MSG-DATA2 = TRAN-KEY>",
+    "PERFORMS": "299-REPORT-BAD-TRAN"
+   },
+   "conditions": [
+    {
+     "text": "CUST-KEY <> TRAN-KEY OR WS-CUST-FILE-EOF = 'Y'",
+     "line": 338,
+     "where": "SAM1.cbl:338",
+     "tested": "CUST-KEY <> TRAN-KEY OR WS-CUST-FILE-EOF = 'Y'",
+     "outcome": true,
+     "english": "CUST-KEY is not TRAN-KEY or WS-CUST-FILE-EOF is 'Y'",
+     "implied": false
+    }
+   ],
+   "derived": [
+    {
+     "text": "NUM-DELETE-REQUESTS = NUM-DELETE-REQUESTS + +1",
+     "line": 336
+    },
+    {
+     "text": "repeat 720-POSITION-CUST-FILE",
+     "line": 337
+    },
+    {
+     "text": "repeat 299-REPORT-BAD-TRAN",
+     "line": 341
+    }
+   ],
+   "lines": [
+    338,
+    339,
+    340,
+    341
+   ],
+   "notes": [],
+   "z3": {
+    "removed": 0,
+    "equivalent": true
+   }
+  },
+  {
+   "id": "220-PROCESS-DELETE-TRAN/1.2",
+   "actions": {
+    "PERFORMS": "730-READ-CUSTOMER-FILE"
+   },
+   "conditions": [
+    {
+     "text": "CUST-KEY = TRAN-KEY AND WS-CUST-FILE-EOF <> 'Y'",
+     "line": 338,
+     "where": "SAM1.cbl:338",
+     "tested": "CUST-KEY <> TRAN-KEY OR WS-CUST-FILE-EOF = 'Y'",
+     "outcome": false,
+     "english": "CUST-KEY is TRAN-KEY and WS-CUST-FILE-EOF is not 'Y'",
+     "implied": false
+    }
+   ],
+   "derived": [
+    {
+     "text": "NUM-DELETE-REQUESTS = NUM-DELETE-REQUESTS + +1",
+     "line": 336
+    },
+    {
+     "text": "repeat 720-POSITION-CUST-FILE",
+     "line": 337
+    },
+    {
+     "text": "NUM-DELETE-PROCESSED = NUM-DELETE-PROCESSED + +1",
+     "line": 343
+    },
+    {
+     "text": "repeat 730-READ-CUSTOMER-FILE",
+     "line": 344
+    }
+   ],
+   "lines": [
+    338,
+    344
+   ],
+   "notes": [],
+   "z3": {
+    "removed": 0,
+    "equivalent": true
+   }
+  },
+  {
+   "id": "700-OPEN-FILES/1.1",
+   "actions": {
+    "RETURN-CODE": "16"
+   },
+   "conditions": [
+    {
+     "text": "WS-CUSTFILE-STATUS <> '00'",
+     "line": 361,
+     "where": "SAM1.cbl:361",
+     "tested": "WS-CUSTFILE-STATUS <> '00'",
+     "outcome": true,
+     "english": "WS-CUSTFILE-STATUS is not '00'",
+     "implied": false
+    }
+   ],
+   "derived": [
+    {
+     "text": "OPEN INPUT TRANSACTION-FILE, INPUT CUSTOMER-FILE, OUTPUT CUSTOMER-FILE-OUT, OUTPUT REPORT-FILE",
+     "line": 357
+    },
+    {
+     "text": "WS-TRAN-EOF = 'Y'",
+     "line": 366
+    }
+   ],
+   "lines": [
+    361,
+    365
+   ],
+   "notes": [],
+   "z3": {
+    "removed": 0,
+    "equivalent": true
+   }
+  },
+  {
+   "id": "700-OPEN-FILES/2.1",
+   "actions": {
+    "RETURN-CODE": "16"
+   },
+   "conditions": [
+    {
+     "text": "WS-CUSTOUT-STATUS <> '00'",
+     "line": 368,
+     "where": "SAM1.cbl:368",
+     "tested": "WS-CUSTOUT-STATUS <> '00'",
+     "outcome": true,
+     "english": "WS-CUSTOUT-STATUS is not '00'",
+     "implied": false
+    }
+   ],
+   "derived": [
+    {
+     "text": "OPEN INPUT TRANSACTION-FILE, INPUT CUSTOMER-FILE, OUTPUT CUSTOMER-FILE-OUT, OUTPUT REPORT-FILE",
+     "line": 357
+    },
+    {
+     "text": "if WS-CUSTFILE-STATUS <> '00': Display; Display; RETURN-CODE = 16; WS-TRAN-EOF = 'Y'",
+     "line": 361
+    },
+    {
+     "text": "WS-TRAN-EOF = 'Y'",
+     "line": 373
+    }
+   ],
+   "lines": [
+    368,
+    372
+   ],
+   "notes": [],
+   "z3": {
+    "removed": 0,
+    "equivalent": true
+   }
+  },
+  {
+   "id": "700-OPEN-FILES/3.1",
+   "actions": {
+    "RETURN-CODE": "16"
+   },
+   "conditions": [
+    {
+     "text": "WS-TRANFILE-STATUS <> '00'",
+     "line": 375,
+     "where": "SAM1.cbl:375",
+     "tested": "WS-TRANFILE-STATUS <> '00'",
+     "outcome": true,
+     "english": "WS-TRANFILE-STATUS is not '00'",
+     "implied": false
+    }
+   ],
+   "derived": [
+    {
+     "text": "OPEN INPUT TRANSACTION-FILE, INPUT CUSTOMER-FILE, OUTPUT CUSTOMER-FILE-OUT, OUTPUT REPORT-FILE",
+     "line": 357
+    },
+    {
+     "text": "if WS-CUSTFILE-STATUS <> '00': Display; Display; RETURN-CODE = 16; WS-TRAN-EOF = 'Y'",
+     "line": 361
+    },
+    {
+     "text": "if WS-CUSTOUT-STATUS <> '00': Display; Display; RETURN-CODE = 16; WS-TRAN-EOF = 'Y'",
+     "line": 368
+    },
+    {
+     "text": "WS-TRAN-EOF = 'Y'",
+     "line": 379
+    }
+   ],
+   "lines": [
+    375,
+    378
+   ],
+   "notes": [],
+   "z3": {
+    "removed": 0,
+    "equivalent": true
+   }
+  },
+  {
+   "id": "700-OPEN-FILES/4.1",
+   "actions": {
+    "RETURN-CODE": "16"
+   },
+   "conditions": [
+    {
+     "text": "WS-REPORT-STATUS <> '00'",
+     "line": 381,
+     "where": "SAM1.cbl:381",
+     "tested": "WS-REPORT-STATUS <> '00'",
+     "outcome": true,
+     "english": "WS-REPORT-STATUS is not '00'",
+     "implied": false
+    }
+   ],
+   "derived": [
+    {
+     "text": "OPEN INPUT TRANSACTION-FILE, INPUT CUSTOMER-FILE, OUTPUT CUSTOMER-FILE-OUT, OUTPUT REPORT-FILE",
+     "line": 357
+    },
+    {
+     "text": "if WS-CUSTFILE-STATUS <> '00': Display; Display; RETURN-CODE = 16; WS-TRAN-EOF = 'Y'",
+     "line": 361
+    },
+    {
+     "text": "if WS-CUSTOUT-STATUS <> '00': Display; Display; RETURN-CODE = 16; WS-TRAN-EOF = 'Y'",
+     "line": 368
+    },
+    {
+     "text": "if WS-TRANFILE-STATUS <> '00': Display; Display; RETURN-CODE = 16; WS-TRAN-EOF = 'Y'",
+     "line": 375
+    },
+    {
+     "text": "WS-TRAN-EOF = 'Y'",
+     "line": 385
+    }
+   ],
+   "lines": [
+    381,
+    384
+   ],
+   "notes": [],
+   "z3": {
+    "removed": 0,
+    "equivalent": true
+   }
+  },
+  {
+   "id": "710-READ-TRAN-FILE/1.1",
+   "actions": {
+    "ERR-MSG-DATA1": "Error on tran file read.  Code:",
+    "ERR-MSG-DATA2": "<ERR-MSG-DATA2 = WS-CUSTFILE-STATUS>",
+    "PERFORMS": "299-REPORT-BAD-TRAN"
+   },
+   "conditions": [
+    {
+     "text": "WS-TRANFILE-STATUS <> '00'",
+     "line": 393,
+     "where": "SAM1.cbl:393",
+     "tested": "WS-TRANFILE-STATUS = '00'",
+     "outcome": false,
+     "english": "WS-TRANFILE-STATUS is not '00'",
+     "implied": false
+    },
+    {
+     "text": "WS-TRANFILE-STATUS <> '10'",
+     "line": 395,
+     "where": "SAM1.cbl:395",
+     "tested": "WS-TRANFILE-STATUS = '10'",
+     "outcome": false,
+     "english": "WS-TRANFILE-STATUS is not '10'",
+     "implied": false
+    }
+   ],
+   "derived": [
+    {
+     "text": "READ TRANSACTION-FILE",
+     "line": 389
+    },
+    {
+     "text": "repeat 299-REPORT-BAD-TRAN",
+     "line": 401
+    },
+    {
+     "text": "WS-TRAN-EOF = 'Y'",
+     "line": 402
+    }
+   ],
+   "lines": [
+    393,
+    395,
+    398,
+    400,
+    401
+   ],
+   "notes": [],
+   "z3": {
+    "removed": 0,
+    "equivalent": true
+   }
+  },
+  {
+   "id": "710-READ-TRAN-FILE/2.1",
+   "actions": {
+    "PERFORMS": "721-COPY-RECORDS"
+   },
+   "conditions": [
+    {
+     "text": "WS-TRAN-EOF = 'Y'",
+     "line": 404,
+     "where": "SAM1.cbl:404",
+     "tested": "WS-TRAN-EOF = 'Y'",
+     "outcome": true,
+     "english": "WS-TRAN-EOF is 'Y'",
+     "implied": false
+    }
+   ],
+   "derived": [
+    {
+     "text": "READ TRANSACTION-FILE",
+     "line": 389
+    },
+    {
+     "text": "when WS-TRANFILE-STATUS = '00': Continue | when WS-TRANFILE-STATUS = '10': WS-TRAN-EOF = 'Y' | otherwise: ERR-MSG-DATA1 = 'Error on tran file read.  Code:'; ERR-MSG-DATA2 = WS-CUSTFILE-STATUS; repeat 299-REPORT-BAD-TRAN; WS-TRAN-EOF = 'Y'",
+     "line": 392
+    },
+    {
+     "text": "repeat 721-COPY-RECORDS until WS-CUST-FILE-EOF = 'Y'",
+     "line": 405
+    }
+   ],
+   "lines": [
+    404,
+    405
+   ],
+   "notes": [],
+   "z3": {
+    "removed": 0,
+    "equivalent": true
+   }
+  },
+  {
+   "id": "720-POSITION-CUST-FILE/1.1",
+   "actions": {
+    "PERFORMS": "721-COPY-RECORDS"
+   },
+   "conditions": [
+    {
+     "text": "CUST-KEY < TRAN-KEY",
+     "line": 410,
+     "where": "SAM1.cbl:410",
+     "tested": "CUST-KEY < TRAN-KEY",
+     "outcome": true,
+     "english": "CUST-KEY is less than TRAN-KEY",
+     "implied": false
+    },
+    {
+     "text": "WS-CUST-FILE-EOF <> 'Y'",
+     "line": 411,
+     "where": "SAM1.cbl:411",
+     "tested": "WS-CUST-FILE-EOF <> 'Y'",
+     "outcome": true,
+     "english": "WS-CUST-FILE-EOF is not 'Y'",
+     "implied": true
+    }
+   ],
+   "derived": [
+    {
+     "text": "repeat 721-COPY-RECORDS until CUST-KEY >= TRAN-KEY OR WS-CUST-FILE-EOF = 'Y'",
+     "line": 412
+    }
+   ],
+   "lines": [
+    410,
+    411,
+    412
+   ],
+   "notes": [],
+   "z3": {
+    "removed": 1,
+    "equivalent": true
+   }
+  },
+  {
+   "id": "730-READ-CUSTOMER-FILE/1.1",
+   "actions": {
+    "ERR-MSG-DATA1": "Customer input File I/O Error on Re",
+    "ERR-MSG-DATA2": "<ERR-MSG-DATA2 = WS-CUSTFILE-STATUS>",
+    "PERFORMS": "299-REPORT-BAD-TRAN"
+   },
+   "conditions": [
+    {
+     "text": "WS-CUSTFILE-STATUS <> '00' AND WS-CUSTFILE-STATUS <> '04'",
+     "line": 428,
+     "where": "SAM1.cbl:428",
+     "tested": "WS-CUSTFILE-STATUS = '00' OR WS-CUSTFILE-STATUS = '04'",
+     "outcome": false,
+     "english": "WS-CUSTFILE-STATUS is not '00' and WS-CUSTFILE-STATUS is not '04'",
+     "implied": false
+    },
+    {
+     "text": "WS-CUSTFILE-STATUS <> '10'",
+     "line": 431,
+     "where": "SAM1.cbl:431",
+     "tested": "WS-CUSTFILE-STATUS = '10'",
+     "outcome": false,
+     "english": "WS-CUSTFILE-STATUS is not '10'",
+     "implied": false
+    }
+   ],
+   "derived": [
+    {
+     "text": "READ CUSTOMER-FILE",
+     "line": 424
+    },
+    {
+     "text": "repeat 299-REPORT-BAD-TRAN",
+     "line": 437
+    }
+   ],
+   "lines": [
+    428,
+    431,
+    434,
+    436,
+    437
+   ],
+   "notes": [],
+   "z3": {
+    "removed": 0,
+    "equivalent": true
+   }
+  },
+  {
+   "id": "740-WRITE-CUSTOUT-FILE/1.1",
+   "actions": {
+    "ERR-MSG-DATA1": "CUSTOMER OUTPUT FILE I/O ERROR ON W",
+    "ERR-MSG-DATA2": "<ERR-MSG-DATA2 = WS-CUSTFILE-STATUS>",
+    "PERFORMS": "299-REPORT-BAD-TRAN"
+   },
+   "conditions": [
+    {
+     "text": "WS-CUSTOUT-STATUS <> '00'",
+     "line": 448,
+     "where": "SAM1.cbl:448",
+     "tested": "WS-CUSTOUT-STATUS = '00'",
+     "outcome": false,
+     "english": "WS-CUSTOUT-STATUS is not '00'",
+     "implied": false
+    }
+   ],
+   "derived": [
+    {
+     "text": "if WS-CUST-REC-TYPE = 'A': WRITE CSTOUT-REC FROM WS-CUST-REC else: WS-CUST-CONTACT-REC = WS-CUST-REC; WRITE CSTOUT-CONTACT-REC FROM WS-CUST-CONTACT-REC",
+     "line": 441
+    },
+    {
+     "text": "repeat 299-REPORT-BAD-TRAN",
+     "line": 454
+    }
+   ],
+   "lines": [
+    448,
+    451,
+    453,
+    454
+   ],
+   "notes": [],
+   "z3": {
+    "removed": 0,
+    "equivalent": true
+   }
+  },
+  {
+   "id": "830-REPORT-TRAN-PROCESSED/1.1",
+   "actions": {
+    "RPT-TRAN-MSG1": "SPACES"
+   },
+   "conditions": [
+    {
+     "text": "TRAN-COMMENT = '*'",
+     "line": 473,
+     "where": "SAM1.cbl:473",
+     "tested": "TRAN-COMMENT = '*'",
+     "outcome": true,
+     "english": "TRAN-COMMENT is '*'",
+     "implied": false
+    }
+   ],
+   "derived": [
+    {
+     "text": "RPT-TRAN-RECORD = TRANSACTION-RECORD",
+     "line": 472
+    }
+   ],
+   "lines": [
+    473,
+    474
+   ],
+   "notes": [],
+   "z3": {
+    "removed": 0,
+    "equivalent": true
+   },
+   "example": {
+    "TRAN-COMMENT": "*"
+   }
+  },
+  {
+   "id": "830-REPORT-TRAN-PROCESSED/1.2",
+   "actions": {
+    "RPT-TRAN-MSG1": "Transaction processed:"
+   },
+   "conditions": [
+    {
+     "text": "TRAN-COMMENT <> '*'",
+     "line": 473,
+     "where": "SAM1.cbl:473",
+     "tested": "TRAN-COMMENT = '*'",
+     "outcome": false,
+     "english": "TRAN-COMMENT is not '*'",
+     "implied": false
+    }
+   ],
+   "derived": [
+    {
+     "text": "RPT-TRAN-RECORD = TRANSACTION-RECORD",
+     "line": 472
+    }
+   ],
+   "lines": [
+    473,
+    476
+   ],
+   "notes": [],
+   "z3": {
+    "removed": 0,
+    "equivalent": true
+   },
+   "example": {
+    "TRAN-COMMENT": "INVALID TRAN CODE:                 "
+   }
+  }
+ ],
+ "z3": {
+  "infeasible": 0,
+  "unknown": 0,
+  "conditions_removed": 8,
+  "all_proved": true,
+  "overlaps": null
+ },
+ "findings": [
+  {
+   "kind": "status mismatch",
+   "rule": "710-READ-TRAN-FILE/1.1",
+   "lines": [
+    400
+   ],
+   "message": "710-READ-TRAN-FILE/1.1 tests WS-TRANFILE-STATUS (TRANSACTION-FILE) but reports WS-CUSTFILE-STATUS, the status of CUSTOMER-FILE"
+  },
+  {
+   "kind": "status mismatch",
+   "rule": "740-WRITE-CUSTOUT-FILE/1.1",
+   "lines": [
+    453
+   ],
+   "message": "740-WRITE-CUSTOUT-FILE/1.1 tests WS-CUSTOUT-STATUS (CUSTOMER-FILE-OUT) but reports WS-CUSTFILE-STATUS, the status of CUSTOMER-FILE"
+  },
+  {
+   "kind": "file never closed",
+   "lines": [
+    357
+   ],
+   "message": "CUSTOMER-FILE-OUT is opened (line 357) but never closed"
+  }
+ ],
+ "verification": null,
+ "seconds": 3.9
+}

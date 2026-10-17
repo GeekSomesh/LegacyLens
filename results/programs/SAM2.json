@@ -1,0 +1,2591 @@
+{
+ "name": "SAM2",
+ "origin": "IBM zopeneditor-sample (Apache-2.0): customer update subroutine",
+ "path": "samples/ibm-zopeneditor/COBOL/SAM2.cbl",
+ "lines": [
+  {
+   "no": 1,
+   "text": "      ****************************************************************"
+  },
+  {
+   "no": 2,
+   "text": "      * LICENSED MATERIALS - PROPERTY OF IBM"
+  },
+  {
+   "no": 3,
+   "text": "      * \"RESTRICTED MATERIALS OF IBM\""
+  },
+  {
+   "no": 4,
+   "text": "      * (C) COPYRIGHT IBM CORPORATION 2022. ALL RIGHTS RESERVED"
+  },
+  {
+   "no": 5,
+   "text": "      * US GOVERNMENT USERS RESTRICTED RIGHTS - USE, DUPLICATION,"
+  },
+  {
+   "no": 6,
+   "text": "      * OR DISCLOSURE RESTRICTED BY GSA ADP SCHEDULE"
+  },
+  {
+   "no": 7,
+   "text": "      * CONTRACT WITH IBM CORPORATION"
+  },
+  {
+   "no": 8,
+   "text": "      ****************************************************************"
+  },
+  {
+   "no": 9,
+   "text": "      * PROGRAM:  SAM2"
+  },
+  {
+   "no": 10,
+   "text": "      *"
+  },
+  {
+   "no": 11,
+   "text": "      * AUTHOR :  Doug Stout"
+  },
+  {
+   "no": 12,
+   "text": "      *"
+  },
+  {
+   "no": 13,
+   "text": "      * SUBROUTINE TO PROCESS \"UPDATE\" TRANSACTIONS AGAINST CUST RECS"
+  },
+  {
+   "no": 14,
+   "text": "      *****************************************************************"
+  },
+  {
+   "no": 15,
+   "text": "      * Linkage:"
+  },
+  {
+   "no": 16,
+   "text": "      *      parameters:"
+  },
+  {
+   "no": 17,
+   "text": "      *        1: Customer Record    (passed)"
+  },
+  {
+   "no": 18,
+   "text": "      *        2: Transaction Record (passed)"
+  },
+  {
+   "no": 19,
+   "text": "      *        3: tran-ok flag       (returned)"
+  },
+  {
+   "no": 20,
+   "text": "      *              Return values:    Y  = transaction was processed"
+  },
+  {
+   "no": 21,
+   "text": "      *                                N  = error processing transaction"
+  },
+  {
+   "no": 22,
+   "text": "      *        4: message            (returned)"
+  },
+  {
+   "no": 23,
+   "text": "      *****************************************************************"
+  },
+  {
+   "no": 24,
+   "text": "       IDENTIFICATION DIVISION."
+  },
+  {
+   "no": 25,
+   "text": "       PROGRAM-ID. SAM2."
+  },
+  {
+   "no": 26,
+   "text": "       ENVIRONMENT DIVISION."
+  },
+  {
+   "no": 27,
+   "text": "       INPUT-OUTPUT SECTION."
+  },
+  {
+   "no": 28,
+   "text": "      *****************************************************************"
+  },
+  {
+   "no": 29,
+   "text": "       DATA DIVISION."
+  },
+  {
+   "no": 30,
+   "text": ""
+  },
+  {
+   "no": 31,
+   "text": "       WORKING-STORAGE SECTION."
+  },
+  {
+   "no": 32,
+   "text": "      *"
+  },
+  {
+   "no": 33,
+   "text": "       01 WS-FIELDS."
+  },
+  {
+   "no": 34,
+   "text": "        05 WS-UPDATE-NUM      PIC S9(9)V99 COMP-3 VALUE +0."
+  },
+  {
+   "no": 35,
+   "text": "        05 WS-UPDATE-NUM-NEG  PIC X VALUE SPACES."
+  },
+  {
+   "no": 36,
+   "text": "        05 TRAN-COUNT         PIC 9(5) COMP-3 VALUE 0."
+  },
+  {
+   "no": 37,
+   "text": "        05 LOOP-COUNT         PIC S9(8) COMP VALUE 0."
+  },
+  {
+   "no": 38,
+   "text": "        05 WORK-SUM           PIC 9(16) VALUE 0."
+  },
+  {
+   "no": 39,
+   "text": "        05 MONTH-AVERAGE      PIC 9(16) VALUE 0."
+  },
+  {
+   "no": 40,
+   "text": "        05 MONTH-SUB          PIC 9(16) VALUE 0."
+  },
+  {
+   "no": 41,
+   "text": ""
+  },
+  {
+   "no": 42,
+   "text": "       LINKAGE SECTION."
+  },
+  {
+   "no": 43,
+   "text": ""
+  },
+  {
+   "no": 44,
+   "text": "       COPY CUSTCOPY REPLACING ==:TAG:== BY ==CUST==."
+  },
+  {
+   "no": 45,
+   "text": ""
+  },
+  {
+   "no": 46,
+   "text": "       COPY TRANREC."
+  },
+  {
+   "no": 47,
+   "text": ""
+  },
+  {
+   "no": 48,
+   "text": "       01 TRAN-OK             PIC X."
+  },
+  {
+   "no": 49,
+   "text": "       01 TRAN-MSG            PIC X(50)."
+  },
+  {
+   "no": 50,
+   "text": ""
+  },
+  {
+   "no": 51,
+   "text": "      *****************************************************************"
+  },
+  {
+   "no": 52,
+   "text": "       PROCEDURE DIVISION USING CUST-REC,"
+  },
+  {
+   "no": 53,
+   "text": "                                TRANSACTION-RECORD,"
+  },
+  {
+   "no": 54,
+   "text": "                                TRAN-OK,"
+  },
+  {
+   "no": 55,
+   "text": "                                TRAN-MSG."
+  },
+  {
+   "no": 56,
+   "text": ""
+  },
+  {
+   "no": 57,
+   "text": "       000-MAIN."
+  },
+  {
+   "no": 58,
+   "text": "           MOVE 'Y' TO TRAN-OK."
+  },
+  {
+   "no": 59,
+   "text": "           MOVE SPACES TO TRAN-MSG."
+  },
+  {
+   "no": 60,
+   "text": ""
+  },
+  {
+   "no": 61,
+   "text": "           IF TRAN-CODE = 'CRUNCH '"
+  },
+  {
+   "no": 62,
+   "text": "            PERFORM 300-PROCESS-CPU-CRUNCH"
+  },
+  {
+   "no": 63,
+   "text": "           ELSE"
+  },
+  {
+   "no": 64,
+   "text": "            PERFORM 100-VALIDATE-TRAN"
+  },
+  {
+   "no": 65,
+   "text": "            IF TRAN-OK = 'Y'"
+  },
+  {
+   "no": 66,
+   "text": "             PERFORM 200-PROCESS-TRAN"
+  },
+  {
+   "no": 67,
+   "text": "            END-IF"
+  },
+  {
+   "no": 68,
+   "text": "           END-IF."
+  },
+  {
+   "no": 69,
+   "text": ""
+  },
+  {
+   "no": 70,
+   "text": "           GOBACK."
+  },
+  {
+   "no": 71,
+   "text": ""
+  },
+  {
+   "no": 72,
+   "text": "       100-VALIDATE-TRAN."
+  },
+  {
+   "no": 73,
+   "text": "           EVALUATE TRAN-CODE"
+  },
+  {
+   "no": 74,
+   "text": "           WHEN 'UPDATE '"
+  },
+  {
+   "no": 75,
+   "text": "            CONTINUE"
+  },
+  {
+   "no": 76,
+   "text": "           WHEN OTHER"
+  },
+  {
+   "no": 77,
+   "text": "            MOVE 'N' TO TRAN-OK"
+  },
+  {
+   "no": 78,
+   "text": "            MOVE 'REQUEST TYPE IS INVALID' TO TRAN-MSG"
+  },
+  {
+   "no": 79,
+   "text": "           END-EVALUATE."
+  },
+  {
+   "no": 80,
+   "text": "           EVALUATE TRAN-FIELD-NAME"
+  },
+  {
+   "no": 81,
+   "text": "           WHEN 'BALANCE '"
+  },
+  {
+   "no": 82,
+   "text": "           WHEN 'ORDERS  '"
+  },
+  {
+   "no": 83,
+   "text": "            IF TRAN-UPDATE-NUM-HH NOT NUMERIC"
+  },
+  {
+   "no": 84,
+   "text": "             MOVE 0 TO TRAN-UPDATE-NUM-HH"
+  },
+  {
+   "no": 85,
+   "text": "            END-IF"
+  },
+  {
+   "no": 86,
+   "text": "            MOVE 'N' TO WS-UPDATE-NUM-NEG"
+  },
+  {
+   "no": 87,
+   "text": "            IF TRAN-UPDATE-NUMX1 = '-'"
+  },
+  {
+   "no": 88,
+   "text": "             MOVE 'Y' TO WS-UPDATE-NUM-NEG"
+  },
+  {
+   "no": 89,
+   "text": "             MOVE '0' TO TRAN-UPDATE-NUMX1"
+  },
+  {
+   "no": 90,
+   "text": "            END-IF"
+  },
+  {
+   "no": 91,
+   "text": "            IF TRAN-UPDATE-NUMX1 = '+'"
+  },
+  {
+   "no": 92,
+   "text": "             MOVE '0' TO TRAN-UPDATE-NUMX1"
+  },
+  {
+   "no": 93,
+   "text": "            END-IF"
+  },
+  {
+   "no": 94,
+   "text": "            IF TRAN-UPDATE-NUM NOT NUMERIC"
+  },
+  {
+   "no": 95,
+   "text": "             MOVE 'N' TO TRAN-OK"
+  },
+  {
+   "no": 96,
+   "text": "             MOVE 'DATA IS NOT NUMERIC' TO TRAN-MSG"
+  },
+  {
+   "no": 97,
+   "text": "            ELSE"
+  },
+  {
+   "no": 98,
+   "text": "             MOVE TRAN-UPDATE-NUM TO WS-UPDATE-NUM"
+  },
+  {
+   "no": 99,
+   "text": "             IF WS-UPDATE-NUM-NEG = 'Y'"
+  },
+  {
+   "no": 100,
+   "text": "              COMPUTE WS-UPDATE-NUM = WS-UPDATE-NUM * -1"
+  },
+  {
+   "no": 101,
+   "text": "             END-IF"
+  },
+  {
+   "no": 102,
+   "text": "            END-IF"
+  },
+  {
+   "no": 103,
+   "text": "           END-EVALUATE."
+  },
+  {
+   "no": 104,
+   "text": "           EVALUATE TRAN-ACTION"
+  },
+  {
+   "no": 105,
+   "text": "           WHEN 'REPLACE '"
+  },
+  {
+   "no": 106,
+   "text": "           WHEN 'ADD     '"
+  },
+  {
+   "no": 107,
+   "text": "            CONTINUE"
+  },
+  {
+   "no": 108,
+   "text": "           WHEN OTHER"
+  },
+  {
+   "no": 109,
+   "text": "            MOVE 'N' TO TRAN-OK"
+  },
+  {
+   "no": 110,
+   "text": "            MOVE 'INVALID ACTION CODE   ' TO TRAN-MSG"
+  },
+  {
+   "no": 111,
+   "text": "           END-EVALUATE."
+  },
+  {
+   "no": 112,
+   "text": ""
+  },
+  {
+   "no": 113,
+   "text": "       200-PROCESS-TRAN."
+  },
+  {
+   "no": 114,
+   "text": "           EVALUATE TRAN-FIELD-NAME"
+  },
+  {
+   "no": 115,
+   "text": "           WHEN 'NAME    '"
+  },
+  {
+   "no": 116,
+   "text": "            MOVE TRAN-UPDATE-DATA TO CUST-NAME"
+  },
+  {
+   "no": 117,
+   "text": "            COMPUTE TRAN-COUNT = TRAN-COUNT + 1"
+  },
+  {
+   "no": 118,
+   "text": "           WHEN 'BALANCE '"
+  },
+  {
+   "no": 119,
+   "text": "            EVALUATE TRAN-ACTION"
+  },
+  {
+   "no": 120,
+   "text": "            WHEN 'REPLACE'"
+  },
+  {
+   "no": 121,
+   "text": "             MOVE WS-UPDATE-NUM TO CUST-ACCT-BALANCE"
+  },
+  {
+   "no": 122,
+   "text": "             COMPUTE TRAN-COUNT = TRAN-COUNT + 1"
+  },
+  {
+   "no": 123,
+   "text": "            WHEN 'ADD     '"
+  },
+  {
+   "no": 124,
+   "text": "             COMPUTE CUST-ACCT-BALANCE ="
+  },
+  {
+   "no": 125,
+   "text": "                CUST-ACCT-BALANCE + WS-UPDATE-NUM"
+  },
+  {
+   "no": 126,
+   "text": "             COMPUTE TRAN-COUNT = TRAN-COUNT + 1"
+  },
+  {
+   "no": 127,
+   "text": "            END-EVALUATE"
+  },
+  {
+   "no": 128,
+   "text": "           WHEN 'ORDERS  '"
+  },
+  {
+   "no": 129,
+   "text": "            EVALUATE TRAN-ACTION"
+  },
+  {
+   "no": 130,
+   "text": "            WHEN 'REPLACE'"
+  },
+  {
+   "no": 131,
+   "text": "             MOVE WS-UPDATE-NUM TO CUST-ORDERS-YTD"
+  },
+  {
+   "no": 132,
+   "text": "             COMPUTE TRAN-COUNT = TRAN-COUNT + 1"
+  },
+  {
+   "no": 133,
+   "text": "            WHEN 'ADD     '"
+  },
+  {
+   "no": 134,
+   "text": "             COMPUTE CUST-ORDERS-YTD ="
+  },
+  {
+   "no": 135,
+   "text": "                CUST-ORDERS-YTD + WS-UPDATE-NUM"
+  },
+  {
+   "no": 136,
+   "text": "             COMPUTE TRAN-COUNT = TRAN-COUNT + 1"
+  },
+  {
+   "no": 137,
+   "text": "            END-EVALUATE"
+  },
+  {
+   "no": 138,
+   "text": "           WHEN OTHER"
+  },
+  {
+   "no": 139,
+   "text": "            MOVE 'N' TO TRAN-OK"
+  },
+  {
+   "no": 140,
+   "text": "            MOVE 'FIELD NAME INVALID' TO TRAN-MSG"
+  },
+  {
+   "no": 141,
+   "text": "           END-EVALUATE."
+  },
+  {
+   "no": 142,
+   "text": ""
+  },
+  {
+   "no": 143,
+   "text": "       300-PROCESS-CPU-CRUNCH."
+  },
+  {
+   "no": 144,
+   "text": "           MOVE 0 TO LOOP-COUNT."
+  },
+  {
+   "no": 145,
+   "text": "           PERFORM 310-CRUNCH-LOOP"
+  },
+  {
+   "no": 146,
+   "text": "              UNTIL LOOP-COUNT > CRUNCH-CPU-LOOPS."
+  },
+  {
+   "no": 147,
+   "text": ""
+  },
+  {
+   "no": 148,
+   "text": "       310-CRUNCH-LOOP."
+  },
+  {
+   "no": 149,
+   "text": "      *    CALUCLUATE AVERAGE OF ALL MONTHS"
+  },
+  {
+   "no": 150,
+   "text": "           MOVE 0 TO WORK-SUM."
+  },
+  {
+   "no": 151,
+   "text": "           MOVE 1 TO MONTH-SUB."
+  },
+  {
+   "no": 152,
+   "text": "           PERFORM VARYING MONTH-SUB FROM 1 BY 1 UNTIL(MONTH-SUB > 12)"
+  },
+  {
+   "no": 153,
+   "text": "            IF CUST-MONTH(MONTH-SUB) IS NOT NUMERIC"
+  },
+  {
+   "no": 154,
+   "text": "             MOVE 0 TO CUST-MONTH(MONTH-SUB)"
+  },
+  {
+   "no": 155,
+   "text": "            END-IF"
+  },
+  {
+   "no": 156,
+   "text": "            COMPUTE WORK-SUM = WORK-SUM + CUST-MONTH(MONTH-SUB)"
+  },
+  {
+   "no": 157,
+   "text": "           END-PERFORM."
+  },
+  {
+   "no": 158,
+   "text": "           COMPUTE MONTH-AVERAGE = WORK-SUM / 12."
+  },
+  {
+   "no": 159,
+   "text": "           COMPUTE LOOP-COUNT = LOOP-COUNT + 1."
+  }
+ ],
+ "copybooks": [
+  "CUSTCOPY.cpy",
+  "TRANREC.cpy"
+ ],
+ "paragraphs": 5,
+ "fields": 68,
+ "diagnostics": [],
+ "using": [
+  "CUST-REC",
+  "TRANSACTION-RECORD",
+  "TRAN-OK",
+  "TRAN-MSG"
+ ],
+ "mode": "whole program",
+ "entry": "000-MAIN",
+ "decision_fields": [
+  "CUST-ACCT-BALANCE",
+  "CUST-NAME",
+  "CUST-ORDERS-YTD",
+  "TRAN-MSG",
+  "TRAN-OK"
+ ],
+ "raw_paths": 109,
+ "rules": [
+  {
+   "id": "RULE-01",
+   "actions": {
+    "TRAN-OK": "Y",
+    "TRAN-MSG": "SPACES"
+   },
+   "conditions": [
+    {
+     "text": "TRAN-CODE = 'CRUNCH '",
+     "line": 61,
+     "where": "SAM2.cbl:61",
+     "tested": "TRAN-CODE = 'CRUNCH '",
+     "outcome": true,
+     "english": "TRAN-CODE is 'CRUNCH'",
+     "implied": false
+    }
+   ],
+   "derived": [
+    {
+     "text": "LOOP-COUNT = 0",
+     "line": 144
+    },
+    {
+     "text": "repeat 310-CRUNCH-LOOP until LOOP-COUNT > CRUNCH-CPU-LOOPS",
+     "line": 145
+    }
+   ],
+   "lines": [
+    58,
+    59,
+    61
+   ],
+   "notes": [],
+   "z3": {
+    "removed": 0,
+    "equivalent": true
+   },
+   "example": {
+    "TRAN-CODE": "CRUNCH"
+   }
+  },
+  {
+   "id": "RULE-10",
+   "actions": {
+    "TRAN-OK": "N",
+    "TRAN-MSG": "DATA IS NOT NUMERIC"
+   },
+   "conditions": [
+    {
+     "text": "TRAN-CODE <> 'CRUNCH '",
+     "line": 61,
+     "where": "SAM2.cbl:61",
+     "tested": "TRAN-CODE = 'CRUNCH '",
+     "outcome": false,
+     "english": "TRAN-CODE is not 'CRUNCH'",
+     "implied": true
+    },
+    {
+     "text": "TRAN-CODE = 'UPDATE '",
+     "line": 74,
+     "where": "SAM2.cbl:74",
+     "tested": "TRAN-CODE = 'UPDATE '",
+     "outcome": true,
+     "english": "TRAN-CODE is 'UPDATE'",
+     "implied": false
+    },
+    {
+     "text": "TRAN-FIELD-NAME = 'BALANCE ' OR TRAN-FIELD-NAME = 'ORDERS  '",
+     "line": 81,
+     "where": "SAM2.cbl:81",
+     "tested": "TRAN-FIELD-NAME = 'BALANCE ' OR TRAN-FIELD-NAME = 'ORDERS  '",
+     "outcome": true,
+     "english": "TRAN-FIELD-NAME is 'BALANCE' or TRAN-FIELD-NAME is 'ORDERS'",
+     "implied": false
+    },
+    {
+     "text": "TRAN-UPDATE-NUM IS NOT NUMERIC",
+     "line": 94,
+     "where": "SAM2.cbl:94",
+     "tested": "TRAN-UPDATE-NUM IS NOT NUMERIC",
+     "outcome": true,
+     "english": "TRAN-UPDATE-NUM is not numeric",
+     "implied": false
+    },
+    {
+     "text": "TRAN-ACTION = 'REPLACE ' OR TRAN-ACTION = 'ADD     '",
+     "line": 105,
+     "where": "SAM2.cbl:105",
+     "tested": "TRAN-ACTION = 'REPLACE ' OR TRAN-ACTION = 'ADD     '",
+     "outcome": true,
+     "english": "TRAN-ACTION is 'REPLACE' or TRAN-ACTION is 'ADD'",
+     "implied": false
+    },
+    {
+     "text": "TRAN-OK <> 'Y'",
+     "line": 65,
+     "where": "SAM2.cbl:65",
+     "tested": "TRAN-OK = 'Y'",
+     "outcome": false,
+     "english": "TRAN-OK is not 'Y'",
+     "implied": true
+    }
+   ],
+   "derived": [
+    {
+     "text": "if TRAN-UPDATE-NUM-HH IS NOT NUMERIC: TRAN-UPDATE-NUM-HH = 0",
+     "line": 83
+    },
+    {
+     "text": "WS-UPDATE-NUM-NEG = 'N'",
+     "line": 86
+    },
+    {
+     "text": "if TRAN-UPDATE-NUMX1 = '-': WS-UPDATE-NUM-NEG = 'Y'; TRAN-UPDATE-NUMX1 = '0'",
+     "line": 87
+    },
+    {
+     "text": "if TRAN-UPDATE-NUMX1 = '+': TRAN-UPDATE-NUMX1 = '0'",
+     "line": 91
+    }
+   ],
+   "lines": [
+    58,
+    59,
+    61,
+    65,
+    74,
+    81,
+    94,
+    95,
+    96,
+    105
+   ],
+   "notes": [],
+   "z3": {
+    "removed": 2,
+    "equivalent": true
+   },
+   "example": {
+    "TRAN-CODE": "UPDATE",
+    "TRAN-FIELD-NAME": "BALANCE   ",
+    "TRAN-UPDATE-NUM#numeric": false,
+    "TRAN-ACTION": "REPLACE "
+   }
+  },
+  {
+   "id": "RULE-19",
+   "actions": {
+    "TRAN-OK": "N",
+    "TRAN-MSG": "INVALID ACTION CODE"
+   },
+   "conditions": [
+    {
+     "text": "TRAN-CODE <> 'CRUNCH '",
+     "line": 61,
+     "where": "SAM2.cbl:61",
+     "tested": "TRAN-CODE = 'CRUNCH '",
+     "outcome": false,
+     "english": "TRAN-CODE is not 'CRUNCH'",
+     "implied": true
+    },
+    {
+     "text": "TRAN-CODE = 'UPDATE '",
+     "line": 74,
+     "where": "SAM2.cbl:74",
+     "tested": "TRAN-CODE = 'UPDATE '",
+     "outcome": true,
+     "english": "TRAN-CODE is 'UPDATE'",
+     "implied": false
+    },
+    {
+     "text": "TRAN-FIELD-NAME = 'BALANCE ' OR TRAN-FIELD-NAME = 'ORDERS  '",
+     "line": 81,
+     "where": "SAM2.cbl:81",
+     "tested": "TRAN-FIELD-NAME = 'BALANCE ' OR TRAN-FIELD-NAME = 'ORDERS  '",
+     "outcome": true,
+     "english": "TRAN-FIELD-NAME is 'BALANCE' or TRAN-FIELD-NAME is 'ORDERS'",
+     "implied": false
+    },
+    {
+     "text": "TRAN-UPDATE-NUM IS NOT NUMERIC",
+     "line": 94,
+     "where": "SAM2.cbl:94",
+     "tested": "TRAN-UPDATE-NUM IS NOT NUMERIC",
+     "outcome": true,
+     "english": "TRAN-UPDATE-NUM is not numeric",
+     "implied": false
+    },
+    {
+     "text": "TRAN-ACTION <> 'REPLACE ' AND TRAN-ACTION <> 'ADD     '",
+     "line": 105,
+     "where": "SAM2.cbl:105",
+     "tested": "TRAN-ACTION = 'REPLACE ' OR TRAN-ACTION = 'ADD     '",
+     "outcome": false,
+     "english": "TRAN-ACTION is not 'REPLACE' and TRAN-ACTION is not 'ADD'",
+     "implied": false
+    },
+    {
+     "text": "TRAN-OK <> 'Y'",
+     "line": 65,
+     "where": "SAM2.cbl:65",
+     "tested": "TRAN-OK = 'Y'",
+     "outcome": false,
+     "english": "TRAN-OK is not 'Y'",
+     "implied": true
+    }
+   ],
+   "derived": [
+    {
+     "text": "if TRAN-UPDATE-NUM-HH IS NOT NUMERIC: TRAN-UPDATE-NUM-HH = 0",
+     "line": 83
+    },
+    {
+     "text": "WS-UPDATE-NUM-NEG = 'N'",
+     "line": 86
+    },
+    {
+     "text": "if TRAN-UPDATE-NUMX1 = '-': WS-UPDATE-NUM-NEG = 'Y'; TRAN-UPDATE-NUMX1 = '0'",
+     "line": 87
+    },
+    {
+     "text": "if TRAN-UPDATE-NUMX1 = '+': TRAN-UPDATE-NUMX1 = '0'",
+     "line": 91
+    }
+   ],
+   "lines": [
+    58,
+    59,
+    61,
+    65,
+    74,
+    81,
+    94,
+    95,
+    96,
+    105,
+    109,
+    110
+   ],
+   "notes": [],
+   "z3": {
+    "removed": 2,
+    "equivalent": true
+   },
+   "example": {
+    "TRAN-CODE": "UPDATE",
+    "TRAN-FIELD-NAME": "BALANCE   ",
+    "TRAN-UPDATE-NUM#numeric": false,
+    "TRAN-ACTION": "Y"
+   }
+  },
+  {
+   "id": "RULE-21",
+   "actions": {
+    "TRAN-OK": "Y",
+    "TRAN-MSG": "SPACES",
+    "CUST-ACCT-BALANCE": "<CUST-ACCT-BALANCE = WS-UPDATE-NUM>"
+   },
+   "conditions": [
+    {
+     "text": "TRAN-CODE <> 'CRUNCH '",
+     "line": 61,
+     "where": "SAM2.cbl:61",
+     "tested": "TRAN-CODE = 'CRUNCH '",
+     "outcome": false,
+     "english": "TRAN-CODE is not 'CRUNCH'",
+     "implied": true
+    },
+    {
+     "text": "TRAN-CODE = 'UPDATE '",
+     "line": 74,
+     "where": "SAM2.cbl:74",
+     "tested": "TRAN-CODE = 'UPDATE '",
+     "outcome": true,
+     "english": "TRAN-CODE is 'UPDATE'",
+     "implied": false
+    },
+    {
+     "text": "TRAN-FIELD-NAME = 'BALANCE ' OR TRAN-FIELD-NAME = 'ORDERS  '",
+     "line": 81,
+     "where": "SAM2.cbl:81",
+     "tested": "TRAN-FIELD-NAME = 'BALANCE ' OR TRAN-FIELD-NAME = 'ORDERS  '",
+     "outcome": true,
+     "english": "TRAN-FIELD-NAME is 'BALANCE' or TRAN-FIELD-NAME is 'ORDERS'",
+     "implied": true
+    },
+    {
+     "text": "TRAN-UPDATE-NUM IS NUMERIC",
+     "line": 94,
+     "where": "SAM2.cbl:94",
+     "tested": "TRAN-UPDATE-NUM IS NOT NUMERIC",
+     "outcome": false,
+     "english": "TRAN-UPDATE-NUM is numeric",
+     "implied": false
+    },
+    {
+     "text": "TRAN-ACTION = 'REPLACE ' OR TRAN-ACTION = 'ADD     '",
+     "line": 105,
+     "where": "SAM2.cbl:105",
+     "tested": "TRAN-ACTION = 'REPLACE ' OR TRAN-ACTION = 'ADD     '",
+     "outcome": true,
+     "english": "TRAN-ACTION is 'REPLACE' or TRAN-ACTION is 'ADD'",
+     "implied": true
+    },
+    {
+     "text": "TRAN-OK = 'Y'",
+     "line": 65,
+     "where": "SAM2.cbl:65",
+     "tested": "TRAN-OK = 'Y'",
+     "outcome": true,
+     "english": "TRAN-OK is 'Y'",
+     "implied": true
+    },
+    {
+     "text": "TRAN-FIELD-NAME <> 'NAME    '",
+     "line": 115,
+     "where": "SAM2.cbl:115",
+     "tested": "TRAN-FIELD-NAME = 'NAME    '",
+     "outcome": false,
+     "english": "TRAN-FIELD-NAME is not 'NAME'",
+     "implied": true
+    },
+    {
+     "text": "TRAN-FIELD-NAME = 'BALANCE '",
+     "line": 118,
+     "where": "SAM2.cbl:118",
+     "tested": "TRAN-FIELD-NAME = 'BALANCE '",
+     "outcome": true,
+     "english": "TRAN-FIELD-NAME is 'BALANCE'",
+     "implied": false
+    },
+    {
+     "text": "TRAN-ACTION = 'REPLACE'",
+     "line": 120,
+     "where": "SAM2.cbl:120",
+     "tested": "TRAN-ACTION = 'REPLACE'",
+     "outcome": true,
+     "english": "TRAN-ACTION is 'REPLACE'",
+     "implied": false
+    }
+   ],
+   "derived": [
+    {
+     "text": "if TRAN-UPDATE-NUM-HH IS NOT NUMERIC: TRAN-UPDATE-NUM-HH = 0",
+     "line": 83
+    },
+    {
+     "text": "WS-UPDATE-NUM-NEG = 'N'",
+     "line": 86
+    },
+    {
+     "text": "if TRAN-UPDATE-NUMX1 = '-': WS-UPDATE-NUM-NEG = 'Y'; TRAN-UPDATE-NUMX1 = '0'",
+     "line": 87
+    },
+    {
+     "text": "if TRAN-UPDATE-NUMX1 = '+': TRAN-UPDATE-NUMX1 = '0'",
+     "line": 91
+    },
+    {
+     "text": "WS-UPDATE-NUM = TRAN-UPDATE-NUM",
+     "line": 98
+    },
+    {
+     "text": "if WS-UPDATE-NUM-NEG = 'Y': WS-UPDATE-NUM = WS-UPDATE-NUM * -1",
+     "line": 99
+    },
+    {
+     "text": "TRAN-COUNT = TRAN-COUNT + 1",
+     "line": 122
+    }
+   ],
+   "lines": [
+    58,
+    59,
+    61,
+    65,
+    74,
+    81,
+    94,
+    105,
+    115,
+    118,
+    120,
+    121
+   ],
+   "notes": [],
+   "z3": {
+    "removed": 5,
+    "equivalent": true
+   },
+   "example": {
+    "TRAN-CODE": "UPDATE",
+    "TRAN-FIELD-NAME": "BALANCE   ",
+    "TRAN-UPDATE-NUMX1": "-",
+    "TRAN-UPDATE-NUM#numeric": true,
+    "TRAN-ACTION": "REPLACE "
+   }
+  },
+  {
+   "id": "RULE-22",
+   "actions": {
+    "TRAN-OK": "Y",
+    "TRAN-MSG": "SPACES",
+    "CUST-ACCT-BALANCE": "<CUST-ACCT-BALANCE = CUST-ACCT-BALANCE + WS-UPDATE-NUM>"
+   },
+   "conditions": [
+    {
+     "text": "TRAN-CODE <> 'CRUNCH '",
+     "line": 61,
+     "where": "SAM2.cbl:61",
+     "tested": "TRAN-CODE = 'CRUNCH '",
+     "outcome": false,
+     "english": "TRAN-CODE is not 'CRUNCH'",
+     "implied": true
+    },
+    {
+     "text": "TRAN-CODE = 'UPDATE '",
+     "line": 74,
+     "where": "SAM2.cbl:74",
+     "tested": "TRAN-CODE = 'UPDATE '",
+     "outcome": true,
+     "english": "TRAN-CODE is 'UPDATE'",
+     "implied": false
+    },
+    {
+     "text": "TRAN-FIELD-NAME = 'BALANCE ' OR TRAN-FIELD-NAME = 'ORDERS  '",
+     "line": 81,
+     "where": "SAM2.cbl:81",
+     "tested": "TRAN-FIELD-NAME = 'BALANCE ' OR TRAN-FIELD-NAME = 'ORDERS  '",
+     "outcome": true,
+     "english": "TRAN-FIELD-NAME is 'BALANCE' or TRAN-FIELD-NAME is 'ORDERS'",
+     "implied": true
+    },
+    {
+     "text": "TRAN-UPDATE-NUM IS NUMERIC",
+     "line": 94,
+     "where": "SAM2.cbl:94",
+     "tested": "TRAN-UPDATE-NUM IS NOT NUMERIC",
+     "outcome": false,
+     "english": "TRAN-UPDATE-NUM is numeric",
+     "implied": false
+    },
+    {
+     "text": "TRAN-ACTION = 'REPLACE ' OR TRAN-ACTION = 'ADD     '",
+     "line": 105,
+     "where": "SAM2.cbl:105",
+     "tested": "TRAN-ACTION = 'REPLACE ' OR TRAN-ACTION = 'ADD     '",
+     "outcome": true,
+     "english": "TRAN-ACTION is 'REPLACE' or TRAN-ACTION is 'ADD'",
+     "implied": true
+    },
+    {
+     "text": "TRAN-OK = 'Y'",
+     "line": 65,
+     "where": "SAM2.cbl:65",
+     "tested": "TRAN-OK = 'Y'",
+     "outcome": true,
+     "english": "TRAN-OK is 'Y'",
+     "implied": true
+    },
+    {
+     "text": "TRAN-FIELD-NAME <> 'NAME    '",
+     "line": 115,
+     "where": "SAM2.cbl:115",
+     "tested": "TRAN-FIELD-NAME = 'NAME    '",
+     "outcome": false,
+     "english": "TRAN-FIELD-NAME is not 'NAME'",
+     "implied": true
+    },
+    {
+     "text": "TRAN-FIELD-NAME = 'BALANCE '",
+     "line": 118,
+     "where": "SAM2.cbl:118",
+     "tested": "TRAN-FIELD-NAME = 'BALANCE '",
+     "outcome": true,
+     "english": "TRAN-FIELD-NAME is 'BALANCE'",
+     "implied": false
+    },
+    {
+     "text": "TRAN-ACTION <> 'REPLACE'",
+     "line": 120,
+     "where": "SAM2.cbl:120",
+     "tested": "TRAN-ACTION = 'REPLACE'",
+     "outcome": false,
+     "english": "TRAN-ACTION is not 'REPLACE'",
+     "implied": true
+    },
+    {
+     "text": "TRAN-ACTION = 'ADD     '",
+     "line": 123,
+     "where": "SAM2.cbl:123",
+     "tested": "TRAN-ACTION = 'ADD     '",
+     "outcome": true,
+     "english": "TRAN-ACTION is 'ADD'",
+     "implied": false
+    }
+   ],
+   "derived": [
+    {
+     "text": "if TRAN-UPDATE-NUM-HH IS NOT NUMERIC: TRAN-UPDATE-NUM-HH = 0",
+     "line": 83
+    },
+    {
+     "text": "WS-UPDATE-NUM-NEG = 'N'",
+     "line": 86
+    },
+    {
+     "text": "if TRAN-UPDATE-NUMX1 = '-': WS-UPDATE-NUM-NEG = 'Y'; TRAN-UPDATE-NUMX1 = '0'",
+     "line": 87
+    },
+    {
+     "text": "if TRAN-UPDATE-NUMX1 = '+': TRAN-UPDATE-NUMX1 = '0'",
+     "line": 91
+    },
+    {
+     "text": "WS-UPDATE-NUM = TRAN-UPDATE-NUM",
+     "line": 98
+    },
+    {
+     "text": "if WS-UPDATE-NUM-NEG = 'Y': WS-UPDATE-NUM = WS-UPDATE-NUM * -1",
+     "line": 99
+    },
+    {
+     "text": "TRAN-COUNT = TRAN-COUNT + 1",
+     "line": 126
+    }
+   ],
+   "lines": [
+    58,
+    59,
+    61,
+    65,
+    74,
+    81,
+    94,
+    105,
+    115,
+    118,
+    120,
+    123,
+    124
+   ],
+   "notes": [],
+   "z3": {
+    "removed": 6,
+    "equivalent": true
+   },
+   "example": {
+    "TRAN-CODE": "UPDATE",
+    "TRAN-FIELD-NAME": "BALANCE   ",
+    "TRAN-UPDATE-NUMX1": "-",
+    "TRAN-UPDATE-NUM#numeric": true,
+    "TRAN-ACTION": "ADD     ",
+    "CUST-ACCT-BALANCE": "0"
+   }
+  },
+  {
+   "id": "RULE-24",
+   "actions": {
+    "TRAN-OK": "Y",
+    "TRAN-MSG": "SPACES",
+    "CUST-ORDERS-YTD": "<CUST-ORDERS-YTD = WS-UPDATE-NUM>"
+   },
+   "conditions": [
+    {
+     "text": "TRAN-CODE <> 'CRUNCH '",
+     "line": 61,
+     "where": "SAM2.cbl:61",
+     "tested": "TRAN-CODE = 'CRUNCH '",
+     "outcome": false,
+     "english": "TRAN-CODE is not 'CRUNCH'",
+     "implied": true
+    },
+    {
+     "text": "TRAN-CODE = 'UPDATE '",
+     "line": 74,
+     "where": "SAM2.cbl:74",
+     "tested": "TRAN-CODE = 'UPDATE '",
+     "outcome": true,
+     "english": "TRAN-CODE is 'UPDATE'",
+     "implied": false
+    },
+    {
+     "text": "TRAN-FIELD-NAME = 'BALANCE ' OR TRAN-FIELD-NAME = 'ORDERS  '",
+     "line": 81,
+     "where": "SAM2.cbl:81",
+     "tested": "TRAN-FIELD-NAME = 'BALANCE ' OR TRAN-FIELD-NAME = 'ORDERS  '",
+     "outcome": true,
+     "english": "TRAN-FIELD-NAME is 'BALANCE' or TRAN-FIELD-NAME is 'ORDERS'",
+     "implied": true
+    },
+    {
+     "text": "TRAN-UPDATE-NUM IS NUMERIC",
+     "line": 94,
+     "where": "SAM2.cbl:94",
+     "tested": "TRAN-UPDATE-NUM IS NOT NUMERIC",
+     "outcome": false,
+     "english": "TRAN-UPDATE-NUM is numeric",
+     "implied": false
+    },
+    {
+     "text": "TRAN-ACTION = 'REPLACE ' OR TRAN-ACTION = 'ADD     '",
+     "line": 105,
+     "where": "SAM2.cbl:105",
+     "tested": "TRAN-ACTION = 'REPLACE ' OR TRAN-ACTION = 'ADD     '",
+     "outcome": true,
+     "english": "TRAN-ACTION is 'REPLACE' or TRAN-ACTION is 'ADD'",
+     "implied": true
+    },
+    {
+     "text": "TRAN-OK = 'Y'",
+     "line": 65,
+     "where": "SAM2.cbl:65",
+     "tested": "TRAN-OK = 'Y'",
+     "outcome": true,
+     "english": "TRAN-OK is 'Y'",
+     "implied": true
+    },
+    {
+     "text": "TRAN-FIELD-NAME <> 'NAME    '",
+     "line": 115,
+     "where": "SAM2.cbl:115",
+     "tested": "TRAN-FIELD-NAME = 'NAME    '",
+     "outcome": false,
+     "english": "TRAN-FIELD-NAME is not 'NAME'",
+     "implied": true
+    },
+    {
+     "text": "TRAN-FIELD-NAME <> 'BALANCE '",
+     "line": 118,
+     "where": "SAM2.cbl:118",
+     "tested": "TRAN-FIELD-NAME = 'BALANCE '",
+     "outcome": false,
+     "english": "TRAN-FIELD-NAME is not 'BALANCE'",
+     "implied": true
+    },
+    {
+     "text": "TRAN-FIELD-NAME = 'ORDERS  '",
+     "line": 128,
+     "where": "SAM2.cbl:128",
+     "tested": "TRAN-FIELD-NAME = 'ORDERS  '",
+     "outcome": true,
+     "english": "TRAN-FIELD-NAME is 'ORDERS'",
+     "implied": false
+    },
+    {
+     "text": "TRAN-ACTION = 'REPLACE'",
+     "line": 130,
+     "where": "SAM2.cbl:130",
+     "tested": "TRAN-ACTION = 'REPLACE'",
+     "outcome": true,
+     "english": "TRAN-ACTION is 'REPLACE'",
+     "implied": false
+    }
+   ],
+   "derived": [
+    {
+     "text": "if TRAN-UPDATE-NUM-HH IS NOT NUMERIC: TRAN-UPDATE-NUM-HH = 0",
+     "line": 83
+    },
+    {
+     "text": "WS-UPDATE-NUM-NEG = 'N'",
+     "line": 86
+    },
+    {
+     "text": "if TRAN-UPDATE-NUMX1 = '-': WS-UPDATE-NUM-NEG = 'Y'; TRAN-UPDATE-NUMX1 = '0'",
+     "line": 87
+    },
+    {
+     "text": "if TRAN-UPDATE-NUMX1 = '+': TRAN-UPDATE-NUMX1 = '0'",
+     "line": 91
+    },
+    {
+     "text": "WS-UPDATE-NUM = TRAN-UPDATE-NUM",
+     "line": 98
+    },
+    {
+     "text": "if WS-UPDATE-NUM-NEG = 'Y': WS-UPDATE-NUM = WS-UPDATE-NUM * -1",
+     "line": 99
+    },
+    {
+     "text": "TRAN-COUNT = TRAN-COUNT + 1",
+     "line": 132
+    }
+   ],
+   "lines": [
+    58,
+    59,
+    61,
+    65,
+    74,
+    81,
+    94,
+    105,
+    115,
+    118,
+    128,
+    130,
+    131
+   ],
+   "notes": [],
+   "z3": {
+    "removed": 6,
+    "equivalent": true
+   },
+   "example": {
+    "TRAN-CODE": "UPDATE",
+    "TRAN-FIELD-NAME": "ORDERS    ",
+    "TRAN-UPDATE-NUMX1": "-",
+    "TRAN-UPDATE-NUM#numeric": true,
+    "TRAN-ACTION": "REPLACE "
+   }
+  },
+  {
+   "id": "RULE-25",
+   "actions": {
+    "TRAN-OK": "Y",
+    "TRAN-MSG": "SPACES",
+    "CUST-ORDERS-YTD": "<CUST-ORDERS-YTD = CUST-ORDERS-YTD + WS-UPDATE-NUM>"
+   },
+   "conditions": [
+    {
+     "text": "TRAN-CODE <> 'CRUNCH '",
+     "line": 61,
+     "where": "SAM2.cbl:61",
+     "tested": "TRAN-CODE = 'CRUNCH '",
+     "outcome": false,
+     "english": "TRAN-CODE is not 'CRUNCH'",
+     "implied": true
+    },
+    {
+     "text": "TRAN-CODE = 'UPDATE '",
+     "line": 74,
+     "where": "SAM2.cbl:74",
+     "tested": "TRAN-CODE = 'UPDATE '",
+     "outcome": true,
+     "english": "TRAN-CODE is 'UPDATE'",
+     "implied": false
+    },
+    {
+     "text": "TRAN-FIELD-NAME = 'BALANCE ' OR TRAN-FIELD-NAME = 'ORDERS  '",
+     "line": 81,
+     "where": "SAM2.cbl:81",
+     "tested": "TRAN-FIELD-NAME = 'BALANCE ' OR TRAN-FIELD-NAME = 'ORDERS  '",
+     "outcome": true,
+     "english": "TRAN-FIELD-NAME is 'BALANCE' or TRAN-FIELD-NAME is 'ORDERS'",
+     "implied": true
+    },
+    {
+     "text": "TRAN-UPDATE-NUM IS NUMERIC",
+     "line": 94,
+     "where": "SAM2.cbl:94",
+     "tested": "TRAN-UPDATE-NUM IS NOT NUMERIC",
+     "outcome": false,
+     "english": "TRAN-UPDATE-NUM is numeric",
+     "implied": false
+    },
+    {
+     "text": "TRAN-ACTION = 'REPLACE ' OR TRAN-ACTION = 'ADD     '",
+     "line": 105,
+     "where": "SAM2.cbl:105",
+     "tested": "TRAN-ACTION = 'REPLACE ' OR TRAN-ACTION = 'ADD     '",
+     "outcome": true,
+     "english": "TRAN-ACTION is 'REPLACE' or TRAN-ACTION is 'ADD'",
+     "implied": true
+    },
+    {
+     "text": "TRAN-OK = 'Y'",
+     "line": 65,
+     "where": "SAM2.cbl:65",
+     "tested": "TRAN-OK = 'Y'",
+     "outcome": true,
+     "english": "TRAN-OK is 'Y'",
+     "implied": true
+    },
+    {
+     "text": "TRAN-FIELD-NAME <> 'NAME    '",
+     "line": 115,
+     "where": "SAM2.cbl:115",
+     "tested": "TRAN-FIELD-NAME = 'NAME    '",
+     "outcome": false,
+     "english": "TRAN-FIELD-NAME is not 'NAME'",
+     "implied": true
+    },
+    {
+     "text": "TRAN-FIELD-NAME <> 'BALANCE '",
+     "line": 118,
+     "where": "SAM2.cbl:118",
+     "tested": "TRAN-FIELD-NAME = 'BALANCE '",
+     "outcome": false,
+     "english": "TRAN-FIELD-NAME is not 'BALANCE'",
+     "implied": true
+    },
+    {
+     "text": "TRAN-FIELD-NAME = 'ORDERS  '",
+     "line": 128,
+     "where": "SAM2.cbl:128",
+     "tested": "TRAN-FIELD-NAME = 'ORDERS  '",
+     "outcome": true,
+     "english": "TRAN-FIELD-NAME is 'ORDERS'",
+     "implied": false
+    },
+    {
+     "text": "TRAN-ACTION <> 'REPLACE'",
+     "line": 130,
+     "where": "SAM2.cbl:130",
+     "tested": "TRAN-ACTION = 'REPLACE'",
+     "outcome": false,
+     "english": "TRAN-ACTION is not 'REPLACE'",
+     "implied": true
+    },
+    {
+     "text": "TRAN-ACTION = 'ADD     '",
+     "line": 133,
+     "where": "SAM2.cbl:133",
+     "tested": "TRAN-ACTION = 'ADD     '",
+     "outcome": true,
+     "english": "TRAN-ACTION is 'ADD'",
+     "implied": false
+    }
+   ],
+   "derived": [
+    {
+     "text": "if TRAN-UPDATE-NUM-HH IS NOT NUMERIC: TRAN-UPDATE-NUM-HH = 0",
+     "line": 83
+    },
+    {
+     "text": "WS-UPDATE-NUM-NEG = 'N'",
+     "line": 86
+    },
+    {
+     "text": "if TRAN-UPDATE-NUMX1 = '-': WS-UPDATE-NUM-NEG = 'Y'; TRAN-UPDATE-NUMX1 = '0'",
+     "line": 87
+    },
+    {
+     "text": "if TRAN-UPDATE-NUMX1 = '+': TRAN-UPDATE-NUMX1 = '0'",
+     "line": 91
+    },
+    {
+     "text": "WS-UPDATE-NUM = TRAN-UPDATE-NUM",
+     "line": 98
+    },
+    {
+     "text": "if WS-UPDATE-NUM-NEG = 'Y': WS-UPDATE-NUM = WS-UPDATE-NUM * -1",
+     "line": 99
+    },
+    {
+     "text": "TRAN-COUNT = TRAN-COUNT + 1",
+     "line": 136
+    }
+   ],
+   "lines": [
+    58,
+    59,
+    61,
+    65,
+    74,
+    81,
+    94,
+    105,
+    115,
+    118,
+    128,
+    130,
+    133,
+    134
+   ],
+   "notes": [],
+   "z3": {
+    "removed": 7,
+    "equivalent": true
+   },
+   "example": {
+    "TRAN-CODE": "UPDATE",
+    "TRAN-FIELD-NAME": "ORDERS    ",
+    "TRAN-UPDATE-NUMX1": "-",
+    "TRAN-UPDATE-NUM#numeric": true,
+    "TRAN-ACTION": "ADD     ",
+    "CUST-ORDERS-YTD": "0"
+   }
+  },
+  {
+   "id": "RULE-37",
+   "actions": {
+    "TRAN-OK": "N",
+    "TRAN-MSG": "INVALID ACTION CODE"
+   },
+   "conditions": [
+    {
+     "text": "TRAN-CODE <> 'CRUNCH '",
+     "line": 61,
+     "where": "SAM2.cbl:61",
+     "tested": "TRAN-CODE = 'CRUNCH '",
+     "outcome": false,
+     "english": "TRAN-CODE is not 'CRUNCH'",
+     "implied": true
+    },
+    {
+     "text": "TRAN-CODE = 'UPDATE '",
+     "line": 74,
+     "where": "SAM2.cbl:74",
+     "tested": "TRAN-CODE = 'UPDATE '",
+     "outcome": true,
+     "english": "TRAN-CODE is 'UPDATE'",
+     "implied": false
+    },
+    {
+     "text": "TRAN-FIELD-NAME = 'BALANCE ' OR TRAN-FIELD-NAME = 'ORDERS  '",
+     "line": 81,
+     "where": "SAM2.cbl:81",
+     "tested": "TRAN-FIELD-NAME = 'BALANCE ' OR TRAN-FIELD-NAME = 'ORDERS  '",
+     "outcome": true,
+     "english": "TRAN-FIELD-NAME is 'BALANCE' or TRAN-FIELD-NAME is 'ORDERS'",
+     "implied": false
+    },
+    {
+     "text": "TRAN-UPDATE-NUM IS NUMERIC",
+     "line": 94,
+     "where": "SAM2.cbl:94",
+     "tested": "TRAN-UPDATE-NUM IS NOT NUMERIC",
+     "outcome": false,
+     "english": "TRAN-UPDATE-NUM is numeric",
+     "implied": false
+    },
+    {
+     "text": "TRAN-ACTION <> 'REPLACE ' AND TRAN-ACTION <> 'ADD     '",
+     "line": 105,
+     "where": "SAM2.cbl:105",
+     "tested": "TRAN-ACTION = 'REPLACE ' OR TRAN-ACTION = 'ADD     '",
+     "outcome": false,
+     "english": "TRAN-ACTION is not 'REPLACE' and TRAN-ACTION is not 'ADD'",
+     "implied": false
+    },
+    {
+     "text": "TRAN-OK <> 'Y'",
+     "line": 65,
+     "where": "SAM2.cbl:65",
+     "tested": "TRAN-OK = 'Y'",
+     "outcome": false,
+     "english": "TRAN-OK is not 'Y'",
+     "implied": true
+    }
+   ],
+   "derived": [
+    {
+     "text": "if TRAN-UPDATE-NUM-HH IS NOT NUMERIC: TRAN-UPDATE-NUM-HH = 0",
+     "line": 83
+    },
+    {
+     "text": "WS-UPDATE-NUM-NEG = 'N'",
+     "line": 86
+    },
+    {
+     "text": "if TRAN-UPDATE-NUMX1 = '-': WS-UPDATE-NUM-NEG = 'Y'; TRAN-UPDATE-NUMX1 = '0'",
+     "line": 87
+    },
+    {
+     "text": "if TRAN-UPDATE-NUMX1 = '+': TRAN-UPDATE-NUMX1 = '0'",
+     "line": 91
+    },
+    {
+     "text": "WS-UPDATE-NUM = TRAN-UPDATE-NUM",
+     "line": 98
+    },
+    {
+     "text": "if WS-UPDATE-NUM-NEG = 'Y': WS-UPDATE-NUM = WS-UPDATE-NUM * -1",
+     "line": 99
+    }
+   ],
+   "lines": [
+    58,
+    59,
+    61,
+    65,
+    74,
+    81,
+    94,
+    105,
+    109,
+    110
+   ],
+   "notes": [],
+   "z3": {
+    "removed": 2,
+    "equivalent": true
+   },
+   "example": {
+    "TRAN-CODE": "UPDATE",
+    "TRAN-FIELD-NAME": "BALANCE   ",
+    "TRAN-UPDATE-NUMX1": "-",
+    "TRAN-UPDATE-NUM#numeric": true,
+    "TRAN-ACTION": "CRUNCH"
+   }
+  },
+  {
+   "id": "RULE-38",
+   "actions": {
+    "TRAN-OK": "Y",
+    "TRAN-MSG": "SPACES",
+    "CUST-NAME": "<CUST-NAME = TRAN-UPDATE-DATA>"
+   },
+   "conditions": [
+    {
+     "text": "TRAN-CODE <> 'CRUNCH '",
+     "line": 61,
+     "where": "SAM2.cbl:61",
+     "tested": "TRAN-CODE = 'CRUNCH '",
+     "outcome": false,
+     "english": "TRAN-CODE is not 'CRUNCH'",
+     "implied": true
+    },
+    {
+     "text": "TRAN-CODE = 'UPDATE '",
+     "line": 74,
+     "where": "SAM2.cbl:74",
+     "tested": "TRAN-CODE = 'UPDATE '",
+     "outcome": true,
+     "english": "TRAN-CODE is 'UPDATE'",
+     "implied": false
+    },
+    {
+     "text": "TRAN-FIELD-NAME <> 'BALANCE ' AND TRAN-FIELD-NAME <> 'ORDERS  '",
+     "line": 81,
+     "where": "SAM2.cbl:81",
+     "tested": "TRAN-FIELD-NAME = 'BALANCE ' OR TRAN-FIELD-NAME = 'ORDERS  '",
+     "outcome": false,
+     "english": "TRAN-FIELD-NAME is not 'BALANCE' and TRAN-FIELD-NAME is not 'ORDERS'",
+     "implied": true
+    },
+    {
+     "text": "TRAN-ACTION = 'REPLACE ' OR TRAN-ACTION = 'ADD     '",
+     "line": 105,
+     "where": "SAM2.cbl:105",
+     "tested": "TRAN-ACTION = 'REPLACE ' OR TRAN-ACTION = 'ADD     '",
+     "outcome": true,
+     "english": "TRAN-ACTION is 'REPLACE' or TRAN-ACTION is 'ADD'",
+     "implied": false
+    },
+    {
+     "text": "TRAN-OK = 'Y'",
+     "line": 65,
+     "where": "SAM2.cbl:65",
+     "tested": "TRAN-OK = 'Y'",
+     "outcome": true,
+     "english": "TRAN-OK is 'Y'",
+     "implied": true
+    },
+    {
+     "text": "TRAN-FIELD-NAME = 'NAME    '",
+     "line": 115,
+     "where": "SAM2.cbl:115",
+     "tested": "TRAN-FIELD-NAME = 'NAME    '",
+     "outcome": true,
+     "english": "TRAN-FIELD-NAME is 'NAME'",
+     "implied": false
+    }
+   ],
+   "derived": [
+    {
+     "text": "TRAN-COUNT = TRAN-COUNT + 1",
+     "line": 117
+    }
+   ],
+   "lines": [
+    58,
+    59,
+    61,
+    65,
+    74,
+    81,
+    105,
+    115,
+    116
+   ],
+   "notes": [],
+   "z3": {
+    "removed": 3,
+    "equivalent": true
+   },
+   "example": {
+    "TRAN-CODE": "UPDATE",
+    "TRAN-FIELD-NAME": "NAME      ",
+    "TRAN-ACTION": "REPLACE "
+   }
+  },
+  {
+   "id": "RULE-45",
+   "actions": {
+    "TRAN-OK": "N",
+    "TRAN-MSG": "FIELD NAME INVALID"
+   },
+   "conditions": [
+    {
+     "text": "TRAN-CODE <> 'CRUNCH '",
+     "line": 61,
+     "where": "SAM2.cbl:61",
+     "tested": "TRAN-CODE = 'CRUNCH '",
+     "outcome": false,
+     "english": "TRAN-CODE is not 'CRUNCH'",
+     "implied": true
+    },
+    {
+     "text": "TRAN-CODE = 'UPDATE '",
+     "line": 74,
+     "where": "SAM2.cbl:74",
+     "tested": "TRAN-CODE = 'UPDATE '",
+     "outcome": true,
+     "english": "TRAN-CODE is 'UPDATE'",
+     "implied": false
+    },
+    {
+     "text": "TRAN-FIELD-NAME <> 'BALANCE ' AND TRAN-FIELD-NAME <> 'ORDERS  '",
+     "line": 81,
+     "where": "SAM2.cbl:81",
+     "tested": "TRAN-FIELD-NAME = 'BALANCE ' OR TRAN-FIELD-NAME = 'ORDERS  '",
+     "outcome": false,
+     "english": "TRAN-FIELD-NAME is not 'BALANCE' and TRAN-FIELD-NAME is not 'ORDERS'",
+     "implied": true
+    },
+    {
+     "text": "TRAN-ACTION = 'REPLACE ' OR TRAN-ACTION = 'ADD     '",
+     "line": 105,
+     "where": "SAM2.cbl:105",
+     "tested": "TRAN-ACTION = 'REPLACE ' OR TRAN-ACTION = 'ADD     '",
+     "outcome": true,
+     "english": "TRAN-ACTION is 'REPLACE' or TRAN-ACTION is 'ADD'",
+     "implied": false
+    },
+    {
+     "text": "TRAN-OK = 'Y'",
+     "line": 65,
+     "where": "SAM2.cbl:65",
+     "tested": "TRAN-OK = 'Y'",
+     "outcome": true,
+     "english": "TRAN-OK is 'Y'",
+     "implied": true
+    },
+    {
+     "text": "TRAN-FIELD-NAME <> 'NAME    '",
+     "line": 115,
+     "where": "SAM2.cbl:115",
+     "tested": "TRAN-FIELD-NAME = 'NAME    '",
+     "outcome": false,
+     "english": "TRAN-FIELD-NAME is not 'NAME'",
+     "implied": false
+    },
+    {
+     "text": "TRAN-FIELD-NAME <> 'BALANCE '",
+     "line": 118,
+     "where": "SAM2.cbl:118",
+     "tested": "TRAN-FIELD-NAME = 'BALANCE '",
+     "outcome": false,
+     "english": "TRAN-FIELD-NAME is not 'BALANCE'",
+     "implied": false
+    },
+    {
+     "text": "TRAN-FIELD-NAME <> 'ORDERS  '",
+     "line": 128,
+     "where": "SAM2.cbl:128",
+     "tested": "TRAN-FIELD-NAME = 'ORDERS  '",
+     "outcome": false,
+     "english": "TRAN-FIELD-NAME is not 'ORDERS'",
+     "implied": false
+    }
+   ],
+   "derived": [],
+   "lines": [
+    58,
+    59,
+    61,
+    65,
+    74,
+    81,
+    105,
+    115,
+    118,
+    128,
+    139,
+    140
+   ],
+   "notes": [],
+   "z3": {
+    "removed": 3,
+    "equivalent": true
+   },
+   "example": {
+    "TRAN-CODE": "UPDATE",
+    "TRAN-FIELD-NAME": "(any other text)",
+    "TRAN-ACTION": "REPLACE "
+   }
+  },
+  {
+   "id": "RULE-55",
+   "actions": {
+    "TRAN-OK": "N",
+    "TRAN-MSG": "INVALID ACTION CODE"
+   },
+   "conditions": [
+    {
+     "text": "TRAN-CODE <> 'CRUNCH '",
+     "line": 61,
+     "where": "SAM2.cbl:61",
+     "tested": "TRAN-CODE = 'CRUNCH '",
+     "outcome": false,
+     "english": "TRAN-CODE is not 'CRUNCH'",
+     "implied": true
+    },
+    {
+     "text": "TRAN-CODE = 'UPDATE '",
+     "line": 74,
+     "where": "SAM2.cbl:74",
+     "tested": "TRAN-CODE = 'UPDATE '",
+     "outcome": true,
+     "english": "TRAN-CODE is 'UPDATE'",
+     "implied": false
+    },
+    {
+     "text": "TRAN-FIELD-NAME <> 'BALANCE ' AND TRAN-FIELD-NAME <> 'ORDERS  '",
+     "line": 81,
+     "where": "SAM2.cbl:81",
+     "tested": "TRAN-FIELD-NAME = 'BALANCE ' OR TRAN-FIELD-NAME = 'ORDERS  '",
+     "outcome": false,
+     "english": "TRAN-FIELD-NAME is not 'BALANCE' and TRAN-FIELD-NAME is not 'ORDERS'",
+     "implied": false
+    },
+    {
+     "text": "TRAN-ACTION <> 'REPLACE ' AND TRAN-ACTION <> 'ADD     '",
+     "line": 105,
+     "where": "SAM2.cbl:105",
+     "tested": "TRAN-ACTION = 'REPLACE ' OR TRAN-ACTION = 'ADD     '",
+     "outcome": false,
+     "english": "TRAN-ACTION is not 'REPLACE' and TRAN-ACTION is not 'ADD'",
+     "implied": false
+    },
+    {
+     "text": "TRAN-OK <> 'Y'",
+     "line": 65,
+     "where": "SAM2.cbl:65",
+     "tested": "TRAN-OK = 'Y'",
+     "outcome": false,
+     "english": "TRAN-OK is not 'Y'",
+     "implied": true
+    }
+   ],
+   "derived": [],
+   "lines": [
+    58,
+    59,
+    61,
+    65,
+    74,
+    81,
+    105,
+    109,
+    110
+   ],
+   "notes": [],
+   "z3": {
+    "removed": 2,
+    "equivalent": true
+   },
+   "example": {
+    "TRAN-CODE": "UPDATE",
+    "TRAN-FIELD-NAME": "(any other text)",
+    "TRAN-ACTION": "(any other text)"
+   }
+  },
+  {
+   "id": "RULE-64",
+   "actions": {
+    "TRAN-OK": "N",
+    "TRAN-MSG": "DATA IS NOT NUMERIC"
+   },
+   "conditions": [
+    {
+     "text": "TRAN-CODE <> 'CRUNCH '",
+     "line": 61,
+     "where": "SAM2.cbl:61",
+     "tested": "TRAN-CODE = 'CRUNCH '",
+     "outcome": false,
+     "english": "TRAN-CODE is not 'CRUNCH'",
+     "implied": false
+    },
+    {
+     "text": "TRAN-CODE <> 'UPDATE '",
+     "line": 74,
+     "where": "SAM2.cbl:74",
+     "tested": "TRAN-CODE = 'UPDATE '",
+     "outcome": false,
+     "english": "TRAN-CODE is not 'UPDATE'",
+     "implied": false
+    },
+    {
+     "text": "TRAN-FIELD-NAME = 'BALANCE ' OR TRAN-FIELD-NAME = 'ORDERS  '",
+     "line": 81,
+     "where": "SAM2.cbl:81",
+     "tested": "TRAN-FIELD-NAME = 'BALANCE ' OR TRAN-FIELD-NAME = 'ORDERS  '",
+     "outcome": true,
+     "english": "TRAN-FIELD-NAME is 'BALANCE' or TRAN-FIELD-NAME is 'ORDERS'",
+     "implied": false
+    },
+    {
+     "text": "TRAN-UPDATE-NUM IS NOT NUMERIC",
+     "line": 94,
+     "where": "SAM2.cbl:94",
+     "tested": "TRAN-UPDATE-NUM IS NOT NUMERIC",
+     "outcome": true,
+     "english": "TRAN-UPDATE-NUM is not numeric",
+     "implied": false
+    },
+    {
+     "text": "TRAN-ACTION = 'REPLACE ' OR TRAN-ACTION = 'ADD     '",
+     "line": 105,
+     "where": "SAM2.cbl:105",
+     "tested": "TRAN-ACTION = 'REPLACE ' OR TRAN-ACTION = 'ADD     '",
+     "outcome": true,
+     "english": "TRAN-ACTION is 'REPLACE' or TRAN-ACTION is 'ADD'",
+     "implied": false
+    },
+    {
+     "text": "TRAN-OK <> 'Y'",
+     "line": 65,
+     "where": "SAM2.cbl:65",
+     "tested": "TRAN-OK = 'Y'",
+     "outcome": false,
+     "english": "TRAN-OK is not 'Y'",
+     "implied": true
+    }
+   ],
+   "derived": [
+    {
+     "text": "if TRAN-UPDATE-NUM-HH IS NOT NUMERIC: TRAN-UPDATE-NUM-HH = 0",
+     "line": 83
+    },
+    {
+     "text": "WS-UPDATE-NUM-NEG = 'N'",
+     "line": 86
+    },
+    {
+     "text": "if TRAN-UPDATE-NUMX1 = '-': WS-UPDATE-NUM-NEG = 'Y'; TRAN-UPDATE-NUMX1 = '0'",
+     "line": 87
+    },
+    {
+     "text": "if TRAN-UPDATE-NUMX1 = '+': TRAN-UPDATE-NUMX1 = '0'",
+     "line": 91
+    }
+   ],
+   "lines": [
+    58,
+    59,
+    61,
+    65,
+    74,
+    77,
+    78,
+    81,
+    94,
+    95,
+    96,
+    105
+   ],
+   "notes": [],
+   "z3": {
+    "removed": 1,
+    "equivalent": true
+   },
+   "example": {
+    "TRAN-CODE": "Y",
+    "TRAN-FIELD-NAME": "BALANCE   ",
+    "TRAN-UPDATE-NUM#numeric": false,
+    "TRAN-ACTION": "REPLACE "
+   }
+  },
+  {
+   "id": "RULE-73",
+   "actions": {
+    "TRAN-OK": "N",
+    "TRAN-MSG": "INVALID ACTION CODE"
+   },
+   "conditions": [
+    {
+     "text": "TRAN-CODE <> 'CRUNCH '",
+     "line": 61,
+     "where": "SAM2.cbl:61",
+     "tested": "TRAN-CODE = 'CRUNCH '",
+     "outcome": false,
+     "english": "TRAN-CODE is not 'CRUNCH'",
+     "implied": false
+    },
+    {
+     "text": "TRAN-CODE <> 'UPDATE '",
+     "line": 74,
+     "where": "SAM2.cbl:74",
+     "tested": "TRAN-CODE = 'UPDATE '",
+     "outcome": false,
+     "english": "TRAN-CODE is not 'UPDATE'",
+     "implied": false
+    },
+    {
+     "text": "TRAN-FIELD-NAME = 'BALANCE ' OR TRAN-FIELD-NAME = 'ORDERS  '",
+     "line": 81,
+     "where": "SAM2.cbl:81",
+     "tested": "TRAN-FIELD-NAME = 'BALANCE ' OR TRAN-FIELD-NAME = 'ORDERS  '",
+     "outcome": true,
+     "english": "TRAN-FIELD-NAME is 'BALANCE' or TRAN-FIELD-NAME is 'ORDERS'",
+     "implied": false
+    },
+    {
+     "text": "TRAN-UPDATE-NUM IS NOT NUMERIC",
+     "line": 94,
+     "where": "SAM2.cbl:94",
+     "tested": "TRAN-UPDATE-NUM IS NOT NUMERIC",
+     "outcome": true,
+     "english": "TRAN-UPDATE-NUM is not numeric",
+     "implied": false
+    },
+    {
+     "text": "TRAN-ACTION <> 'REPLACE ' AND TRAN-ACTION <> 'ADD     '",
+     "line": 105,
+     "where": "SAM2.cbl:105",
+     "tested": "TRAN-ACTION = 'REPLACE ' OR TRAN-ACTION = 'ADD     '",
+     "outcome": false,
+     "english": "TRAN-ACTION is not 'REPLACE' and TRAN-ACTION is not 'ADD'",
+     "implied": false
+    },
+    {
+     "text": "TRAN-OK <> 'Y'",
+     "line": 65,
+     "where": "SAM2.cbl:65",
+     "tested": "TRAN-OK = 'Y'",
+     "outcome": false,
+     "english": "TRAN-OK is not 'Y'",
+     "implied": true
+    }
+   ],
+   "derived": [
+    {
+     "text": "if TRAN-UPDATE-NUM-HH IS NOT NUMERIC: TRAN-UPDATE-NUM-HH = 0",
+     "line": 83
+    },
+    {
+     "text": "WS-UPDATE-NUM-NEG = 'N'",
+     "line": 86
+    },
+    {
+     "text": "if TRAN-UPDATE-NUMX1 = '-': WS-UPDATE-NUM-NEG = 'Y'; TRAN-UPDATE-NUMX1 = '0'",
+     "line": 87
+    },
+    {
+     "text": "if TRAN-UPDATE-NUMX1 = '+': TRAN-UPDATE-NUMX1 = '0'",
+     "line": 91
+    }
+   ],
+   "lines": [
+    58,
+    59,
+    61,
+    65,
+    74,
+    77,
+    78,
+    81,
+    94,
+    95,
+    96,
+    105,
+    109,
+    110
+   ],
+   "notes": [],
+   "z3": {
+    "removed": 1,
+    "equivalent": true
+   },
+   "example": {
+    "TRAN-CODE": "Y",
+    "TRAN-FIELD-NAME": "BALANCE   ",
+    "TRAN-UPDATE-NUM#numeric": false,
+    "TRAN-ACTION": "                                                  "
+   }
+  },
+  {
+   "id": "RULE-82",
+   "actions": {
+    "TRAN-OK": "N",
+    "TRAN-MSG": "REQUEST TYPE IS INVALID"
+   },
+   "conditions": [
+    {
+     "text": "TRAN-CODE <> 'CRUNCH '",
+     "line": 61,
+     "where": "SAM2.cbl:61",
+     "tested": "TRAN-CODE = 'CRUNCH '",
+     "outcome": false,
+     "english": "TRAN-CODE is not 'CRUNCH'",
+     "implied": false
+    },
+    {
+     "text": "TRAN-CODE <> 'UPDATE '",
+     "line": 74,
+     "where": "SAM2.cbl:74",
+     "tested": "TRAN-CODE = 'UPDATE '",
+     "outcome": false,
+     "english": "TRAN-CODE is not 'UPDATE'",
+     "implied": false
+    },
+    {
+     "text": "TRAN-FIELD-NAME = 'BALANCE ' OR TRAN-FIELD-NAME = 'ORDERS  '",
+     "line": 81,
+     "where": "SAM2.cbl:81",
+     "tested": "TRAN-FIELD-NAME = 'BALANCE ' OR TRAN-FIELD-NAME = 'ORDERS  '",
+     "outcome": true,
+     "english": "TRAN-FIELD-NAME is 'BALANCE' or TRAN-FIELD-NAME is 'ORDERS'",
+     "implied": false
+    },
+    {
+     "text": "TRAN-UPDATE-NUM IS NUMERIC",
+     "line": 94,
+     "where": "SAM2.cbl:94",
+     "tested": "TRAN-UPDATE-NUM IS NOT NUMERIC",
+     "outcome": false,
+     "english": "TRAN-UPDATE-NUM is numeric",
+     "implied": false
+    },
+    {
+     "text": "TRAN-ACTION = 'REPLACE ' OR TRAN-ACTION = 'ADD     '",
+     "line": 105,
+     "where": "SAM2.cbl:105",
+     "tested": "TRAN-ACTION = 'REPLACE ' OR TRAN-ACTION = 'ADD     '",
+     "outcome": true,
+     "english": "TRAN-ACTION is 'REPLACE' or TRAN-ACTION is 'ADD'",
+     "implied": false
+    },
+    {
+     "text": "TRAN-OK <> 'Y'",
+     "line": 65,
+     "where": "SAM2.cbl:65",
+     "tested": "TRAN-OK = 'Y'",
+     "outcome": false,
+     "english": "TRAN-OK is not 'Y'",
+     "implied": true
+    }
+   ],
+   "derived": [
+    {
+     "text": "if TRAN-UPDATE-NUM-HH IS NOT NUMERIC: TRAN-UPDATE-NUM-HH = 0",
+     "line": 83
+    },
+    {
+     "text": "WS-UPDATE-NUM-NEG = 'N'",
+     "line": 86
+    },
+    {
+     "text": "if TRAN-UPDATE-NUMX1 = '-': WS-UPDATE-NUM-NEG = 'Y'; TRAN-UPDATE-NUMX1 = '0'",
+     "line": 87
+    },
+    {
+     "text": "if TRAN-UPDATE-NUMX1 = '+': TRAN-UPDATE-NUMX1 = '0'",
+     "line": 91
+    },
+    {
+     "text": "WS-UPDATE-NUM = TRAN-UPDATE-NUM",
+     "line": 98
+    },
+    {
+     "text": "if WS-UPDATE-NUM-NEG = 'Y': WS-UPDATE-NUM = WS-UPDATE-NUM * -1",
+     "line": 99
+    }
+   ],
+   "lines": [
+    58,
+    59,
+    61,
+    65,
+    74,
+    77,
+    78,
+    81,
+    94,
+    105
+   ],
+   "notes": [],
+   "z3": {
+    "removed": 1,
+    "equivalent": true
+   },
+   "example": {
+    "TRAN-CODE": "N",
+    "TRAN-FIELD-NAME": "BALANCE   ",
+    "TRAN-UPDATE-NUMX1": "-",
+    "TRAN-UPDATE-NUM#numeric": true,
+    "TRAN-ACTION": "REPLACE "
+   }
+  },
+  {
+   "id": "RULE-91",
+   "actions": {
+    "TRAN-OK": "N",
+    "TRAN-MSG": "INVALID ACTION CODE"
+   },
+   "conditions": [
+    {
+     "text": "TRAN-CODE <> 'CRUNCH '",
+     "line": 61,
+     "where": "SAM2.cbl:61",
+     "tested": "TRAN-CODE = 'CRUNCH '",
+     "outcome": false,
+     "english": "TRAN-CODE is not 'CRUNCH'",
+     "implied": false
+    },
+    {
+     "text": "TRAN-CODE <> 'UPDATE '",
+     "line": 74,
+     "where": "SAM2.cbl:74",
+     "tested": "TRAN-CODE = 'UPDATE '",
+     "outcome": false,
+     "english": "TRAN-CODE is not 'UPDATE'",
+     "implied": false
+    },
+    {
+     "text": "TRAN-FIELD-NAME = 'BALANCE ' OR TRAN-FIELD-NAME = 'ORDERS  '",
+     "line": 81,
+     "where": "SAM2.cbl:81",
+     "tested": "TRAN-FIELD-NAME = 'BALANCE ' OR TRAN-FIELD-NAME = 'ORDERS  '",
+     "outcome": true,
+     "english": "TRAN-FIELD-NAME is 'BALANCE' or TRAN-FIELD-NAME is 'ORDERS'",
+     "implied": false
+    },
+    {
+     "text": "TRAN-UPDATE-NUM IS NUMERIC",
+     "line": 94,
+     "where": "SAM2.cbl:94",
+     "tested": "TRAN-UPDATE-NUM IS NOT NUMERIC",
+     "outcome": false,
+     "english": "TRAN-UPDATE-NUM is numeric",
+     "implied": false
+    },
+    {
+     "text": "TRAN-ACTION <> 'REPLACE ' AND TRAN-ACTION <> 'ADD     '",
+     "line": 105,
+     "where": "SAM2.cbl:105",
+     "tested": "TRAN-ACTION = 'REPLACE ' OR TRAN-ACTION = 'ADD     '",
+     "outcome": false,
+     "english": "TRAN-ACTION is not 'REPLACE' and TRAN-ACTION is not 'ADD'",
+     "implied": false
+    },
+    {
+     "text": "TRAN-OK <> 'Y'",
+     "line": 65,
+     "where": "SAM2.cbl:65",
+     "tested": "TRAN-OK = 'Y'",
+     "outcome": false,
+     "english": "TRAN-OK is not 'Y'",
+     "implied": true
+    }
+   ],
+   "derived": [
+    {
+     "text": "if TRAN-UPDATE-NUM-HH IS NOT NUMERIC: TRAN-UPDATE-NUM-HH = 0",
+     "line": 83
+    },
+    {
+     "text": "WS-UPDATE-NUM-NEG = 'N'",
+     "line": 86
+    },
+    {
+     "text": "if TRAN-UPDATE-NUMX1 = '-': WS-UPDATE-NUM-NEG = 'Y'; TRAN-UPDATE-NUMX1 = '0'",
+     "line": 87
+    },
+    {
+     "text": "if TRAN-UPDATE-NUMX1 = '+': TRAN-UPDATE-NUMX1 = '0'",
+     "line": 91
+    },
+    {
+     "text": "WS-UPDATE-NUM = TRAN-UPDATE-NUM",
+     "line": 98
+    },
+    {
+     "text": "if WS-UPDATE-NUM-NEG = 'Y': WS-UPDATE-NUM = WS-UPDATE-NUM * -1",
+     "line": 99
+    }
+   ],
+   "lines": [
+    58,
+    59,
+    61,
+    65,
+    74,
+    77,
+    78,
+    81,
+    94,
+    105,
+    109,
+    110
+   ],
+   "notes": [],
+   "z3": {
+    "removed": 1,
+    "equivalent": true
+   },
+   "example": {
+    "TRAN-CODE": "N",
+    "TRAN-FIELD-NAME": "BALANCE   ",
+    "TRAN-UPDATE-NUMX1": "-",
+    "TRAN-UPDATE-NUM#numeric": true,
+    "TRAN-ACTION": "0"
+   }
+  },
+  {
+   "id": "RULE-100",
+   "actions": {
+    "TRAN-OK": "N",
+    "TRAN-MSG": "REQUEST TYPE IS INVALID"
+   },
+   "conditions": [
+    {
+     "text": "TRAN-CODE <> 'CRUNCH '",
+     "line": 61,
+     "where": "SAM2.cbl:61",
+     "tested": "TRAN-CODE = 'CRUNCH '",
+     "outcome": false,
+     "english": "TRAN-CODE is not 'CRUNCH'",
+     "implied": false
+    },
+    {
+     "text": "TRAN-CODE <> 'UPDATE '",
+     "line": 74,
+     "where": "SAM2.cbl:74",
+     "tested": "TRAN-CODE = 'UPDATE '",
+     "outcome": false,
+     "english": "TRAN-CODE is not 'UPDATE'",
+     "implied": false
+    },
+    {
+     "text": "TRAN-FIELD-NAME <> 'BALANCE ' AND TRAN-FIELD-NAME <> 'ORDERS  '",
+     "line": 81,
+     "where": "SAM2.cbl:81",
+     "tested": "TRAN-FIELD-NAME = 'BALANCE ' OR TRAN-FIELD-NAME = 'ORDERS  '",
+     "outcome": false,
+     "english": "TRAN-FIELD-NAME is not 'BALANCE' and TRAN-FIELD-NAME is not 'ORDERS'",
+     "implied": false
+    },
+    {
+     "text": "TRAN-ACTION = 'REPLACE ' OR TRAN-ACTION = 'ADD     '",
+     "line": 105,
+     "where": "SAM2.cbl:105",
+     "tested": "TRAN-ACTION = 'REPLACE ' OR TRAN-ACTION = 'ADD     '",
+     "outcome": true,
+     "english": "TRAN-ACTION is 'REPLACE' or TRAN-ACTION is 'ADD'",
+     "implied": false
+    },
+    {
+     "text": "TRAN-OK <> 'Y'",
+     "line": 65,
+     "where": "SAM2.cbl:65",
+     "tested": "TRAN-OK = 'Y'",
+     "outcome": false,
+     "english": "TRAN-OK is not 'Y'",
+     "implied": true
+    }
+   ],
+   "derived": [],
+   "lines": [
+    58,
+    59,
+    61,
+    65,
+    74,
+    77,
+    78,
+    81,
+    105
+   ],
+   "notes": [],
+   "z3": {
+    "removed": 1,
+    "equivalent": true
+   },
+   "example": {
+    "TRAN-CODE": "(any other text)",
+    "TRAN-FIELD-NAME": "(any other text)",
+    "TRAN-ACTION": "ADD     "
+   }
+  },
+  {
+   "id": "RULE-109",
+   "actions": {
+    "TRAN-OK": "N",
+    "TRAN-MSG": "INVALID ACTION CODE"
+   },
+   "conditions": [
+    {
+     "text": "TRAN-CODE <> 'CRUNCH '",
+     "line": 61,
+     "where": "SAM2.cbl:61",
+     "tested": "TRAN-CODE = 'CRUNCH '",
+     "outcome": false,
+     "english": "TRAN-CODE is not 'CRUNCH'",
+     "implied": false
+    },
+    {
+     "text": "TRAN-CODE <> 'UPDATE '",
+     "line": 74,
+     "where": "SAM2.cbl:74",
+     "tested": "TRAN-CODE = 'UPDATE '",
+     "outcome": false,
+     "english": "TRAN-CODE is not 'UPDATE'",
+     "implied": false
+    },
+    {
+     "text": "TRAN-FIELD-NAME <> 'BALANCE ' AND TRAN-FIELD-NAME <> 'ORDERS  '",
+     "line": 81,
+     "where": "SAM2.cbl:81",
+     "tested": "TRAN-FIELD-NAME = 'BALANCE ' OR TRAN-FIELD-NAME = 'ORDERS  '",
+     "outcome": false,
+     "english": "TRAN-FIELD-NAME is not 'BALANCE' and TRAN-FIELD-NAME is not 'ORDERS'",
+     "implied": false
+    },
+    {
+     "text": "TRAN-ACTION <> 'REPLACE ' AND TRAN-ACTION <> 'ADD     '",
+     "line": 105,
+     "where": "SAM2.cbl:105",
+     "tested": "TRAN-ACTION = 'REPLACE ' OR TRAN-ACTION = 'ADD     '",
+     "outcome": false,
+     "english": "TRAN-ACTION is not 'REPLACE' and TRAN-ACTION is not 'ADD'",
+     "implied": false
+    },
+    {
+     "text": "TRAN-OK <> 'Y'",
+     "line": 65,
+     "where": "SAM2.cbl:65",
+     "tested": "TRAN-OK = 'Y'",
+     "outcome": false,
+     "english": "TRAN-OK is not 'Y'",
+     "implied": true
+    }
+   ],
+   "derived": [],
+   "lines": [
+    58,
+    59,
+    61,
+    65,
+    74,
+    77,
+    78,
+    81,
+    105,
+    109,
+    110
+   ],
+   "notes": [],
+   "z3": {
+    "removed": 1,
+    "equivalent": true
+   },
+   "example": {
+    "TRAN-CODE": "(any other text)",
+    "TRAN-FIELD-NAME": "(any other text)",
+    "TRAN-ACTION": "(any other text)"
+   }
+  }
+ ],
+ "z3": {
+  "infeasible": 92,
+  "unknown": 0,
+  "conditions_removed": 44,
+  "all_proved": true,
+  "overlaps": []
+ },
+ "findings": [],
+ "verification": {
+  "cases": 7535,
+  "agree": 7535,
+  "sets": {
+   "ibm_sample_data": {
+    "cases": 12,
+    "agree": 12,
+    "undefined": 0,
+    "no_rule": 0,
+    "several_rules": 0,
+    "defined": 12,
+    "agreement_on_defined": 1.0,
+    "cobol_seconds": 0.0,
+    "engine_seconds": 0.0
+   },
+   "z3_examples": {
+    "cases": 17,
+    "agree": 17,
+    "undefined": 0,
+    "no_rule": 0,
+    "several_rules": 0,
+    "defined": 17,
+    "agreement_on_defined": 1.0,
+    "cobol_seconds": 0.0,
+    "engine_seconds": 0.01
+   },
+   "grid": {
+    "cases": 4506,
+    "agree": 4506,
+    "undefined": 0,
+    "no_rule": 0,
+    "several_rules": 0,
+    "defined": 4506,
+    "agreement_on_defined": 1.0,
+    "cobol_seconds": 0.04,
+    "engine_seconds": 1.24
+   },
+   "random": {
+    "cases": 3000,
+    "agree": 3000,
+    "undefined": 0,
+    "no_rule": 0,
+    "several_rules": 0,
+    "defined": 3000,
+    "agreement_on_defined": 1.0,
+    "cobol_seconds": 0.04,
+    "engine_seconds": 1.26
+   }
+  },
+  "platform": "s390x"
+ },
+ "seconds": 6.2
+}
