@@ -34,6 +34,14 @@ def plain(v):
     return v
 
 
+def _dmn_info(name):
+    f = ROOT / "results" / "dmn.json"
+    if not f.exists():
+        return None
+    info = json.loads(f.read_text()).get(name)
+    return info if info and info.get("exported") else None
+
+
 def value_risks(prog, kept, analysis, spec) -> list:
     """z3: numeric stores that can drop high-order digits or the sign; each example
     is run through the compiled program to show what it really stores."""
@@ -161,6 +169,7 @@ def main():
                    "all_proved": all(v["equivalent"] for v in report["rules"].values()),
                    "overlaps": report["overlaps"]},
             "findings": found, "verification": verification,
+            "dmn": _dmn_info(prog.name),
             "seconds": round(time.perf_counter() - t0, 2),
         }
         (out_dir / f"{prog.name}.json").write_text(json.dumps(data, indent=1, default=str))

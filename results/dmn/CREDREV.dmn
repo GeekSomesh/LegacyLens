@@ -1,0 +1,1318 @@
+<?xml version='1.0' encoding='utf-8'?>
+<definitions xmlns="https://www.omg.org/spec/DMN/20191111/MODEL/" id="defs_CREDREV" name="CREDREV" namespace="https://legacylens.example/CREDREV" expressionLanguage="https://www.omg.org/spec/DMN/20191111/FEEL/">
+  <inputData id="in_IN_ACCT" name="IN_ACCT">
+    <variable id="in_IN_ACCT_v" name="IN_ACCT" typeRef="number" />
+  </inputData>
+  <inputData id="in_IN_LIMIT" name="IN_LIMIT">
+    <variable id="in_IN_LIMIT_v" name="IN_LIMIT" typeRef="number" />
+  </inputData>
+  <inputData id="in_IN_BILL" name="IN_BILL">
+    <variable id="in_IN_BILL_v" name="IN_BILL" typeRef="number" />
+  </inputData>
+  <inputData id="in_IN_PAID" name="IN_PAID">
+    <variable id="in_IN_PAID_v" name="IN_PAID" typeRef="number" />
+  </inputData>
+  <inputData id="in_IN_DELINQ" name="IN_DELINQ">
+    <variable id="in_IN_DELINQ_v" name="IN_DELINQ" typeRef="number" />
+  </inputData>
+  <inputData id="in_IN_LATE_6M" name="IN_LATE_6M">
+    <variable id="in_IN_LATE_6M_v" name="IN_LATE_6M" typeRef="number" />
+  </inputData>
+  <decision id="c_WS_HIGH_LIMIT" name="WS_HIGH_LIMIT">
+    <variable id="c_WS_HIGH_LIMIT_v" name="WS_HIGH_LIMIT" typeRef="number" />
+    <literalExpression id="c_WS_HIGH_LIMIT_e">
+      <text>500000</text>
+    </literalExpression>
+  </decision>
+  <decision id="d_WS_UTIL_0" name="WS_UTIL">
+    <variable id="d_WS_UTIL_0_v" name="WS_UTIL" typeRef="number" />
+    <informationRequirement id="ir_WS_UTIL_0_IN_BILL">
+      <requiredInput href="#in_IN_BILL" />
+    </informationRequirement>
+    <informationRequirement id="ir_WS_UTIL_0_IN_LIMIT">
+      <requiredInput href="#in_IN_LIMIT" />
+    </informationRequirement>
+    <literalExpression id="d_WS_UTIL_0_e">
+      <text>if IN_LIMIT = 0 then modulo(abs((if (999) &gt;= 0 then floor((999)) else ceiling((999)))), 100000) else modulo(abs((if (((IN_BILL * 100) / IN_LIMIT)) &gt;= 0 then floor((((IN_BILL * 100) / IN_LIMIT))) else ceiling((((IN_BILL * 100) / IN_LIMIT))))), 100000)</text>
+    </literalExpression>
+  </decision>
+  <decision id="d_WS_MIN_DUE_1" name="WS_MIN_DUE">
+    <variable id="d_WS_MIN_DUE_1_v" name="WS_MIN_DUE" typeRef="number" />
+    <informationRequirement id="ir_WS_MIN_DUE_1_IN_BILL">
+      <requiredInput href="#in_IN_BILL" />
+    </informationRequirement>
+    <literalExpression id="d_WS_MIN_DUE_1_e">
+      <text>modulo(abs((if ((IN_BILL / 10)) &gt;= 0 then floor(((IN_BILL / 10))) else ceiling(((IN_BILL / 10))))), 10000000)</text>
+    </literalExpression>
+  </decision>
+  <decision id="d_WS_SEVERITY_2" name="WS_SEVERITY">
+    <variable id="d_WS_SEVERITY_2_v" name="WS_SEVERITY" typeRef="number" />
+    <informationRequirement id="ir_WS_SEVERITY_2_IN_DELINQ">
+      <requiredInput href="#in_IN_DELINQ" />
+    </informationRequirement>
+    <literalExpression id="d_WS_SEVERITY_2_e">
+      <text>modulo(abs((if (IN_DELINQ) &gt;= 0 then floor((IN_DELINQ)) else ceiling((IN_DELINQ)))), 10)</text>
+    </literalExpression>
+  </decision>
+  <decision id="policy" name="CREDREV decision">
+    <informationRequirement id="ir_policy_IN_ACCT">
+      <requiredInput href="#in_IN_ACCT" />
+    </informationRequirement>
+    <informationRequirement id="ir_policy_IN_LIMIT">
+      <requiredInput href="#in_IN_LIMIT" />
+    </informationRequirement>
+    <informationRequirement id="ir_policy_IN_BILL">
+      <requiredInput href="#in_IN_BILL" />
+    </informationRequirement>
+    <informationRequirement id="ir_policy_IN_PAID">
+      <requiredInput href="#in_IN_PAID" />
+    </informationRequirement>
+    <informationRequirement id="ir_policy_IN_DELINQ">
+      <requiredInput href="#in_IN_DELINQ" />
+    </informationRequirement>
+    <informationRequirement id="ir_policy_IN_LATE_6M">
+      <requiredInput href="#in_IN_LATE_6M" />
+    </informationRequirement>
+    <informationRequirement id="ir_policy_d_WS_UTIL">
+      <requiredDecision href="#d_WS_UTIL_0" />
+    </informationRequirement>
+    <informationRequirement id="ir_policy_d_WS_MIN_DUE">
+      <requiredDecision href="#d_WS_MIN_DUE_1" />
+    </informationRequirement>
+    <informationRequirement id="ir_policy_d_WS_SEVERITY">
+      <requiredDecision href="#d_WS_SEVERITY_2" />
+    </informationRequirement>
+    <informationRequirement id="ir_policy_c_WS_HIGH_LIMIT">
+      <requiredDecision href="#c_WS_HIGH_LIMIT" />
+    </informationRequirement>
+    <decisionTable id="policy_table" hitPolicy="FIRST">
+      <input id="col0" label="((WS_SEVERITY &gt;= 3 and WS_SEVERITY &lt;= 9))">
+        <inputExpression id="col0_e" typeRef="boolean">
+          <text>((WS_SEVERITY &gt;= 3 and WS_SEVERITY &lt;= 9))</text>
+        </inputExpression>
+      </input>
+      <input id="col1" label="IN_DELINQ &gt;= 1">
+        <inputExpression id="col1_e" typeRef="boolean">
+          <text>IN_DELINQ &gt;= 1</text>
+        </inputExpression>
+      </input>
+      <input id="col2" label="WS_UTIL &gt; 90">
+        <inputExpression id="col2_e" typeRef="boolean">
+          <text>WS_UTIL &gt; 90</text>
+        </inputExpression>
+      </input>
+      <input id="col3" label="IN_DELINQ &lt; 1">
+        <inputExpression id="col3_e" typeRef="boolean">
+          <text>IN_DELINQ &lt; 1</text>
+        </inputExpression>
+      </input>
+      <input id="col4" label="IN_LATE_6M &gt;= 3">
+        <inputExpression id="col4_e" typeRef="boolean">
+          <text>IN_LATE_6M &gt;= 3</text>
+        </inputExpression>
+      </input>
+      <input id="col5" label="WS_UTIL &lt;= 90">
+        <inputExpression id="col5_e" typeRef="boolean">
+          <text>WS_UTIL &lt;= 90</text>
+        </inputExpression>
+      </input>
+      <input id="col6" label="IN_LATE_6M &lt; 3">
+        <inputExpression id="col6_e" typeRef="boolean">
+          <text>IN_LATE_6M &lt; 3</text>
+        </inputExpression>
+      </input>
+      <input id="col7" label="IN_PAID &lt; WS_MIN_DUE">
+        <inputExpression id="col7_e" typeRef="boolean">
+          <text>IN_PAID &lt; WS_MIN_DUE</text>
+        </inputExpression>
+      </input>
+      <input id="col8" label="WS_UTIL &gt; 80">
+        <inputExpression id="col8_e" typeRef="boolean">
+          <text>WS_UTIL &gt; 80</text>
+        </inputExpression>
+      </input>
+      <input id="col9" label="IN_LATE_6M = 0">
+        <inputExpression id="col9_e" typeRef="boolean">
+          <text>IN_LATE_6M = 0</text>
+        </inputExpression>
+      </input>
+      <input id="col10" label="WS_UTIL &lt; 30">
+        <inputExpression id="col10_e" typeRef="boolean">
+          <text>WS_UTIL &lt; 30</text>
+        </inputExpression>
+      </input>
+      <input id="col11" label="IN_LIMIT &lt; WS_HIGH_LIMIT">
+        <inputExpression id="col11_e" typeRef="boolean">
+          <text>IN_LIMIT &lt; WS_HIGH_LIMIT</text>
+        </inputExpression>
+      </input>
+      <input id="col12" label="IN_PAID &gt;= WS_MIN_DUE">
+        <inputExpression id="col12_e" typeRef="boolean">
+          <text>IN_PAID &gt;= WS_MIN_DUE</text>
+        </inputExpression>
+      </input>
+      <input id="col13" label="IN_LATE_6M != 0">
+        <inputExpression id="col13_e" typeRef="boolean">
+          <text>IN_LATE_6M != 0</text>
+        </inputExpression>
+      </input>
+      <input id="col14" label="WS_UTIL &gt;= 30">
+        <inputExpression id="col14_e" typeRef="boolean">
+          <text>WS_UTIL &gt;= 30</text>
+        </inputExpression>
+      </input>
+      <input id="col15" label="IN_LIMIT &gt;= WS_HIGH_LIMIT">
+        <inputExpression id="col15_e" typeRef="boolean">
+          <text>IN_LIMIT &gt;= WS_HIGH_LIMIT</text>
+        </inputExpression>
+      </input>
+      <input id="col16" label="WS_UTIL &lt;= 80">
+        <inputExpression id="col16_e" typeRef="boolean">
+          <text>WS_UTIL &lt;= 80</text>
+        </inputExpression>
+      </input>
+      <output id="out_OUT_DECISION" name="OUT_DECISION" typeRef="string" />
+      <output id="out_OUT_REASON" name="OUT_REASON" typeRef="string" />
+      <rule id="row0">
+        <description>RULE-01 (COBOL lines 53, 54, 55)</description>
+        <inputEntry id="row0_in0">
+          <text>true</text>
+        </inputEntry>
+        <inputEntry id="row0_in1">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="row0_in2">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="row0_in3">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="row0_in4">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="row0_in5">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="row0_in6">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="row0_in7">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="row0_in8">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="row0_in9">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="row0_in10">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="row0_in11">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="row0_in12">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="row0_in13">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="row0_in14">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="row0_in15">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="row0_in16">
+          <text>-</text>
+        </inputEntry>
+        <outputEntry id="row0_out_OUT_DECISION">
+          <text>"BLOCK"</text>
+        </outputEntry>
+        <outputEntry id="row0_out_OUT_REASON">
+          <text>"R01"</text>
+        </outputEntry>
+      </rule>
+      <rule id="row1">
+        <description>RULE-02 (COBOL lines 53, 57, 58, 59)</description>
+        <inputEntry id="row1_in0">
+          <text>false</text>
+        </inputEntry>
+        <inputEntry id="row1_in1">
+          <text>true</text>
+        </inputEntry>
+        <inputEntry id="row1_in2">
+          <text>true</text>
+        </inputEntry>
+        <inputEntry id="row1_in3">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="row1_in4">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="row1_in5">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="row1_in6">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="row1_in7">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="row1_in8">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="row1_in9">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="row1_in10">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="row1_in11">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="row1_in12">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="row1_in13">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="row1_in14">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="row1_in15">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="row1_in16">
+          <text>-</text>
+        </inputEntry>
+        <outputEntry id="row1_out_OUT_DECISION">
+          <text>"REVIEW"</text>
+        </outputEntry>
+        <outputEntry id="row1_out_OUT_REASON">
+          <text>"R02"</text>
+        </outputEntry>
+      </rule>
+      <rule id="row2">
+        <description>RULE-03 (COBOL lines 53, 57, 62, 63, 64)</description>
+        <inputEntry id="row2_in0">
+          <text>false</text>
+        </inputEntry>
+        <inputEntry id="row2_in1">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="row2_in2">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="row2_in3">
+          <text>true</text>
+        </inputEntry>
+        <inputEntry id="row2_in4">
+          <text>true</text>
+        </inputEntry>
+        <inputEntry id="row2_in5">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="row2_in6">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="row2_in7">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="row2_in8">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="row2_in9">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="row2_in10">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="row2_in11">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="row2_in12">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="row2_in13">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="row2_in14">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="row2_in15">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="row2_in16">
+          <text>-</text>
+        </inputEntry>
+        <outputEntry id="row2_out_OUT_DECISION">
+          <text>"DECREASE"</text>
+        </outputEntry>
+        <outputEntry id="row2_out_OUT_REASON">
+          <text>"R03"</text>
+        </outputEntry>
+      </rule>
+      <rule id="row3">
+        <description>RULE-03 (COBOL lines 53, 57, 62, 63, 64)</description>
+        <inputEntry id="row3_in0">
+          <text>false</text>
+        </inputEntry>
+        <inputEntry id="row3_in1">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="row3_in2">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="row3_in3">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="row3_in4">
+          <text>true</text>
+        </inputEntry>
+        <inputEntry id="row3_in5">
+          <text>true</text>
+        </inputEntry>
+        <inputEntry id="row3_in6">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="row3_in7">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="row3_in8">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="row3_in9">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="row3_in10">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="row3_in11">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="row3_in12">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="row3_in13">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="row3_in14">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="row3_in15">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="row3_in16">
+          <text>-</text>
+        </inputEntry>
+        <outputEntry id="row3_out_OUT_DECISION">
+          <text>"DECREASE"</text>
+        </outputEntry>
+        <outputEntry id="row3_out_OUT_REASON">
+          <text>"R03"</text>
+        </outputEntry>
+      </rule>
+      <rule id="row4">
+        <description>RULE-04 (COBOL lines 53, 57, 62, 65, 66, 67)</description>
+        <inputEntry id="row4_in0">
+          <text>false</text>
+        </inputEntry>
+        <inputEntry id="row4_in1">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="row4_in2">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="row4_in3">
+          <text>true</text>
+        </inputEntry>
+        <inputEntry id="row4_in4">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="row4_in5">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="row4_in6">
+          <text>true</text>
+        </inputEntry>
+        <inputEntry id="row4_in7">
+          <text>true</text>
+        </inputEntry>
+        <inputEntry id="row4_in8">
+          <text>true</text>
+        </inputEntry>
+        <inputEntry id="row4_in9">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="row4_in10">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="row4_in11">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="row4_in12">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="row4_in13">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="row4_in14">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="row4_in15">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="row4_in16">
+          <text>-</text>
+        </inputEntry>
+        <outputEntry id="row4_out_OUT_DECISION">
+          <text>"REVIEW"</text>
+        </outputEntry>
+        <outputEntry id="row4_out_OUT_REASON">
+          <text>"R04"</text>
+        </outputEntry>
+      </rule>
+      <rule id="row5">
+        <description>RULE-04 (COBOL lines 53, 57, 62, 65, 66, 67)</description>
+        <inputEntry id="row5_in0">
+          <text>false</text>
+        </inputEntry>
+        <inputEntry id="row5_in1">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="row5_in2">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="row5_in3">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="row5_in4">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="row5_in5">
+          <text>true</text>
+        </inputEntry>
+        <inputEntry id="row5_in6">
+          <text>true</text>
+        </inputEntry>
+        <inputEntry id="row5_in7">
+          <text>true</text>
+        </inputEntry>
+        <inputEntry id="row5_in8">
+          <text>true</text>
+        </inputEntry>
+        <inputEntry id="row5_in9">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="row5_in10">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="row5_in11">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="row5_in12">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="row5_in13">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="row5_in14">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="row5_in15">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="row5_in16">
+          <text>-</text>
+        </inputEntry>
+        <outputEntry id="row5_out_OUT_DECISION">
+          <text>"REVIEW"</text>
+        </outputEntry>
+        <outputEntry id="row5_out_OUT_REASON">
+          <text>"R04"</text>
+        </outputEntry>
+      </rule>
+      <rule id="row6">
+        <description>RULE-05 (COBOL lines 53, 57, 62, 65, 68, 70, 71)</description>
+        <inputEntry id="row6_in0">
+          <text>false</text>
+        </inputEntry>
+        <inputEntry id="row6_in1">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="row6_in2">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="row6_in3">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="row6_in4">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="row6_in5">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="row6_in6">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="row6_in7">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="row6_in8">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="row6_in9">
+          <text>true</text>
+        </inputEntry>
+        <inputEntry id="row6_in10">
+          <text>true</text>
+        </inputEntry>
+        <inputEntry id="row6_in11">
+          <text>true</text>
+        </inputEntry>
+        <inputEntry id="row6_in12">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="row6_in13">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="row6_in14">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="row6_in15">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="row6_in16">
+          <text>-</text>
+        </inputEntry>
+        <outputEntry id="row6_out_OUT_DECISION">
+          <text>"INCREASE"</text>
+        </outputEntry>
+        <outputEntry id="row6_out_OUT_REASON">
+          <text>"R05"</text>
+        </outputEntry>
+      </rule>
+      <rule id="row7">
+        <description>RULE-06 (COBOL lines 53, 57, 62, 65, 68, 73, 74)</description>
+        <inputEntry id="row7_in0">
+          <text>false</text>
+        </inputEntry>
+        <inputEntry id="row7_in1">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="row7_in2">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="row7_in3">
+          <text>true</text>
+        </inputEntry>
+        <inputEntry id="row7_in4">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="row7_in5">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="row7_in6">
+          <text>true</text>
+        </inputEntry>
+        <inputEntry id="row7_in7">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="row7_in8">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="row7_in9">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="row7_in10">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="row7_in11">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="row7_in12">
+          <text>true</text>
+        </inputEntry>
+        <inputEntry id="row7_in13">
+          <text>true</text>
+        </inputEntry>
+        <inputEntry id="row7_in14">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="row7_in15">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="row7_in16">
+          <text>-</text>
+        </inputEntry>
+        <outputEntry id="row7_out_OUT_DECISION">
+          <text>"KEEP"</text>
+        </outputEntry>
+        <outputEntry id="row7_out_OUT_REASON">
+          <text>"R06"</text>
+        </outputEntry>
+      </rule>
+      <rule id="row8">
+        <description>RULE-06 (COBOL lines 53, 57, 62, 65, 68, 73, 74)</description>
+        <inputEntry id="row8_in0">
+          <text>false</text>
+        </inputEntry>
+        <inputEntry id="row8_in1">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="row8_in2">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="row8_in3">
+          <text>true</text>
+        </inputEntry>
+        <inputEntry id="row8_in4">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="row8_in5">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="row8_in6">
+          <text>true</text>
+        </inputEntry>
+        <inputEntry id="row8_in7">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="row8_in8">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="row8_in9">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="row8_in10">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="row8_in11">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="row8_in12">
+          <text>true</text>
+        </inputEntry>
+        <inputEntry id="row8_in13">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="row8_in14">
+          <text>true</text>
+        </inputEntry>
+        <inputEntry id="row8_in15">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="row8_in16">
+          <text>-</text>
+        </inputEntry>
+        <outputEntry id="row8_out_OUT_DECISION">
+          <text>"KEEP"</text>
+        </outputEntry>
+        <outputEntry id="row8_out_OUT_REASON">
+          <text>"R06"</text>
+        </outputEntry>
+      </rule>
+      <rule id="row9">
+        <description>RULE-06 (COBOL lines 53, 57, 62, 65, 68, 73, 74)</description>
+        <inputEntry id="row9_in0">
+          <text>false</text>
+        </inputEntry>
+        <inputEntry id="row9_in1">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="row9_in2">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="row9_in3">
+          <text>true</text>
+        </inputEntry>
+        <inputEntry id="row9_in4">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="row9_in5">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="row9_in6">
+          <text>true</text>
+        </inputEntry>
+        <inputEntry id="row9_in7">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="row9_in8">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="row9_in9">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="row9_in10">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="row9_in11">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="row9_in12">
+          <text>true</text>
+        </inputEntry>
+        <inputEntry id="row9_in13">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="row9_in14">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="row9_in15">
+          <text>true</text>
+        </inputEntry>
+        <inputEntry id="row9_in16">
+          <text>-</text>
+        </inputEntry>
+        <outputEntry id="row9_out_OUT_DECISION">
+          <text>"KEEP"</text>
+        </outputEntry>
+        <outputEntry id="row9_out_OUT_REASON">
+          <text>"R06"</text>
+        </outputEntry>
+      </rule>
+      <rule id="row10">
+        <description>RULE-06 (COBOL lines 53, 57, 62, 65, 68, 73, 74)</description>
+        <inputEntry id="row10_in0">
+          <text>false</text>
+        </inputEntry>
+        <inputEntry id="row10_in1">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="row10_in2">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="row10_in3">
+          <text>true</text>
+        </inputEntry>
+        <inputEntry id="row10_in4">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="row10_in5">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="row10_in6">
+          <text>true</text>
+        </inputEntry>
+        <inputEntry id="row10_in7">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="row10_in8">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="row10_in9">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="row10_in10">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="row10_in11">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="row10_in12">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="row10_in13">
+          <text>true</text>
+        </inputEntry>
+        <inputEntry id="row10_in14">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="row10_in15">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="row10_in16">
+          <text>true</text>
+        </inputEntry>
+        <outputEntry id="row10_out_OUT_DECISION">
+          <text>"KEEP"</text>
+        </outputEntry>
+        <outputEntry id="row10_out_OUT_REASON">
+          <text>"R06"</text>
+        </outputEntry>
+      </rule>
+      <rule id="row11">
+        <description>RULE-06 (COBOL lines 53, 57, 62, 65, 68, 73, 74)</description>
+        <inputEntry id="row11_in0">
+          <text>false</text>
+        </inputEntry>
+        <inputEntry id="row11_in1">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="row11_in2">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="row11_in3">
+          <text>true</text>
+        </inputEntry>
+        <inputEntry id="row11_in4">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="row11_in5">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="row11_in6">
+          <text>true</text>
+        </inputEntry>
+        <inputEntry id="row11_in7">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="row11_in8">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="row11_in9">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="row11_in10">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="row11_in11">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="row11_in12">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="row11_in13">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="row11_in14">
+          <text>true</text>
+        </inputEntry>
+        <inputEntry id="row11_in15">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="row11_in16">
+          <text>true</text>
+        </inputEntry>
+        <outputEntry id="row11_out_OUT_DECISION">
+          <text>"KEEP"</text>
+        </outputEntry>
+        <outputEntry id="row11_out_OUT_REASON">
+          <text>"R06"</text>
+        </outputEntry>
+      </rule>
+      <rule id="row12">
+        <description>RULE-06 (COBOL lines 53, 57, 62, 65, 68, 73, 74)</description>
+        <inputEntry id="row12_in0">
+          <text>false</text>
+        </inputEntry>
+        <inputEntry id="row12_in1">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="row12_in2">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="row12_in3">
+          <text>true</text>
+        </inputEntry>
+        <inputEntry id="row12_in4">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="row12_in5">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="row12_in6">
+          <text>true</text>
+        </inputEntry>
+        <inputEntry id="row12_in7">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="row12_in8">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="row12_in9">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="row12_in10">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="row12_in11">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="row12_in12">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="row12_in13">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="row12_in14">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="row12_in15">
+          <text>true</text>
+        </inputEntry>
+        <inputEntry id="row12_in16">
+          <text>true</text>
+        </inputEntry>
+        <outputEntry id="row12_out_OUT_DECISION">
+          <text>"KEEP"</text>
+        </outputEntry>
+        <outputEntry id="row12_out_OUT_REASON">
+          <text>"R06"</text>
+        </outputEntry>
+      </rule>
+      <rule id="row13">
+        <description>RULE-06 (COBOL lines 53, 57, 62, 65, 68, 73, 74)</description>
+        <inputEntry id="row13_in0">
+          <text>false</text>
+        </inputEntry>
+        <inputEntry id="row13_in1">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="row13_in2">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="row13_in3">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="row13_in4">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="row13_in5">
+          <text>true</text>
+        </inputEntry>
+        <inputEntry id="row13_in6">
+          <text>true</text>
+        </inputEntry>
+        <inputEntry id="row13_in7">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="row13_in8">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="row13_in9">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="row13_in10">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="row13_in11">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="row13_in12">
+          <text>true</text>
+        </inputEntry>
+        <inputEntry id="row13_in13">
+          <text>true</text>
+        </inputEntry>
+        <inputEntry id="row13_in14">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="row13_in15">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="row13_in16">
+          <text>-</text>
+        </inputEntry>
+        <outputEntry id="row13_out_OUT_DECISION">
+          <text>"KEEP"</text>
+        </outputEntry>
+        <outputEntry id="row13_out_OUT_REASON">
+          <text>"R06"</text>
+        </outputEntry>
+      </rule>
+      <rule id="row14">
+        <description>RULE-06 (COBOL lines 53, 57, 62, 65, 68, 73, 74)</description>
+        <inputEntry id="row14_in0">
+          <text>false</text>
+        </inputEntry>
+        <inputEntry id="row14_in1">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="row14_in2">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="row14_in3">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="row14_in4">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="row14_in5">
+          <text>true</text>
+        </inputEntry>
+        <inputEntry id="row14_in6">
+          <text>true</text>
+        </inputEntry>
+        <inputEntry id="row14_in7">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="row14_in8">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="row14_in9">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="row14_in10">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="row14_in11">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="row14_in12">
+          <text>true</text>
+        </inputEntry>
+        <inputEntry id="row14_in13">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="row14_in14">
+          <text>true</text>
+        </inputEntry>
+        <inputEntry id="row14_in15">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="row14_in16">
+          <text>-</text>
+        </inputEntry>
+        <outputEntry id="row14_out_OUT_DECISION">
+          <text>"KEEP"</text>
+        </outputEntry>
+        <outputEntry id="row14_out_OUT_REASON">
+          <text>"R06"</text>
+        </outputEntry>
+      </rule>
+      <rule id="row15">
+        <description>RULE-06 (COBOL lines 53, 57, 62, 65, 68, 73, 74)</description>
+        <inputEntry id="row15_in0">
+          <text>false</text>
+        </inputEntry>
+        <inputEntry id="row15_in1">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="row15_in2">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="row15_in3">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="row15_in4">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="row15_in5">
+          <text>true</text>
+        </inputEntry>
+        <inputEntry id="row15_in6">
+          <text>true</text>
+        </inputEntry>
+        <inputEntry id="row15_in7">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="row15_in8">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="row15_in9">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="row15_in10">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="row15_in11">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="row15_in12">
+          <text>true</text>
+        </inputEntry>
+        <inputEntry id="row15_in13">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="row15_in14">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="row15_in15">
+          <text>true</text>
+        </inputEntry>
+        <inputEntry id="row15_in16">
+          <text>-</text>
+        </inputEntry>
+        <outputEntry id="row15_out_OUT_DECISION">
+          <text>"KEEP"</text>
+        </outputEntry>
+        <outputEntry id="row15_out_OUT_REASON">
+          <text>"R06"</text>
+        </outputEntry>
+      </rule>
+      <rule id="row16">
+        <description>RULE-06 (COBOL lines 53, 57, 62, 65, 68, 73, 74)</description>
+        <inputEntry id="row16_in0">
+          <text>false</text>
+        </inputEntry>
+        <inputEntry id="row16_in1">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="row16_in2">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="row16_in3">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="row16_in4">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="row16_in5">
+          <text>true</text>
+        </inputEntry>
+        <inputEntry id="row16_in6">
+          <text>true</text>
+        </inputEntry>
+        <inputEntry id="row16_in7">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="row16_in8">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="row16_in9">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="row16_in10">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="row16_in11">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="row16_in12">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="row16_in13">
+          <text>true</text>
+        </inputEntry>
+        <inputEntry id="row16_in14">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="row16_in15">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="row16_in16">
+          <text>true</text>
+        </inputEntry>
+        <outputEntry id="row16_out_OUT_DECISION">
+          <text>"KEEP"</text>
+        </outputEntry>
+        <outputEntry id="row16_out_OUT_REASON">
+          <text>"R06"</text>
+        </outputEntry>
+      </rule>
+      <rule id="row17">
+        <description>RULE-06 (COBOL lines 53, 57, 62, 65, 68, 73, 74)</description>
+        <inputEntry id="row17_in0">
+          <text>false</text>
+        </inputEntry>
+        <inputEntry id="row17_in1">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="row17_in2">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="row17_in3">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="row17_in4">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="row17_in5">
+          <text>true</text>
+        </inputEntry>
+        <inputEntry id="row17_in6">
+          <text>true</text>
+        </inputEntry>
+        <inputEntry id="row17_in7">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="row17_in8">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="row17_in9">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="row17_in10">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="row17_in11">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="row17_in12">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="row17_in13">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="row17_in14">
+          <text>true</text>
+        </inputEntry>
+        <inputEntry id="row17_in15">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="row17_in16">
+          <text>true</text>
+        </inputEntry>
+        <outputEntry id="row17_out_OUT_DECISION">
+          <text>"KEEP"</text>
+        </outputEntry>
+        <outputEntry id="row17_out_OUT_REASON">
+          <text>"R06"</text>
+        </outputEntry>
+      </rule>
+      <rule id="row18">
+        <description>RULE-06 (COBOL lines 53, 57, 62, 65, 68, 73, 74)</description>
+        <inputEntry id="row18_in0">
+          <text>false</text>
+        </inputEntry>
+        <inputEntry id="row18_in1">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="row18_in2">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="row18_in3">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="row18_in4">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="row18_in5">
+          <text>true</text>
+        </inputEntry>
+        <inputEntry id="row18_in6">
+          <text>true</text>
+        </inputEntry>
+        <inputEntry id="row18_in7">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="row18_in8">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="row18_in9">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="row18_in10">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="row18_in11">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="row18_in12">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="row18_in13">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="row18_in14">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="row18_in15">
+          <text>true</text>
+        </inputEntry>
+        <inputEntry id="row18_in16">
+          <text>true</text>
+        </inputEntry>
+        <outputEntry id="row18_out_OUT_DECISION">
+          <text>"KEEP"</text>
+        </outputEntry>
+        <outputEntry id="row18_out_OUT_REASON">
+          <text>"R06"</text>
+        </outputEntry>
+      </rule>
+    </decisionTable>
+  </decision>
+</definitions>

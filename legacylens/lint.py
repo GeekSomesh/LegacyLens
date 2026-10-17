@@ -4,7 +4,9 @@
   another file's status field;
 - file never closed: a file is OPENed but no CLOSE names it;
 - paragraph never used: no PERFORM or GO TO reaches it and it cannot be
-  reached by falling through from the start.
+  reached by falling through from the start;
+- decision depends on history: a path leaves a decision field unset, so the
+  result is whatever an earlier record or call left there.
 """
 from __future__ import annotations
 
@@ -18,6 +20,11 @@ def _status_fields(prog: C.Program) -> dict:
 
 def findings(prog: C.Program, rules: list) -> list:
     out = []
+    for r in rules:
+        for note in r.notes:
+            if "keeps the value left by an earlier" in note:
+                out.append({"kind": "decision depends on history", "rule": r.id, "lines": r.lines[-1:],
+                            "message": f"{r.id}: {note}"})
     status = _status_fields(prog)
     for r in rules:
         tested = set()

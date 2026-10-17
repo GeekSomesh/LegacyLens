@@ -78,6 +78,8 @@ function renderProgram() {
           v.kind === "rules" ? `rules = compiled COBOL on ${v.cases.toLocaleString()} inputs`
                              : `model = compiled COBOL on ${v.cases.toLocaleString()} file runs`) : stat("static", "not run against the compiled program")}
     </div>
+    ${p.dmn ? `<p><a href="/api/programs/${encodeURIComponent(p.name)}/dmn" download>Download the rules as DMN 1.3</a>
+       <span class="hint">· ${p.dmn.rows} table rows · valid against the OMG schema · the DMN model gives the same decisions as the compiled COBOL on ${money(p.dmn.agree_with_compiled_cobol)} of ${money(p.dmn.records)} records</span></p>` : ""}
     ${p.findings.length ? `<h3>Findings for review</h3>` + p.findings.map((f) => `<div class="finding"><b>${esc(f.kind)}</b> · ${esc(f.message)} <span class="muted">line ${f.lines.join(", ")}</span></div>`).join("") : ""}`;
   $("#rules-hint").textContent = `${p.rules.length} rules · click one to see its lines`;
   $("#prog-source-title").textContent = p.path.split("/").pop();

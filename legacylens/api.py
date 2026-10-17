@@ -230,6 +230,14 @@ def program_detail(name: str):
     return data
 
 
+@app.get("/api/programs/{name}/dmn")
+def program_dmn(name: str):
+    f = ROOT / "results" / "dmn" / f"{name.upper()}.dmn"
+    if not name.replace("-", "").isalnum() or not f.exists():
+        raise HTTPException(404, f"no DMN model for {name}")
+    return FileResponse(f, media_type="application/xml", filename=f"{name.upper()}.dmn")
+
+
 @app.get("/api/impact")
 def impact_report():
     f = ROOT / "results" / "impact_credrev.json"
@@ -241,7 +249,8 @@ def impact_report():
 @app.get("/api/results")
 def results():
     out = {}
-    for name in ("verification", "model", "hybrid", "ibm_sam2", "ibm_sam1", "conformance", "benchmark"):
+    for name in ("verification", "model", "hybrid", "ibm_sam2", "ibm_sam1", "conformance", "benchmark",
+                 "dmn", "mutation"):
         f = ROOT / "results" / f"{name}.json"
         out[name] = json.loads(f.read_text()) if f.exists() else None
     return out

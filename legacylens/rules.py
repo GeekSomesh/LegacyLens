@@ -368,7 +368,13 @@ class Extractor:
 
     def _rules(self, paths, prefix):
         out = []
+        literal = {k for p in paths for k, v in p.actions.items()
+                   if k not in (PERFORM_ACTION, "CALLS") and not str(v).startswith("<")}
         for p in paths:
+            if p.actions and prefix == "RULE":
+                for f in sorted(literal - set(p.actions)):
+                    p.notes.append(f"{f} is not set on this path: it keeps the value left by an earlier "
+                                   f"record or call, so this decision depends on history")
             if p.actions:
                 p.actions = {k: (", ".join(v) if isinstance(v, list) else v) for k, v in p.actions.items()}
                 out.append(Rule(f"{prefix}-{len(out) + 1:02d}" if prefix == "RULE" else f"{prefix}.{len(out) + 1}",
