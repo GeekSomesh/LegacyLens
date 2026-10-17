@@ -88,7 +88,7 @@ function renderProgram() {
   $("#rules").innerHTML = p.rules
     .map((r) => {
       const doc = r.doc
-        ? `<p class="explain">${esc(r.doc.text)}<span class="hint"> · ${r.doc.source === "granite" ? "documented by IBM Granite on LinuxONE, checked against the rule" : "generated from the rule"}</span></p>`
+        ? `<p class="explain">${esc(r.doc.text)}<span class="hint"> · ${r.doc.source === "granite" ? "written by IBM Granite on LinuxONE; numbers and decision words checked, the conditions below are authoritative" : "generated from the rule"}</span></p>`
         : "";
       const ex = r.example
         ? `<details class="example"><summary class="hint">Example input found by z3</summary><table>${Object.entries(r.example)
