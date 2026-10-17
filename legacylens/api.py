@@ -233,7 +233,7 @@ def program_detail(name: str):
 @app.get("/api/results")
 def results():
     out = {}
-    for name in ("verification", "model", "hybrid", "ibm_sam2", "benchmark"):
+    for name in ("verification", "model", "hybrid", "ibm_sam2", "ibm_sam1", "conformance", "benchmark"):
         f = ROOT / "results" / f"{name}.json"
         out[name] = json.loads(f.read_text()) if f.exists() else None
     return out

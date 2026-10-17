@@ -8,7 +8,7 @@ FROM docker.io/library/ubuntu:24.04
 
 RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
         gnucobol3 libzdnn0 python3 python3-venv python3-pip \
-        python3-numpy python3-pandas python3-sklearn python3-onnx ca-certificates \
+        python3-numpy python3-pandas python3-sklearn python3-onnx python3-z3 ca-certificates \
     && rm -rf /var/lib/apt/lists/*
 
 COPY requirements.txt /tmp/requirements.txt

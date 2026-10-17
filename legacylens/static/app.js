@@ -222,6 +222,37 @@ function cellRow(label, c) {
 }
 
 function renderEvidence(res) {
+  const s1 = res.ibm_sam1;
+  if (s1) {
+    $("#ev-sam1").innerHTML = `<h2>IBM SAM1, whole file runs</h2>
+      <p>IBM's batch program reads a customer file and a transaction file, CALLs SAM2 and writes an updated customer file and a report.
+      LegacyLens's interpreter (calling its own model of SAM2) and the compiled program processed the same files.</p>
+      <table><tr><th>Runs (IBM sample files + generated)</th><td class="num">${money(s1.runs)}</td></tr>
+      <tr><th>Transactions / customer records</th><td class="num">${money(s1.transactions)} / ${money(s1.customers)}</td></tr>
+      <tr><th>Undefined runs (arithmetic on text) excluded</th><td class="num">${money(s1.undefined || 0)}</td></tr>
+      <tr><th>Same output file, report, console and return code</th><td class="num">${money(s1.agree)} of ${money(s1.defined_runs)} (${pct(s1.agreement)})</td></tr></table>
+      <h3>Found while running</h3>${Object.entries(s1.runtime_findings || {}).map(([m, n]) => `<div class="finding">${esc(m)} <span class="muted">(${n} runs)</span></div>`).join("")}`;
+  }
+  const cf = res.conformance;
+  if (cf) {
+    $("#ev-conf").innerHTML = `<h2>Construct conformance</h2>
+      <p>Small COBOL programs run on random records by GnuCOBOL and by the interpreter; every DISPLAY line compared.</p>
+      <table><tr><th>Program</th><th>Covers</th><th class="num">Same</th></tr>
+      ${Object.entries(cf.programs).map(([k, x]) => `<tr><td>${esc(k)}</td><td class="hint">${esc(x.covers)}</td><td class="num">${money(x.agree)}/${money(x.records)}</td></tr>`).join("")}
+      <tr><th colspan="2">Total</th><th class="num">${pct(cf.agreement)}</th></tr></table>`;
+  }
+  const bm = res.benchmark;
+  if (bm) {
+    $("#ev-speed").innerHTML = `<h2>Speed on the IBM z17</h2>
+      <table><tr><th>Step</th><th class="num">Throughput</th><th class="num">One decision</th></tr>
+      <tr><td>Compiled COBOL policy (batch of ${money(bm.accounts)} accounts)</td><td class="num">${money(bm.cobol_batch.per_second)} / s</td><td class="num">–</td></tr>
+      <tr><td>ONNX risk model, Snap ML on the AI accelerator (NNPA)</td><td class="num">${money(bm.risk_nnpa.per_second)} / s</td><td class="num">${bm.risk_nnpa.one_account_us_p50} µs</td></tr>
+      <tr><td>ONNX risk model, Snap ML on the CPU</td><td class="num">${money(bm.risk_cpu.per_second)} / s</td><td class="num">${bm.risk_cpu.one_account_us_p50} µs</td></tr>
+      <tr><td>Hybrid decision for the whole portfolio</td><td class="num">${money(bm.hybrid_portfolio.per_second)} / s</td><td class="num">–</td></tr>
+      ${bm.api_decide ? `<tr><td>One account through the web service (incl. live COBOL check)</td><td class="num">–</td><td class="num">${bm.api_decide.ms_p50} ms (p95 ${bm.api_decide.ms_p95})</td></tr>` : ""}
+      </table>
+      <p class="hint">On this virtual server Snap ML's CPU path (z17 vector instructions) is faster than its NNPA path for tree models of every size we tried; both give the same decisions. We report both.</p>`;
+  }
   const ib = res.ibm_sam2;
   if (ib) {
     const total = Object.values(ib.sets).reduce((a, x) => a + x.cases, 0);
