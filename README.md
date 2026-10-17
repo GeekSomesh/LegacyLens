@@ -71,25 +71,25 @@ The same as a diagram source (renders on GitHub):
 ```mermaid
 flowchart LR
   subgraph LinuxONE["IBM LinuxONE Community Cloud · z17 · Ubuntu 24.04 s390x"]
-    SRC[COBOL + copybooks] --> P[Parser · byte layout]
-    P --> X[Rule extractor]
-    X --> Z[z3 symbolic analysis]
-    SRC --> GC[GnuCOBOL build]
-    X --> RE[Rule engine / interpreter]
-    RE <-->|byte-for-byte| GC
-    P --> L[Defect checks]
-    DATA[(UCI credit data)] --> TR[scikit-learn GBM] --> ONNX[[risk_gbm.onnx]]
-    ONNX --> SNAP[Snap ML · zDNN · NNPA]
-    subgraph Container["podman container (systemd)"]
-      API[FastAPI + web UI]
+    SRC["COBOL + copybooks"] --> P["Parser · byte layout"]
+    P --> X["Rule extractor"]
+    X --> Z["z3 symbolic analysis"]
+    SRC --> GC["GnuCOBOL build"]
+    X --> RE["Rule engine / interpreter"]
+    RE <-->|"byte-for-byte"| GC
+    P --> L["Defect checks"]
+    DATA[("UCI credit data")] --> TR["scikit-learn GBM"] --> ONNX[["risk_gbm.onnx"]]
+    ONNX --> SNAP["Snap ML · zDNN · NNPA"]
+    subgraph Container["podman container under systemd"]
+      API["FastAPI + web UI"]
     end
     API --> RE
     API --> GC
     API --> SNAP
-    API --> H[Hybrid policy]
-    API --> LLM[IBM Granite · llama.cpp (systemd)]
+    API --> H["Hybrid policy"]
+    API --> LLM["IBM Granite · llama.cpp, systemd service"]
   end
-  USER[Review officer] -->|SSH tunnel / browser| API
+  USER["Review officer"] -->|"SSH tunnel / browser"| API
 ```
 
 ## How it uses IBM LinuxONE
