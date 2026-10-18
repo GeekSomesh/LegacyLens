@@ -339,8 +339,15 @@ ssh -L 8800:127.0.0.1:8000 linux1@<server>     # from your laptop, then open htt
 | [scikit-learn](https://scikit-learn.org/), [skl2onnx](https://github.com/onnx/sklearn-onnx), [ONNX](https://onnx.ai/) | training, export, exact reference evaluation | BSD-3 / Apache-2.0 |
 | [llama.cpp](https://github.com/ggml-org/llama.cpp) | LLM inference on s390x | MIT |
 | [IBM Granite 3.3 2B Instruct](https://huggingface.co/ibm-granite/granite-3.3-2b-instruct), big-endian GGUF from the [s390x verified models](https://huggingface.co/collections/taronaeo/s390x-verified-models-672765393af438d0ccb72a08) listed in llama.cpp's s390x guide | explanations and rule documentation | Apache-2.0 |
-| [FastAPI](https://fastapi.tiangolo.com/), [uvicorn](https://www.uvicorn.org/), [pandas](https://pandas.pydata.org/), [NumPy](https://numpy.org/) | service and data handling | MIT / BSD |
-| [podman](https://podman.io/), Ubuntu 24.04 | container and OS | Apache-2.0 / various |
+| [FastAPI](https://fastapi.tiangolo.com/), [uvicorn](https://www.uvicorn.org/), [pydantic](https://docs.pydantic.dev/), [pandas](https://pandas.pydata.org/), [NumPy](https://numpy.org/), [xlrd](https://github.com/python-excel/xlrd) | service, API models and data handling (xlrd reads the UCI `.xls` file) | MIT / BSD |
+| [lxml](https://lxml.de/) | XML Schema validation of the DMN exports | BSD-3 |
+| [SQLite](https://sqlite.org/) (Python `sqlite3`) | review audit trail | public domain |
+| [pytest](https://pytest.org/) | test suite on LinuxONE and in GitHub Actions | MIT |
+| [CycloneDX](https://cyclonedx.org/) | format of the software bill of materials (`sbom.cdx.json`) | Apache-2.0 |
+| [Python](https://www.python.org/) 3.12 | language runtime | PSF |
+| [podman](https://podman.io/), [systemd](https://systemd.io/), [Ubuntu](https://ubuntu.com/) 24.04 | container, services and OS | Apache-2.0 / LGPL-2.1 / various |
+
+Used only to produce the demo video and pitch deck (not part of the application): [Playwright](https://playwright.dev/) (Apache-2.0) to capture the live UI, [Kokoro-82M](https://huggingface.co/hexgrad/Kokoro-82M) voice (Apache-2.0) through [kokoro-onnx](https://github.com/thewh1teagle/kokoro-onnx) (MIT), [FFmpeg](https://ffmpeg.org/) (LGPL/GPL), [Pillow](https://python-pillow.org/) (MIT-CMU), [soundfile](https://github.com/bastibe/python-soundfile) (BSD-3), [IBM Plex](https://github.com/IBM/plex) fonts (OFL-1.1).
 
 ## How this was built
 
