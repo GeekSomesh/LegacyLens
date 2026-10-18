@@ -36,8 +36,9 @@ IBM z17 virtual server in the LinuxONE Community Cloud (Ubuntu 24.04 s390x): ONN
 Python, GnuCOBOL 3.1.2, z3 4.8.12, IBM Snap ML 1.17.2 + zDNN, scikit-learn + skl2onnx + ONNX, llama.cpp + IBM Granite 3.3 2B, FastAPI, podman, systemd, DMN 1.3.
 
 **Links**
-- Repository: [GitHub URL]
+- Repository: https://github.com/GeekSomesh/LegacyLens
 - Demo video (3 minutes or less): [URL]
+- Pitch deck (PDF, 19 slides): `docs/LegacyLens_pitch_deck.pdf` in the repository
 - Architecture flowchart: `docs/architecture.png` in the repository
 - Open-source resources: see the table at the end of README.md (IBM Z Open Editor samples, UCI credit data, GnuCOBOL, z3, Snap ML, zDNN, scikit-learn, skl2onnx, ONNX, llama.cpp, IBM Granite, FastAPI, podman, OMG DMN schemas)
 

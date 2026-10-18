@@ -4,6 +4,8 @@
 
 Team **Aviator**: Piyush Anand · Somesh Srivastava · Praman Patel · Paraj Prasad · Mohit Kumar A
 
+Pitch deck: [docs/LegacyLens_pitch_deck.pdf](docs/LegacyLens_pitch_deck.pdf)
+
 LegacyLens reads legacy COBOL, turns every decision path into a readable rule, **proves** the rules with z3 and **checks** them against the compiled program, shows exactly what a code change does before it goes live, exports the rules as standard DMN, and adds a real-time AI risk check with a plain-English explanation. It works on IBM's own sample programs as well as on two policy programs of ours, and its checks found real defects in all of them. Everything runs on an **IBM LinuxONE** virtual server (IBM z17, s390x) in the LinuxONE Community Cloud.
 
 | At a glance (all measured on LinuxONE) | |
